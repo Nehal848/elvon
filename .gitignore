@@ -1,0 +1,68 @@
+# ── Environment & Secrets ──────────────────────────────────
+.env
+.env.*
+.env*.local
+!.env.example
+
+# ── Python Virtual Environments ────────────────────────────
+win_venv/
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Python Bytecode & Caches ───────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ── Databases & WAL files ──────────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+hospital.db
+hospital_ecosystem.db
+
+# ── Runtime Storage, Uploads & Model Artifacts ─────────────
+app/storage/uploads/*
+!app/storage/uploads/.gitkeep
+app/storage/models/*
+!app/storage/models/.gitkeep
+logs/
+*.log
+
+# ── Frontend (Next.js & Node.js) ───────────────────────────
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+frontend/.snowflake/
+frontend/.v0-trash/
+frontend/*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Scratch, Backups & Temp Files ──────────────────────────
+*.bak
+*.tmp
+implementation_plan.md *
+
+# ── OS & IDE ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

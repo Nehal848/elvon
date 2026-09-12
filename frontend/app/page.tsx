@@ -388,7 +388,10 @@ export default function HomePage() {
           <span>⚛</span> QML Platform
         </a>
         <span className="nav-badge">SIH · PS-26139</span>
-        <Link href="/quantum-lab" className="nav-cta">Open Lab →</Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link href="/login" style={{ color: "var(--text2)", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>Login</Link>
+          <Link href="/dashboard" className="nav-cta">Launch Dashboard →</Link>
+        </div>
       </nav>
 
       {/* Hero */}
@@ -430,12 +433,12 @@ export default function HomePage() {
               explainability, and hardware readiness scoring.
             </p>
             <div className="hero-actions">
-              <Link href="/quantum-lab" className="btn-primary">
-                ⚗️ Open Quantum Lab
+              <Link href="/dashboard" className="btn-primary">
+                ⚡ Launch Platform Dashboard
               </Link>
-              <a href="/docs" className="btn-secondary" target="_blank">
-                📖 API Docs
-              </a>
+              <Link href="/analysis" className="btn-secondary">
+                ⚗️ Quantum Lab
+              </Link>
             </div>
 
             {/* Stats strip */}
@@ -577,9 +580,14 @@ export default function HomePage() {
             Select a biomedical dataset, configure your quantum parameters,
             and launch the full 13-step pipeline — all from a single interface.
           </p>
-          <Link href="/quantum-lab" className="btn-primary" style={{ fontSize: 16, padding: "16px 36px" }}>
-            ⚗️ Open Quantum Lab →
-          </Link>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/dashboard" className="btn-primary" style={{ fontSize: 16, padding: "16px 36px" }}>
+              ⚡ Launch Dashboard →
+            </Link>
+            <Link href="/analysis" className="btn-secondary" style={{ fontSize: 16, padding: "16px 36px" }}>
+              ⚗️ Open Quantum Lab
+            </Link>
+          </div>
         </div>
       </div>
 

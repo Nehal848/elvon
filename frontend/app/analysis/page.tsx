@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import HospitalLayout from "@/components/hospital-layout"
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -490,22 +491,20 @@ export default function QuantumLabPage() {
         }
       `}</style>
 
-      <div style={S.page}>
-        {/* Top Bar */}
-        <div style={S.topbar}>
-          <Link href="/" style={S.logo}>⚛ QML Platform</Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <HospitalLayout title="Quantum Research Laboratory" subtitle="Hybrid QML Benchmarks · QSVM, VQC, QNN vs Classical across 5 biomedical datasets">
+        <div style={{ ...S.page, minHeight: "auto", background: "transparent" }}>
+          {/* Action Header Bar */}
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 12, marginBottom: 20 }}>
             <Badge label="SIH · PS-26139" color={COLORS.accent2} />
             {hardwareStatus && <Badge label={`Backend: ${hardwareStatus.active_backend}`} color={COLORS.cyan} />}
             {experimentResult && (
               <button style={S.btnSecondary} onClick={handleExportReport}>
-                ⬇ Export JSON
+                ⬇ Export JSON Report
               </button>
             )}
           </div>
-        </div>
 
-        <div style={S.main}>
+          <div style={{ ...S.main, padding: 0 }}>
           {/* Header */}
           <div style={{ marginBottom: 28 }}>
             <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.5px", marginBottom: 8 }}>
@@ -674,8 +673,8 @@ export default function QuantumLabPage() {
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 {[
                   { label: "Runtime", value: `${experimentResult.total_runtime_sec}s`, color: COLORS.text2 },
-                  { label: "Qubits", value: `${experimentResult.pipeline.n_qubits}q`, color: COLORS.accent },
-                  { label: "PCA Variance", value: `${experimentResult.pipeline.pca_variance_pct}%`, color: COLORS.cyan },
+                  { label: "Qubits", value: `${experimentResult.pipeline?.n_qubits ?? "?"}q`, color: COLORS.accent },
+                  { label: "PCA Variance", value: `${experimentResult.pipeline?.pca_variance_pct ?? "?"}%`, color: COLORS.cyan },
                   { label: "QML Champion ROC-AUC", value: experimentResult.benchmark.quantum_champion.roc_auc.toFixed(4), color: COLORS.accent },
                   { label: "Classical Champion ROC-AUC", value: experimentResult.benchmark.classical_champion.roc_auc.toFixed(4), color: COLORS.green },
                   { label: "ΔROC-AUC", value: (experimentResult.benchmark.comparison_deltas.delta_roc_auc > 0 ? "+" : "") + experimentResult.benchmark.comparison_deltas.delta_roc_auc.toFixed(4), color: experimentResult.benchmark.comparison_deltas.delta_roc_auc > 0 ? COLORS.cyan : COLORS.orange },
@@ -1032,8 +1031,9 @@ export default function QuantumLabPage() {
               <button style={S.btnPrimary} onClick={() => setActiveTab("config")}>→ Go to Configure</button>
             </Card>
           )}
+          </div>
         </div>
-      </div>
+      </HospitalLayout>
     </>
   )
 }

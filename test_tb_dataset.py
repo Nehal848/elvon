@@ -1,16 +1,17 @@
-# -*- coding: utf-8 -*-
 """
 TB Chest X-Ray Dataset - Test Script (v2)
 Tests the platform's TB Detection model with real Kaggle dataset images.
 """
-import sys
 import io
+import sys
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-import kagglehub
+import base64
 import os
 import random
-import base64
+
+import kagglehub
 
 # Step 1: Load dataset (already cached)
 print("=" * 60)
@@ -58,7 +59,7 @@ try:
     else:
         print(f"  [WARN] Status {r.status_code}")
         sys.exit(1)
-except Exception as e:
+except Exception as e:  # noqa: BLE001
     print(f"  [ERR] Server not reachable: {e}")
     sys.exit(1)
 
@@ -104,7 +105,7 @@ for img_path in tb_samples:
         else:
             results["errors"] += 1
             print(f"    {img_name:30s} | ERROR: Status {r.status_code}")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         results["errors"] += 1
         print(f"    {img_name:30s} | ERROR: {e}")
 
@@ -137,7 +138,7 @@ for img_path in normal_samples:
         else:
             results["errors"] += 1
             print(f"    {img_name:30s} | ERROR: Status {r.status_code}")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         results["errors"] += 1
         print(f"    {img_name:30s} | ERROR: {e}")
 
@@ -153,7 +154,7 @@ print(f"  Correct:         {results['correct']}")
 print(f"  Incorrect:       {results['incorrect']}")
 print(f"  Errors:          {results['errors']}")
 print(f"  Accuracy:        {accuracy:.1f}%")
-print(f"  Model:           TB Detection v2.1.0 (Demo Mode)")
+print("  Model:           TB Detection v2.1.0 (Demo Mode)")
 print(f"  Dataset:         Kaggle TB Chest X-Ray ({total} images)")
 print("=" * 60)
 
@@ -171,13 +172,13 @@ try:
     )
     if r.status_code == 200:
         data = r.json()
-        print(f"  [OK] /api/analyze works!")
+        print("  [OK] /api/analyze works!")
         print(f"       Prediction: {data.get('prediction')} | Confidence: {data.get('confidence')}%")
         print(f"       Classifications: {data.get('classifications')}")
         print(f"       Recommendations: {data.get('recommendations')}")
     else:
         print(f"  [ERR] Status {r.status_code}: {r.text[:200]}")
-except Exception as e:
+except Exception as e:  # noqa: BLE001
     print(f"  [ERR] {e}")
 
 print("\n  Done!")

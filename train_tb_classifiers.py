@@ -1,28 +1,27 @@
-# -*- coding: utf-8 -*-
 """
 AutoML Training Script for TB Chest X-ray Dataset
 Trains 5 Scikit-Learn classifiers and outputs the tournament results.
 """
-import sys
 import io
+import sys
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
+import json
 import os
 import random
 import time
-import json
-import base64
+
+import kagglehub
 import numpy as np
 from PIL import Image
-import kagglehub
-
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
-from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
 print("=" * 60)
 print("  Starting AutoML Scikit-Learn Training Pipeline for TB")
@@ -63,7 +62,7 @@ for img_path in selected_tb:
             img_gray = img.convert('L').resize((32, 32))
             X.append(np.array(img_gray).flatten())
             y.append(1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"    Error reading {os.path.basename(img_path)}: {e}")
 
 for img_path in selected_normal:
@@ -72,7 +71,7 @@ for img_path in selected_normal:
             img_gray = img.convert('L').resize((32, 32))
             X.append(np.array(img_gray).flatten())
             y.append(0)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"    Error reading {os.path.basename(img_path)}: {e}")
 
 X = np.array(X, dtype=np.float32) / 255.0  # Normalize pixel values to [0, 1]

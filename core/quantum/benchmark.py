@@ -9,24 +9,27 @@ Accuracy, Sensitivity, Specificity, Precision, F1-Score, ROC-AUC, Training Time,
 PDF Section 13, 19, 20, 36.10, 46.17
 """
 import time
-import numpy as np
-from typing import Dict, Any, List, Optional
+from typing import Any
 
+import numpy as np
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score,
-    f1_score, roc_auc_score, confusion_matrix, roc_curve
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    roc_auc_score,
+    roc_curve,
 )
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 
 from core.quantum.models import (
     QuantumKernelClassifier,
+    QuantumNeuralNetwork,
     VariationalQuantumClassifier,
-    QuantumNeuralNetwork
 )
-from core.quantum.circuits import create_angle_feature_map
 from core.quantum.simulator import HardwareReadinessChecker, QuantumCircuit
 
 # Graceful optional import for XGBoost
@@ -47,17 +50,17 @@ class QMLBenchmarkingEngine:
 
     def run_benchmark(
         self,
-        pipeline_output: Dict[str, Any],
+        pipeline_output: dict[str, Any],
         backend_type: str = "ideal",
         noise_rate: float = 0.015,
         shots: int = 1024,
         vqc_iterations: int = 35
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Executes all models across classical and quantum branches.
         """
         X_train_c = pipeline_output["X_train_classical"]
-        X_val_c = pipeline_output["X_val_classical"]
+        X_val_c = pipeline_output["X_val_classical"]  # noqa: F841
         X_test_c = pipeline_output["X_test_classical"]
 
         X_train_q = pipeline_output["X_train_quantum"]
@@ -70,7 +73,7 @@ class QMLBenchmarkingEngine:
 
         n_qubits = pipeline_output["n_qubits"]
 
-        model_results: List[Dict[str, Any]] = []
+        model_results: list[dict[str, Any]] = []
 
         # ─── 1. Classical Baselines ───────────────────────────────────────────
         classical_models = [
@@ -100,7 +103,7 @@ class QMLBenchmarkingEngine:
                 auc = float(roc_auc_score(y_test, y_prob))
                 fpr, tpr, _ = roc_curve(y_test, y_prob)
                 roc_pts = [{"fpr": round(float(f), 3), "tpr": round(float(t), 3)} for f, t in zip(fpr, tpr)][::max(1, len(fpr)//10)]
-            except Exception:
+            except Exception:  # noqa: BLE001
                 auc = 0.5
                 roc_pts = []
 
@@ -150,7 +153,7 @@ class QMLBenchmarkingEngine:
             auc_q = float(roc_auc_score(y_test, y_prob_q))
             fpr, tpr, _ = roc_curve(y_test, y_prob_q)
             roc_pts_q = [{"fpr": round(float(f), 3), "tpr": round(float(t), 3)} for f, t in zip(fpr, tpr)][::max(1, len(fpr)//10)]
-        except Exception:
+        except Exception:  # noqa: BLE001
             auc_q = 0.5
             roc_pts_q = []
 
@@ -195,7 +198,7 @@ class QMLBenchmarkingEngine:
             auc_vqc = float(roc_auc_score(y_test, y_prob_vqc))
             fpr, tpr, _ = roc_curve(y_test, y_prob_vqc)
             roc_pts_vqc = [{"fpr": round(float(f), 3), "tpr": round(float(t), 3)} for f, t in zip(fpr, tpr)][::max(1, len(fpr)//10)]
-        except Exception:
+        except Exception:  # noqa: BLE001
             auc_vqc = 0.5
             roc_pts_vqc = []
 
@@ -237,7 +240,7 @@ class QMLBenchmarkingEngine:
             auc_qnn = float(roc_auc_score(y_test, y_prob_qnn))
             fpr, tpr, _ = roc_curve(y_test, y_prob_qnn)
             roc_pts_qnn = [{"fpr": round(float(f), 3), "tpr": round(float(t), 3)} for f, t in zip(fpr, tpr)][::max(1, len(fpr)//10)]
-        except Exception:
+        except Exception:  # noqa: BLE001
             auc_qnn = 0.5
             roc_pts_qnn = []
 
@@ -276,13 +279,13 @@ class QMLBenchmarkingEngine:
             conclusion_text = f"Classical baseline {classical_best['model_name']} outperformed QML under current circuit depth/qubit constraints by {abs(delta_auc)} ROC-AUC, demonstrating that classical models remain highly competitive for this feature space."
         else:
             outcome = "Case C — Comparable Predictive Performance"
-            conclusion_text = f"Both paradigms achieved comparable discrimination (within 1% ROC-AUC margin). QML introduces quantum state representation while classical models require fewer compute resources."
+            conclusion_text = "Both paradigms achieved comparable discrimination (within 1% ROC-AUC margin). QML introduces quantum state representation while classical models require fewer compute resources."
 
         # ─── 4. Model Consensus / Disagreement Analysis (PDF Section 19.36 & 20.32) ───
         # Find test samples where Classical champion and QML champion AGREE vs DISAGREE
         classical_model_name = classical_best["model_name"]
         # Reconstruct predictions for classical champion
-        trained_classical = [clf for name, clf in [
+        trained_classical = [clf for name, clf in [  # noqa: F841
             ("Logistic Regression", LogisticRegression(max_iter=1000, random_state=self.seed)),
         ] if name == classical_model_name]
         # Use QSVM as reference quantum model for consensus
@@ -334,11 +337,11 @@ class QMLBenchmarkingEngine:
 
     def noise_impact_analysis(
         self,
-        pipeline_output: Dict[str, Any],
+        pipeline_output: dict[str, Any],
         shots: int = 1024,
         noise_rate: float = 0.015,
         vqc_iterations: int = 20
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Computes Noise Impact Delta = Accuracy_ideal - Accuracy_noisy for QSVM and VQC.
         PDF Section 19.30 & 20.30.
@@ -384,9 +387,9 @@ class QMLBenchmarkingEngine:
         self,
         df,
         target_col: str,
-        qubit_counts: List[int] = None,
+        qubit_counts: list[int] = None,  # noqa: RUF013
         seed: int = 42
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Evaluates predictive performance (QSVM) across different qubit / PCA dimensions.
         Shows the Accuracy vs Qubit Count trade-off curve.
@@ -416,7 +419,7 @@ class QMLBenchmarkingEngine:
                 try:
                     y_prob = q_kernel.predict_proba(out["X_test_quantum"])[:, 1]
                     auc_val = float(roc_auc_score(out["y_test"], y_prob))
-                except Exception:
+                except Exception:  # noqa: BLE001, S110
                     pass
                 sweep_results.append({
                     "n_qubits": n_q,
@@ -426,7 +429,7 @@ class QMLBenchmarkingEngine:
                     "circuit_depth": q_kernel.resource_stats.get("circuit_depth", n_q),
                     "single_qubit_gates": q_kernel.resource_stats.get("single_qubit_gates", n_q),
                 })
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 sweep_results.append({"n_qubits": n_q, "error": str(e)})
 
         return sweep_results

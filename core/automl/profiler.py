@@ -4,16 +4,16 @@ Step 2 — Dataset profiling and auto-rejection.
 Runs in a background thread. Writes results back to the job record.
 """
 import json
-import zipfile
 import threading
+import zipfile
 from pathlib import Path
 
 import pandas as pd
 from PIL import Image as PILImage
 
+import config
 from core.automl import job_manager as jm
 from core.automl.job_manager import JobStatus
-import config
 
 # ─── Thresholds ──────────────────────────────────────────────────────────────
 TABULAR_MIN_ROWS         = config.AUTOML_TABULAR_MIN_ROWS
@@ -61,7 +61,7 @@ def _run(job_id: str):
         jm.append_log(job_id, f"[REJECTED] {reason}")
         jm.update_status(job_id, JobStatus.REJECTED, error=reason)
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         jm.append_log(job_id, f"[ERROR] Profiling failed: {e}")
         jm.update_status(job_id, JobStatus.FAILED, error=str(e))
 
@@ -182,7 +182,7 @@ def _profile_image(job_id: str, zip_path: Path) -> dict:
             try:
                 with PILImage.open(sf) as img:
                     sample_sizes.append(img.size)
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
     return {
@@ -258,4 +258,3 @@ def _profile_text(job_id: str, path: Path) -> dict:
 
 class _RejectionError(Exception):
     """Raised when a dataset fails validation and the job should be REJECTED."""
-    pass

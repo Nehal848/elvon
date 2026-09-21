@@ -58,6 +58,7 @@ pnpm-debug.log*
 # ── Scratch, Backups & Temp Files ──────────────────────────
 *.bak
 *.tmp
+ruff_output.json
 implementation_plan.md *
 
 # ── OS & IDE ───────────────────────────────────────────────

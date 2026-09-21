@@ -5,28 +5,33 @@ Runs in a background thread. Writes progress to DB; results readable via SSE.
 """
 import json
 import threading
-import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
+import joblib
 import numpy as np
 import pandas as pd
-import joblib
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import Ridge
-from sklearn.model_selection import StratifiedKFold, KFold, cross_validate
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import (
-    accuracy_score, f1_score, roc_auc_score,
-    precision_score, recall_score, r2_score, mean_absolute_error,
-    confusion_matrix,
+from sklearn.ensemble import (
+    GradientBoostingClassifier,
+    GradientBoostingRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
 )
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.multiclass import OneVsRestClassifier
+from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    mean_absolute_error,
+    precision_score,
+    r2_score,
+    recall_score,
+    roc_auc_score,
+)
+from sklearn.model_selection import KFold, StratifiedKFold, cross_validate
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 try:
     from xgboost import XGBClassifier, XGBRegressor
@@ -90,7 +95,7 @@ def _run(job_id: str):
         from core.automl import explainer
         explainer.explain(job_id)
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         jm.append_log(job_id, f"[ERROR] Training failed: {e}")
         jm.update_status(job_id, JobStatus.FAILED, error=str(e))
 
@@ -167,7 +172,7 @@ def _train_tabular(job_id: str, upload_dir: Path, target_col: str, log: Callable
                 auc = float(roc_auc_score(y_test, y_prob[:, 1]))
             else:
                 auc = float(roc_auc_score(y_test, y_prob, multi_class="ovr"))
-        except Exception:
+        except Exception:  # noqa: BLE001
             auc = 0.0
 
         raw_acc = float(accuracy_score(y_test, y_pred))
@@ -240,7 +245,7 @@ def _train_image(job_id: str, upload_dir: Path, profile: dict, log: Callable) ->
     try:
         y_prob = final_pipe.predict_proba(X_test)
         auc = float(roc_auc_score(y_test, y_prob[:, 1])) if y_prob.shape[1] == 2 else 0.0
-    except Exception:
+    except Exception:  # noqa: BLE001
         auc = 0.0
 
     model_path = MODEL_ROOT / job_id / "model.pkl"
@@ -392,4 +397,52 @@ def _evaluate(pipe, X, y, is_regression: bool) -> dict:
             "accuracy": round(acc, 4),
             "f1": round(float(cv_res["test_f1_weighted"].mean()), 4),
             "auc": round(acc, 4),
+        }
+
+
+# ─── Master AutoML Trainer Class ─────────────────────────────────────────────
+class AutoMLTrainer:
+    """
+    Automated Machine Learning Tournament Trainer.
+    Evaluates multiple clinical ML algorithms (Logistic Regression, Random Forest,
+    Gradient Boosting, XGBoost, LightGBM) on tabular datasets with stratified
+    5-fold cross-validation and selects the highest-performing champion.
+    """
+    def train(self, X: pd.DataFrame, y: pd.Series, problem_type: str = "classification") -> dict:
+        import time
+        is_regression = (problem_type == "regression")
+        algos = _get_algorithms(is_regression)
+        results = []
+        t0 = time.perf_counter()
+
+        for name, model in algos:
+            t_start = time.perf_counter()
+            pipe = Pipeline([
+                ("scaler", StandardScaler()),
+                ("model", model)
+            ])
+            metrics = _evaluate(pipe, X, y, is_regression)
+            elapsed = round(time.perf_counter() - t_start, 2)
+
+            if is_regression:
+                acc = round(float(metrics.get("r2", 0.0)) * 100, 1)
+                f1 = round(float(metrics.get("mae", 0.0)), 2)
+            else:
+                acc = round(float(metrics.get("accuracy", 0.0)) * 100, 1)
+                f1 = round(float(metrics.get("f1", 0.0)) * 100, 1)
+
+            results.append({
+                "name": name,
+                "accuracy": acc,
+                "f1": f1,
+                "time_sec": max(0.05, elapsed)
+            })
+
+        champion = max(results, key=lambda a: a["accuracy"])
+        total_time = round(time.perf_counter() - t0, 2)
+
+        return {
+            "all_algorithms": results,
+            "champion": champion,
+            "total_training_time_sec": total_time,
         }

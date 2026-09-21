@@ -7,9 +7,11 @@ Supports:
 - Parameterized Variational Ansatz (RealAmplitudes & EfficientSU2) (PDF Section 14.9, 14.11)
 - Linear and Circular Entanglement Topologies (PDF Section 22.18)
 """
+
 import numpy as np
-from typing import List, Dict, Any, Optional
+
 from core.quantum.simulator import QuantumCircuit
+
 
 def create_angle_feature_map(features: np.ndarray, encoding_gate: str = "RY") -> QuantumCircuit:
     """

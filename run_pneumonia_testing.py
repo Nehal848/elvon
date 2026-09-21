@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Automation runner for Pneumonia dataset download and AutoML training
 """
-import os
-import sys
-import kagglehub
 import subprocess
+import sys
+
+import kagglehub
+
 
 def main():
     print("============================================================")
@@ -17,7 +17,7 @@ def main():
     try:
         path = kagglehub.dataset_download("pcbreviglieri/pneumonia-xray-images")
         print(f"  [OK] Path to dataset files: {path}")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  [Error] Failed to download/locate dataset: {e}")
         sys.exit(1)
         
@@ -31,7 +31,7 @@ def main():
     ]
     print(f"  Executing command: {' '.join(cmd)}")
     
-    res = subprocess.run(cmd)
+    res = subprocess.run(cmd)  # noqa: PLW1510
     if res.returncode == 0:
         print("  [OK] AutoML tournament finished successfully!")
     else:

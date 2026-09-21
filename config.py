@@ -4,6 +4,7 @@ All values loaded from .env (or environment). No hardcoded secrets.
 """
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Load .env from project root
@@ -31,12 +32,24 @@ SHADOW_LOG_PATH     = Path(os.getenv("SHADOW_MODE_LOG_PATH",
 # ── App meta ─────────────────────────────────────────────────────────────────
 APP_ENV             = os.getenv("APP_ENV", "demo")
 DEMO_MODE           = os.getenv("DEMO_MODE", "true").lower() == "true"
-APP_TITLE           = "Hospital AI Ecosystem"
+APP_TITLE           = "ELVON — Hybrid Quantum ML Platform"
 APP_VERSION         = "2.1.0"
-APP_DESCRIPTION     = "On-Premise AI Healthcare Platform — Demo Build"
+APP_DESCRIPTION     = "Hybrid Quantum Clinical AI — ELVON Platform"
 
-# ── Auth ─────────────────────────────────────────────────────────────────────
+# ── CORS ─────────────────────────────────────────────────────────────────────
+_raw_origins        = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+ALLOWED_ORIGINS     = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+# ─── Auth ─────────────────────────────────────────────────────────────────────
 JWT_SECRET          = os.getenv("JWT_SECRET", "change-me")
+if JWT_SECRET == "change-me" and not DEMO_MODE:
+    raise ValueError("CRITICAL: JWT_SECRET must be configured in production!")
+elif JWT_SECRET == "change-me":
+    # Even in demo mode, it's better to auto-generate a random secret on startup 
+    # than use a hardcoded one if none was provided.
+    import secrets
+    JWT_SECRET = secrets.token_hex(32)
+
 OTP_PROVIDER        = os.getenv("OTP_PROVIDER", "console")
 
 # ── Vendor / Phase 1 ─────────────────────────────────────────────────────────

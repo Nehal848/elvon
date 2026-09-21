@@ -3,18 +3,21 @@ tests/test_qml_platform.py
 Comprehensive unit & integration test suite for the
 Hybrid Quantum Machine Learning Platform for Early Disease Detection (Problem Statement ID: 26139).
 """
-import pytest
 import numpy as np
-import pandas as pd
 from fastapi.testclient import TestClient
 
-from core.quantum.simulator import QuantumCircuit, QuantumSimulator, HardwareReadinessChecker
-from core.quantum.circuits import create_angle_feature_map, create_entangling_feature_map, build_vqc_circuit
-from core.quantum.models import QuantumKernelClassifier, VariationalQuantumClassifier
-from core.quantum.pipeline import load_benchmark_dataset, profile_biomedical_dataset, BiomedicalDataPipeline
-from core.quantum.benchmark import QMLBenchmarkingEngine
-from core.quantum.xai import QuantumExplainabilityEngine
 from app.main import app
+from core.quantum.models import QuantumKernelClassifier, VariationalQuantumClassifier
+from core.quantum.pipeline import (
+    BiomedicalDataPipeline,
+    load_benchmark_dataset,
+    profile_biomedical_dataset,
+)
+from core.quantum.simulator import (
+    HardwareReadinessChecker,
+    QuantumCircuit,
+    QuantumSimulator,
+)
 
 client = TestClient(app)
 
@@ -33,7 +36,7 @@ def test_quantum_simulator_ideal_and_expectation():
     qc = QuantumCircuit(2)
     # Put qubit 0 in |0>, qubit 1 in |1>
     qc.x(1)
-    sv, stats = sim.run(qc)
+    sv, stats = sim.run(qc)  # noqa: RUF059
     assert np.isclose(np.linalg.norm(sv), 1.0)
     # <Z_0> should be +1.0, <Z_1> should be -1.0
     exp_0 = sim.get_expectation_z(sv, qubit=0, n_qubits=2)
@@ -88,7 +91,7 @@ def test_pipeline_zero_leakage_and_transforms():
 
     # Test single-sample transformation consistency
     sample = df.iloc[0].to_dict()
-    x_c, x_q = pipeline.transform_new_sample(sample)
+    x_c, x_q = pipeline.transform_new_sample(sample)  # noqa: RUF059
     assert len(x_q) == 4
 
 # ─── 3. QML Models & Benchmarking Tests ──────────────────────────────────────

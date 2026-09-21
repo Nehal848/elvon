@@ -1,8 +1,8 @@
 """Quick smoke test for quantum pipeline"""
 import sys
+
 sys.path.insert(0, ".")
-from core.quantum.pipeline import load_benchmark_dataset, BiomedicalDataPipeline, apply_feature_engineering
-from core.quantum import QuantumKernelClassifier, QMLBenchmarkingEngine, QuantumExplainabilityEngine
+from core.quantum.pipeline import BiomedicalDataPipeline, load_benchmark_dataset
 
 print("QML imports: OK")
 

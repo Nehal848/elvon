@@ -2,9 +2,9 @@ import json
 import math
 import uuid
 from datetime import datetime, timezone
-from config import AUTOML_UPLOAD_ROOT, AUTOML_MODEL_ROOT
-from core.database import SessionLocal, AutomlJob
-from sqlalchemy.exc import IntegrityError
+
+from config import AUTOML_MODEL_ROOT, AUTOML_UPLOAD_ROOT
+from core.database import AutomlJob, SessionLocal
 
 UPLOAD_ROOT = AUTOML_UPLOAD_ROOT
 MODEL_ROOT = AUTOML_MODEL_ROOT
@@ -54,11 +54,15 @@ def _row_to_dict(row: AutomlJob) -> dict:
     d = {c.name: getattr(row, c.name) for c in row.__table__.columns}
     for field in ("config", "profile", "metrics", "report"):
         if d.get(field):
-            try: d[field] = json.loads(d[field])
-            except: pass
+            try:
+                d[field] = json.loads(d[field])
+            except Exception:  # noqa: BLE001, S110
+                pass
     if d.get("logs"):
-        try: d["logs"] = json.loads(d["logs"])
-        except: d["logs"] = []
+        try:
+            d["logs"] = json.loads(d["logs"])
+        except Exception:  # noqa: BLE001
+            d["logs"] = []
     else:
         d["logs"] = []
     return _sanitize_floats(d)

@@ -1,0 +1,27 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-pat-001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "PAT-001",
+        "name": [{"family": "Kumar", "given": ["Rajesh"]}],
+        "gender": "male",
+        "birthDate": "1964-05-14"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-pat-001-vitals",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "OBS-001",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "vital-signs"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "85354-9", "display": "Blood pressure panel"}]},
+        "subject": {"reference": "Patient/PAT-001"}
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "study_instance_uid": "1.2.840.113619.2.55.3.60468842.671.1694304000.1",
+    "series_instance_uid": "1.2.840.113619.2.55.3.60468842.671.1694304000.2",
+    "patient_id": "PAT-001",
+    "modality": "CR",
+    "body_part": "CHEST",
+    "study_description": "Chest AP PA Routine View",
+    "series_description": "Thoracic Cavity High Resolution",
+    "pixel_spacing": [0.143, 0.143],
+    "rows": 2048,
+    "columns": 2048,
+    "photometric_interpretation": "MONOCHROME2",
+    "manufacturer": "GE MEDICAL SYSTEMS",
+    "station_name": "CARDIAC_RAD_01",
+    "acquisition_date": "2026-09-10T08:30:00Z",
+    "filename": "CXR-PAT-001-CHEST.dcm",
+    "status": "PROCESSED",
+    "ai_analysis_ready": true
+  },
+  {
+    "study_instance_uid": "1.2.840.113619.2.55.3.60468842.671.1694304000.3",
+    "series_instance_uid": "1.2.840.113619.2.55.3.60468842.671.1694304000.4",
+    "patient_id": "PAT-002",
+    "modality": "MG",
+    "body_part": "BREAST",
+    "study_description": "Digital Mammography Screening",
+    "series_description": "Bilateral MLO CC View",
+    "pixel_spacing": [0.085, 0.085],
+    "rows": 3328,
+    "columns": 2560,
+    "photometric_interpretation": "MONOCHROME2",
+    "manufacturer": "HOLOGIC, Inc.",
+    "station_name": "MAMMO_STATION_A",
+    "acquisition_date": "2026-09-08T11:15:00Z",
+    "filename": "MAMMO-PAT-002-LMLO.dcm",
+    "status": "PROCESSED",
+    "ai_analysis_ready": true
+  }
+]

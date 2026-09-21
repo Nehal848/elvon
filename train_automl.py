@@ -1,38 +1,46 @@
-# -*- coding: utf-8 -*-
 """
 Generalized AutoML Training Pipeline
 Supports:
 1. Image folder datasets (subfolders representing classes of images)
 2. Tabular CSV datasets (columns representing features, target column representing outcome)
 """
-import sys
 import io
+import sys
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-import os
-import time
-import json
 import argparse
+import json
+import os
 import random
+import time
+
 import numpy as np
 import pandas as pd
 from PIL import Image
-
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+from sklearn.ensemble import (
+    HistGradientBoostingClassifier,
+    HistGradientBoostingRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
 
 # Classification Models
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
-from sklearn.neural_network import MLPClassifier
-
 # Regression Models
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
-from sklearn.svm import SVR
+from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.svm import SVC, SVR
 
 
 def clean_identifier_columns(df, target_col):
@@ -120,7 +128,7 @@ def run_tabular_automl(df, target_col, output_path):
     # 6. Tournament
     results = []
     champion_name = None
-    champion_metric = -float('inf') if problem_type == "Classification" else -float('inf')
+    champion_metric = -float('inf') if problem_type == "Classification" else -float('inf')  # noqa: RUF034
     
     if problem_type == "Classification":
         models = {
@@ -242,7 +250,7 @@ def run_image_automl(dataset_dir, disease_name, output_path):
                     if img_files:
                         has_images = True
                         break
-                except Exception:
+                except Exception:  # noqa: BLE001, S110
                     pass
             if has_images:
                 print(f"  [AutoML Image] Found nested structure, using subfolder: '{nf}'")
@@ -261,7 +269,7 @@ def run_image_automl(dataset_dir, disease_name, output_path):
             if img_files:
                 classes.append(folder)
                 image_paths[folder] = img_files
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
             
     if len(classes) < 2:
@@ -287,7 +295,7 @@ def run_image_automl(dataset_dir, disease_name, output_path):
                     img_gray = img.convert('L').resize((32, 32))
                     X.append(np.array(img_gray).flatten())
                     y.append(class_idx)
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
                 
     X = np.array(X, dtype=np.float32) / 255.0
@@ -426,7 +434,7 @@ def main():
             print(f"  Detected Image directory dataset at {path}.")
             run_image_automl(path, args.disease, args.output_path)
             
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  [Error during training] {e}")
         import traceback
         traceback.print_exc()

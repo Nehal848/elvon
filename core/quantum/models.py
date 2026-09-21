@@ -7,18 +7,19 @@ Quantum Machine Learning Model Implementations:
 All models compute genuine quantum predictions and track quantum resources.
 """
 import time
-import numpy as np
-from typing import Dict, Any, Tuple, Optional, List
-from sklearn.svm import SVC
-from scipy.optimize import minimize
+from typing import Any
 
-from core.quantum.simulator import QuantumCircuit, QuantumSimulator
+import numpy as np
+from sklearn.svm import SVC
+
 from core.quantum.circuits import (
+    build_vqc_circuit,
     create_angle_feature_map,
     create_entangling_feature_map,
     get_ansatz_param_count,
-    build_vqc_circuit
 )
+from core.quantum.simulator import QuantumSimulator
+
 
 # ─── 1. Quantum Kernel Classifier (QSVM) ─────────────────────────────────────
 class QuantumKernelClassifier:
@@ -48,12 +49,12 @@ class QuantumKernelClassifier:
 
         self.simulator = QuantumSimulator(backend_type=backend_type, noise_rate=noise_rate, shots=shots, seed=seed)
         self.svc = SVC(kernel="precomputed", C=C, probability=True, random_state=seed)
-        self.train_features: Optional[np.ndarray] = None
-        self.train_statevectors: List[np.ndarray] = []
-        self.resource_stats: Dict[str, Any] = {}
+        self.train_features: np.ndarray | None = None
+        self.train_statevectors: list[np.ndarray] = []
+        self.resource_stats: dict[str, Any] = {}
         self.training_time_sec: float = 0.0
 
-    def _encode_sample(self, x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
+    def _encode_sample(self, x: np.ndarray) -> tuple[np.ndarray, dict[str, Any]]:
         if self.feature_map == "entangled":
             qc = create_entangling_feature_map(x, entanglement=self.entanglement)
         else:
@@ -155,11 +156,11 @@ class VariationalQuantumClassifier:
         self.seed = seed
 
         self.simulator = QuantumSimulator(backend_type=backend_type, noise_rate=noise_rate, shots=shots, seed=seed)
-        self.weights: Optional[np.ndarray] = None
+        self.weights: np.ndarray | None = None
         self.bias: float = 0.0
-        self.loss_history: List[float] = []
-        self.val_loss_history: List[float] = []
-        self.resource_stats: Dict[str, Any] = {}
+        self.loss_history: list[float] = []
+        self.val_loss_history: list[float] = []
+        self.resource_stats: dict[str, Any] = {}
         self.training_time_sec: float = 0.0
 
     def _circuit_output(self, x: np.ndarray, weights: np.ndarray) -> float:
@@ -177,7 +178,7 @@ class VariationalQuantumClassifier:
         prob = (exp_z + 1.0) / 2.0
         return float(np.clip(prob, 1e-5, 1.0 - 1e-5))
 
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray, X_val: Optional[np.ndarray] = None, y_val: Optional[np.ndarray] = None):
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray | None = None, y_val: np.ndarray | None = None):
         start_time = time.perf_counter()
         X_train = np.asarray(X_train, dtype=float)
         y_train = np.asarray(y_train, dtype=float)
@@ -309,11 +310,11 @@ class QuantumNeuralNetwork:
         self.seed = seed
 
         self.simulator = QuantumSimulator(backend_type=backend_type, noise_rate=noise_rate, shots=shots, seed=seed)
-        self.quantum_weights: Optional[np.ndarray] = None
-        self.classical_weights: Optional[np.ndarray] = None
+        self.quantum_weights: np.ndarray | None = None
+        self.classical_weights: np.ndarray | None = None
         self.classical_bias: float = 0.0
         self.training_time_sec: float = 0.0
-        self.resource_stats: Dict[str, Any] = {}
+        self.resource_stats: dict[str, Any] = {}
 
     def _quantum_forward(self, x: np.ndarray, weights: np.ndarray) -> np.ndarray:
         """Executes quantum layers and extracts expectation values <Z_i> for all qubits."""

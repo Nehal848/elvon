@@ -1,8 +1,12 @@
 from datetime import datetime
-from typing import List, Dict, Any
-from core.database import SessionLocal, AuditLog, User
-from sqlalchemy.exc import IntegrityError
+from typing import Any
+
+import bcrypt
 import pytz
+from sqlalchemy.exc import IntegrityError
+
+from core.database import AuditLog, SessionLocal, User
+
 
 class EnclaveAuditor:
     """
@@ -18,9 +22,30 @@ class EnclaveAuditor:
         try:
             if db.query(User).count() == 0:
                 default_users = [
-                    User(username='doctor', password='doctor', phase='phase_one', role='standard'),
-                    User(username='user', password='user', phase='phase_two', role='user'),
-                    User(username='admin', password='admin', phase='phase_two', role='admin')
+                    User(
+                        username='doctor',
+                        password=bcrypt.hashpw(
+                            b'doctor', bcrypt.gensalt()
+                        ).decode(),
+                        phase='phase_one',
+                        role='standard',
+                    ),
+                    User(
+                        username='user',
+                        password=bcrypt.hashpw(
+                            b'user', bcrypt.gensalt()
+                        ).decode(),
+                        phase='phase_two',
+                        role='user',
+                    ),
+                    User(
+                        username='admin',
+                        password=bcrypt.hashpw(
+                            b'admin', bcrypt.gensalt()
+                        ).decode(),
+                        phase='phase_two',
+                        role='admin',
+                    ),
                 ]
                 db.add_all(default_users)
                 db.commit()
@@ -65,7 +90,7 @@ class EnclaveAuditor:
             db.close()
 
     @staticmethod
-    def get_all_logs() -> List[Dict[str, Any]]:
+    def get_all_logs() -> list[dict[str, Any]]:
         db = SessionLocal()
         try:
             logs = db.query(AuditLog).order_by(AuditLog.id.desc()).limit(100).all()
@@ -91,7 +116,7 @@ class EnclaveAuditor:
             db.close()
 
     @staticmethod
-    def get_ledger_stats() -> Dict[str, Any]:
+    def get_ledger_stats() -> dict[str, Any]:
         db = SessionLocal()
         try:
             total_logs = db.query(AuditLog).count()
@@ -111,7 +136,15 @@ class EnclaveAuditor:
     def register_user(username: str, password: str, phase: str, role: str) -> bool:
         db = SessionLocal()
         try:
-            new_user = User(username=username, password=password, phase=phase, role=role)
+            hashed = bcrypt.hashpw(
+                password.encode(), bcrypt.gensalt()
+            ).decode()
+            new_user = User(
+                username=username,
+                password=hashed,
+                phase=phase,
+                role=role,
+            )
             db.add(new_user)
             db.commit()
             return True
@@ -125,12 +158,16 @@ class EnclaveAuditor:
     def verify_user(username: str, password: str, phase: str, role: str) -> bool:
         db = SessionLocal()
         try:
-            count = db.query(User).filter(
+            user = db.query(User).filter(
                 User.username == username,
-                User.password == password,
                 User.phase == phase,
-                User.role == role
-            ).count()
-            return count > 0
+                User.role == role,
+            ).first()
+            if not user:
+                return False
+            return bcrypt.checkpw(
+                password.encode(),
+                user.password.encode(),
+            )
         finally:
             db.close()

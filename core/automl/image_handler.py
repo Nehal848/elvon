@@ -8,13 +8,14 @@ HOG + classical classifiers provides a strong, CPU-only baseline
 (typically 80-92% on binary classification tasks with clean data).
 """
 from pathlib import Path
+
 import numpy as np
 
 try:
+    from skimage.color import rgb2gray  # noqa: F401
     from skimage.feature import hog
-    from skimage.io import imread
-    from skimage.transform import resize
-    from skimage.color import rgb2gray
+    from skimage.io import imread  # noqa: F401
+    from skimage.transform import resize  # noqa: F401
     SKIMAGE_AVAILABLE = True
 except ImportError:
     SKIMAGE_AVAILABLE = False
@@ -54,7 +55,7 @@ def extract_features(image_path: Path) -> np.ndarray | None:
 
         return features
 
-    except Exception:
+    except Exception:  # noqa: BLE001
         return None
 
 

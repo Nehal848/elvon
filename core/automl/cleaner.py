@@ -6,17 +6,15 @@ detection is insufficient.
 """
 import json
 import re
-import os
 import threading
 from pathlib import Path
-from typing import Any
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
+import config
 from core.automl import job_manager as jm
 from core.automl.job_manager import JobStatus
-import config
 
 # ─── PHI column name patterns (case-insensitive) ─────────────────────────────
 PHI_PATTERNS = re.compile(
@@ -31,17 +29,17 @@ PHI_PATTERNS = re.compile(
 # Format: column name pattern → (multiplier to standard unit, standard name)
 UNIT_CONVERSIONS: list[tuple[re.Pattern, float, str]] = [
     # Glucose: mg/dL → mmol/L  (divide by 18.018)
-    (re.compile(r"glucose", re.I), 1 / 18.018, "glucose_mmol_L"),
+    (re.compile(r"glucose", re.IGNORECASE), 1 / 18.018, "glucose_mmol_L"),
     # Cholesterol: mg/dL → mmol/L
-    (re.compile(r"cholesterol", re.I), 1 / 38.67, "cholesterol_mmol_L"),
+    (re.compile(r"cholesterol", re.IGNORECASE), 1 / 38.67, "cholesterol_mmol_L"),
     # HbA1c: % → proportion (if values look like %)
     # (detected by range, not name alone)
     # Weight: lbs → kg
-    (re.compile(r"weight[_\s]?(lbs?|pounds?)", re.I), 0.453592, "weight_kg"),
+    (re.compile(r"weight[_\s]?(lbs?|pounds?)", re.IGNORECASE), 0.453592, "weight_kg"),
     # Height: inches → cm
-    (re.compile(r"height[_\s]?(in|inch)", re.I), 2.54, "height_cm"),
+    (re.compile(r"height[_\s]?(in|inch)", re.IGNORECASE), 2.54, "height_cm"),
     # Temperature: Fahrenheit → Celsius
-    (re.compile(r"temp.*([Ff]|fahrenheit)", re.I), None, "temperature_celsius"),  # handled specially
+    (re.compile(r"temp.*([Ff]|fahrenheit)", re.IGNORECASE), None, "temperature_celsius"),  # handled specially
 ]
 
 HF_API_URL = config.HF_BART_MODEL_URL
@@ -81,7 +79,7 @@ def _run(job_id: str):
         elif data_type == "image":
             quality_score, log = _clean_image(job_id, file_path, profile)
         elif data_type == "text":
-            quality_score, log = _clean_text(job_id, file_path, target_col, phi_cols, profile)
+            quality_score, log = _clean_text(job_id, file_path, target_col, phi_cols, profile)  # noqa: RUF059
         else:
             raise ValueError(f"Unknown data_type: {data_type}")
 
@@ -91,7 +89,7 @@ def _run(job_id: str):
             quality_score=float(quality_score) if quality_score is not None else None,
         )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         jm.append_log(job_id, f"[ERROR] Cleaning failed: {e}")
         jm.update_status(job_id, JobStatus.FAILED, error=str(e))
 
@@ -199,7 +197,7 @@ def _standardise_units(job_id: str, df: pd.DataFrame, target_col: str) -> pd.Dat
                 if df[col].dropna().max() > 50:  # likely Fahrenheit
                     df["temperature_celsius"] = ((df[col] - 32) * 5 / 9).round(2)
                     df = df.drop(columns=[col])
-                    jm.append_log(job_id, f"[CLEANING] Converted temperature F→C")
+                    jm.append_log(job_id, "[CLEANING] Converted temperature F→C")
 
     # HF-API fallback: ask zero-shot classifier if a column looks like it needs conversion
     if HF_TOKEN:
@@ -244,7 +242,7 @@ def _hf_unit_check(job_id: str, df: pd.DataFrame):
                         f"[CLEANING] ⚠ HF API flagged '{col}' as potentially needing unit conversion "
                         f"(confidence {scores[0]:.0%}). Please verify manually.",
                     )
-    except Exception:
+    except Exception:  # noqa: BLE001, S110
         pass  # HF API failure is non-fatal
 
 
@@ -325,7 +323,7 @@ def _clean_image(job_id: str, file_path: Path, profile: dict) -> tuple[float, li
                 with PILImage.open(img_file) as img:
                     img_rgb = img.convert("RGB").resize((224, 224))
                     img_rgb.save(img_file)  # overwrite with cleaned version
-            except Exception:
+            except Exception:  # noqa: BLE001
                 corrupt += 1
                 img_file.unlink(missing_ok=True)
                 jm.append_log(job_id, f"[CLEANING] Removed corrupt image: {img_file.name}")
@@ -352,13 +350,12 @@ def _clean_text(
     phi_cols: list[str],
     profile: dict,
 ) -> tuple[float, list]:
-    import re as re_mod
 
     df = pd.read_csv(file_path, low_memory=False)
     text_col = profile.get("text_column_candidate")
 
     # Drop PHI
-    to_drop = set(phi_cols) | set(c for c in df.columns if PHI_PATTERNS.search(c) and c not in (target_col, text_col))
+    to_drop = set(phi_cols) | set(c for c in df.columns if PHI_PATTERNS.search(c) and c not in (target_col, text_col))  # noqa: C401
     df = df.drop(columns=[c for c in to_drop if c in df.columns], errors="ignore")
 
     if text_col and text_col in df.columns:
@@ -389,6 +386,6 @@ def _clean_text(
     # Save
     cleaned_path = file_path.parent / "cleaned.csv"
     df.to_csv(cleaned_path, index=False)
-    jm.append_log(job_id, f"[CLEANING] Saved cleaned text data.")
+    jm.append_log(job_id, "[CLEANING] Saved cleaned text data.")
 
     return quality_score, []

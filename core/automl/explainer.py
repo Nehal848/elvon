@@ -5,8 +5,8 @@ Step 8 — SHAP explainability report + confusion matrix + natural-language expl
 import json
 from pathlib import Path
 
-import numpy as np
 import joblib
+import numpy as np
 
 from core.automl import job_manager as jm
 from core.automl.job_manager import JobStatus
@@ -56,7 +56,7 @@ def explain(job_id: str):
 
         _finish(job_id, metrics_raw, shap_values, explanation, report)
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         jm.append_log(job_id, f"[EXPLAINING] SHAP failed (non-fatal): {e}")
         report = {
             "champion_algorithm": metrics_raw.get("algorithm", "Unknown"),
@@ -128,7 +128,7 @@ def _compute_shap(pipeline, feature_names: list[str], job_id: str, problem_type:
                 })
         return result
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         jm.append_log(job_id, f"[EXPLAINING] SHAP warning: {e}")
         # Fallback: use sklearn feature_importances_ if available
         try:
@@ -147,7 +147,7 @@ def _compute_shap(pipeline, feature_names: list[str], job_id: str, problem_type:
                     {"feature": feature_names[i], "importance": round(float(coef[i]), 6)}
                     for i in top_idx if i < len(feature_names)
                 ]
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
         return []
 

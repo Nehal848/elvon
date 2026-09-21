@@ -7,24 +7,26 @@ Explainable AI (XAI) Engine for Hybrid Quantum-Classical Disease Detection:
 4. Quantum Circuit Structural Transparency (PDF Section 18.14, 33.5)
 5. Clinical Responsibility & Safety Boundaries (PDF Section 18.15, 33.8)
 """
+from typing import Any
+
 import numpy as np
-from typing import Dict, Any, List, Optional
+
 
 class QuantumExplainabilityEngine:
     """
     Unified Explainability Engine providing transparent, model-specific interpretations
     without overstepping clinical boundaries.
     """
-    def __init__(self, pipeline_data: Dict[str, Any]):
+    def __init__(self, pipeline_data: dict[str, Any]):
         self.pipeline_data = pipeline_data
         self.pca_mapping = pipeline_data.get("pca_component_mapping", [])
         self.selected_features = pipeline_data.get("selected_features", [])
 
-    def explain_classical_model(self, model: Any, model_name: str, feature_vector: np.ndarray) -> Dict[str, Any]:
+    def explain_classical_model(self, model: Any, model_name: str, feature_vector: np.ndarray) -> dict[str, Any]:
         """
         Generates feature attribution for classical models (coefficients, tree importance).
         """
-        n_features = len(self.selected_features)
+        n_features = len(self.selected_features)  # noqa: F841
         importances = []
 
         if hasattr(model, "feature_importances_"):
@@ -69,7 +71,7 @@ class QuantumExplainabilityEngine:
             "clinical_disclaimer": "Computational attribution describes model behavior under experimental data, not biological causation."
         }
 
-    def explain_qml_model(self, qml_model: Any, model_name: str, quantum_vector: np.ndarray) -> Dict[str, Any]:
+    def explain_qml_model(self, qml_model: Any, model_name: str, quantum_vector: np.ndarray) -> dict[str, Any]:
         r"""
         Generates perturbation-based sensitivity analysis for Quantum Machine Learning models.
         Systematically perturbs each quantum component by +delta and measures \Delta <Z>.

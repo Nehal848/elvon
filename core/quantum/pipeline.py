@@ -9,19 +9,19 @@ Biomedical Data Pipeline with Strict Data Leakage Prevention:
 6. Automated Data Leakage Audit Report (PDF Section 31.23 - 31.24)
 7. Pre-packaged Benchmark Datasets: Breast Cancer, Heart Disease, Diabetes (PDF Section 5, 29)
 """
-import io
-import json
+from typing import Any
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, Tuple, Optional, List
-from sklearn.datasets import load_breast_cancer, load_diabetes
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
-from sklearn.feature_selection import mutual_info_classif
+from sklearn.datasets import load_breast_cancer
 from sklearn.decomposition import PCA
+from sklearn.feature_selection import mutual_info_classif
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
+
 
 # ─── Benchmark Datasets Loader ────────────────────────────────────────────────
-def load_benchmark_dataset(name: str = "breast_cancer") -> Tuple[pd.DataFrame, str]:
+def load_benchmark_dataset(name: str = "breast_cancer") -> tuple[pd.DataFrame, str]:
     """
     Loads established biomedical benchmark datasets.
     Supported: 'breast_cancer', 'heart_disease', 'diabetes'.
@@ -214,7 +214,7 @@ def load_benchmark_dataset(name: str = "breast_cancer") -> Tuple[pd.DataFrame, s
 
 
 # ─── Dataset Profiling & Validation ──────────────────────────────────────────
-def profile_biomedical_dataset(df: pd.DataFrame, target_col: str) -> Dict[str, Any]:
+def profile_biomedical_dataset(df: pd.DataFrame, target_col: str) -> dict[str, Any]:
     """
     Generates an automated Data Quality Report and schema audit (PDF Section 8.13, 29.7).
     """
@@ -254,13 +254,13 @@ def profile_biomedical_dataset(df: pd.DataFrame, target_col: str) -> Dict[str, A
 
 
 # ─── Biomedical Feature Engineering ──────────────────────────────────────────
-def apply_feature_engineering(df: pd.DataFrame, target_col: str) -> Tuple[pd.DataFrame, List[Dict[str, str]]]:
+def apply_feature_engineering(df: pd.DataFrame, target_col: str) -> tuple[pd.DataFrame, list[dict[str, str]]]:
     """
     Creates clinically meaningful domain-specific transformations.
     PDF Section 10.4 - 10.8 (Ratios, pulse pressure, interactions).
     """
     df_feat = df.copy()
-    created_metadata: List[Dict[str, str]] = []
+    created_metadata: list[dict[str, str]] = []
 
     cols_lower = {c.lower(): c for c in df_feat.columns}
 
@@ -340,14 +340,14 @@ class BiomedicalDataPipeline:
         self.scaler = StandardScaler() if scaling_method == "standard" else MinMaxScaler(feature_range=(-np.pi/2, np.pi/2))
         self.quantum_scaler = MinMaxScaler(feature_range=(-np.pi, np.pi))
         self.pca = PCA(n_components=n_pca_components, random_state=seed)
-        self.selected_feature_names: List[str] = []
-        self.feature_importance_scores: Dict[str, float] = {}
-        self.pca_loadings: Optional[np.ndarray] = None
-        self.explained_variance_ratio: List[float] = []
-        self.engineered_features_meta: List[Dict[str, str]] = []
+        self.selected_feature_names: list[str] = []
+        self.feature_importance_scores: dict[str, float] = {}
+        self.pca_loadings: np.ndarray | None = None
+        self.explained_variance_ratio: list[float] = []
+        self.engineered_features_meta: list[dict[str, str]] = []
         self.is_fitted: bool = False
 
-    def process(self, raw_df: pd.DataFrame) -> Dict[str, Any]:
+    def process(self, raw_df: pd.DataFrame) -> dict[str, Any]:
         """
         Executes end-to-end leakage-free pipeline.
         Returns processed Train, Val, Test matrices for both Classical & Quantum models.
@@ -483,7 +483,7 @@ class BiomedicalDataPipeline:
             "leakage_audit": leakage_audit
         }
 
-    def transform_new_sample(self, sample_dict: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
+    def transform_new_sample(self, sample_dict: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
         """
         Transforms a single new patient sample using the fitted pipeline parameters.
         Returns:

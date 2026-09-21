@@ -12,47 +12,45 @@ Endpoints:
 - Experiment tracking and reproducibility
 """
 import io
-import json
-import uuid
 import time
+import uuid
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Body
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from pydantic import BaseModel, ConfigDict
 
+from app.auth_router import require_any_auth, require_hospital
+
+from core.database import QmlExperiment, SessionLocal, deserialize, serialize
+from core.quantum.benchmark import QMLBenchmarkingEngine
 from core.quantum.pipeline import (
+    BiomedicalDataPipeline,
     load_benchmark_dataset,
     profile_biomedical_dataset,
-    BiomedicalDataPipeline,
-    apply_feature_engineering
 )
-from core.quantum.benchmark import QMLBenchmarkingEngine
+from core.quantum.simulator import HardwareReadinessChecker, QuantumHardwareDispatcher
 from core.quantum.xai import QuantumExplainabilityEngine
-from core.quantum.simulator import HardwareReadinessChecker
-from core.database import SessionLocal, QmlExperiment, serialize, deserialize
-import config
 
 router = APIRouter(prefix="/api/qml", tags=["Quantum Machine Learning"])
 
 # In-memory storage for active experiment objects (pipelines, trained models, XAI)
-_ACTIVE_EXPERIMENTS: Dict[str, Dict[str, Any]] = {}
-_CUSTOM_UPLOADS: Dict[str, pd.DataFrame] = {}
+_ACTIVE_EXPERIMENTS: dict[str, dict[str, Any]] = {}
+_CUSTOM_UPLOADS: dict[str, pd.DataFrame] = {}
 
 
 # ─── Pydantic Schemas ────────────────────────────────────────────────────────
 class ProfileRequest(BaseModel):
     dataset_name: str
-    target_col: Optional[str] = "target"
-    upload_id: Optional[str] = None
+    target_col: str | None = "target"
+    upload_id: str | None = None
 
 class RunExperimentRequest(BaseModel):
     dataset_name: str = "heart_disease"
     target_col: str = "target"
-    upload_id: Optional[str] = None
+    upload_id: str | None = None
     n_pca_components: int = 6
     n_selected_features: int = 12
     backend_type: str = "ideal"  # "ideal" | "noisy" | "hardware_sim"
@@ -62,20 +60,24 @@ class RunExperimentRequest(BaseModel):
     seed: int = 42
 
 class PredictRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     experiment_id: str
-    model_name: Optional[str] = "Quantum Kernel (QSVM)"
-    sample_values: Dict[str, Any]
+    model_name: str | None = "Quantum Kernel (QSVM)"
+    sample_values: dict[str, Any]
     threshold: float = 0.50
 
 class ExplainRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     experiment_id: str
-    model_name: Optional[str] = "Quantum Kernel (QSVM)"
-    sample_values: Dict[str, Any]
+    model_name: str | None = "Quantum Kernel (QSVM)"
+    sample_values: dict[str, Any]
 
 
 # ─── 1. Datasets Management ──────────────────────────────────────────────────
 @router.get("/datasets")
-async def list_datasets():
+async def list_datasets(
+    _user: dict = Depends(require_any_auth),  # noqa: B008
+):
     """
     Returns available biomedical benchmark datasets and custom upload status.
     PDF Section 5 & 29.
@@ -138,7 +140,10 @@ async def list_datasets():
 
 
 @router.post("/datasets/upload")
-async def upload_custom_dataset(file: UploadFile = File(...)):
+async def upload_custom_dataset(
+    file: UploadFile = File(...),  # noqa: B008
+    _user: dict = Depends(require_hospital),  # noqa: B008
+):
     """
     Uploads a custom biomedical CSV dataset and returns a temporary upload ID.
     PDF Section 8.3.
@@ -146,11 +151,18 @@ async def upload_custom_dataset(file: UploadFile = File(...)):
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only CSV files are supported for biomedical ingestion.")
 
-    content = await file.read()
+    content = b""
+    while chunk := await file.read(1024 * 1024):
+        content += chunk
+        if len(content) > 25 * 1024 * 1024:
+            raise HTTPException(
+                status_code=413,
+                detail="File too large. Maximum size is 25MB.",
+            )
     try:
         df = pd.read_csv(io.BytesIO(content))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to parse CSV file: {str(e)}")
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=f"Failed to parse CSV file: {e!s}")
 
     if len(df) < 10:
         raise HTTPException(status_code=400, detail="Dataset must contain at least 10 rows for statistical evaluation.")
@@ -172,7 +184,10 @@ async def upload_custom_dataset(file: UploadFile = File(...)):
 
 
 @router.post("/datasets/profile")
-async def profile_dataset(req: ProfileRequest):
+async def profile_dataset(
+    req: ProfileRequest,
+    _user: dict = Depends(require_hospital),  # noqa: B008
+):
     """
     Generates an automated Data Quality Report and schema audit.
     PDF Section 8.13, 29.7.
@@ -194,7 +209,10 @@ async def profile_dataset(req: ProfileRequest):
 
 # ─── 2. Run Classical vs Hybrid QML Experiment ──────────────────────────────
 @router.post("/experiment/run")
-async def run_qml_experiment(req: RunExperimentRequest):
+async def run_qml_experiment(
+    req: RunExperimentRequest,
+    _user: dict = Depends(require_hospital),  # noqa: B008
+):
     """
     Executes the complete end-to-end Classical vs Hybrid Quantum Machine Learning experiment:
     1. Leakage-safe train/val/test split
@@ -214,7 +232,7 @@ async def run_qml_experiment(req: RunExperimentRequest):
         df = _CUSTOM_UPLOADS[req.upload_id].copy()
         dataset_label = f"Custom CSV ({req.upload_id})"
     else:
-        df, default_target = load_benchmark_dataset(req.dataset_name)
+        df, default_target = load_benchmark_dataset(req.dataset_name)  # noqa: RUF059
         dataset_label = req.dataset_name
 
     target_col = req.target_col if (req.target_col in df.columns) else "target"
@@ -243,7 +261,7 @@ async def run_qml_experiment(req: RunExperimentRequest):
     # Initialize XAI Engine
     xai_engine = QuantumExplainabilityEngine(pipeline_output)
 
-    exp_id = f"EXP-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+    exp_id = f"EXP-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
     total_time_sec = round(time.perf_counter() - start_total, 3)
 
     # Package response (strip non-serializable objects)
@@ -312,7 +330,7 @@ async def run_qml_experiment(req: RunExperimentRequest):
         )
         db.add(exp_db)
         db.commit()
-    except Exception as e:
+    except Exception:  # noqa: BLE001
         db.rollback()
     finally:
         db.close()
@@ -321,7 +339,10 @@ async def run_qml_experiment(req: RunExperimentRequest):
 
 
 @router.get("/experiment/{exp_id}")
-async def get_experiment_results(exp_id: str):
+async def get_experiment_results(
+    exp_id: str,
+    _user: dict = Depends(require_any_auth),  # noqa: B008
+):
     """
     Retrieves stored experiment results by ID.
     PDF Section 36.14.
@@ -353,7 +374,10 @@ async def get_experiment_results(exp_id: str):
 
 # ─── 3. Single-Sample Disease Prediction & Explainability ────────────────────
 @router.post("/predict")
-async def predict_single_sample(req: PredictRequest):
+async def predict_single_sample(
+    req: PredictRequest,
+    _user: dict = Depends(require_any_auth),  # noqa: B008
+):
     """
     Executes real-time disease classification on an unseen patient sample.
     PDF Section 17, 36.8, 47.9.
@@ -370,9 +394,9 @@ async def predict_single_sample(req: PredictRequest):
     t0 = time.perf_counter()
     # Apply strict pipeline transforms to new sample
     try:
-        x_classical, x_quantum = pipeline.transform_new_sample(req.sample_values)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Sample feature mismatch: {str(e)}")
+        x_classical, x_quantum = pipeline.transform_new_sample(req.sample_values)  # noqa: RUF059
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=f"Sample feature mismatch: {e!s}")
 
     # Model evaluation — route to QSVM, VQC, or QNN
     qnn = exp_data.get("qnn")
@@ -387,7 +411,7 @@ async def predict_single_sample(req: PredictRequest):
         model_obj = qnn
     else:
         proba = float(vqc.predict_proba(np.array([x_quantum]))[0, 1])
-        model_obj = vqc
+        model_obj = vqc  # noqa: F841
 
     latency_ms = round((time.perf_counter() - t0) * 1000.0, 2)
     threshold = req.threshold
@@ -411,7 +435,10 @@ async def predict_single_sample(req: PredictRequest):
 
 
 @router.post("/explain")
-async def explain_prediction(req: ExplainRequest):
+async def explain_prediction(
+    req: ExplainRequest,
+    _user: dict = Depends(require_any_auth),  # noqa: B008
+):
     """
     Generates feature attribution and quantum sensitivity analysis for a patient prediction.
     PDF Section 18, 33, 36.9, 47.10.
@@ -445,7 +472,9 @@ async def explain_prediction(req: ExplainRequest):
 
 # ─── 4. Quantum Hardware & Simulator Status ──────────────────────────────────
 @router.get("/hardware/status")
-async def get_hardware_status():
+async def get_hardware_status(
+    _user: dict = Depends(require_any_auth),  # noqa: B008
+):
     """
     Returns available quantum simulation and hardware profiles.
     PDF Section 21 & 22.
@@ -453,6 +482,7 @@ async def get_hardware_status():
     return {
         "active_backend": "simulator_ideal",
         "backends": HardwareReadinessChecker.HARDWARE_PROFILES,
+        "cloud_qpu": QuantumHardwareDispatcher.get_cloud_status(),
         "features": {
             "simulator_first_ready": True,
             "near_term_hardware_compatible": True,
@@ -463,7 +493,9 @@ async def get_hardware_status():
 
 # ─── 5. Experiment History ───────────────────────────────────────────────────
 @router.get("/experiments/history")
-async def get_experiment_history():
+async def get_experiment_history(
+    _user: dict = Depends(require_any_auth),  # noqa: B008
+):
     """
     Returns list of recorded experiments for reproducibility and audit trail.
     PDF Section 32.10, 36.14.
@@ -495,7 +527,10 @@ class NoiseImpactRequest(BaseModel):
     vqc_iterations: int = 20
 
 @router.post("/benchmark/noise-impact")
-async def noise_impact(req: NoiseImpactRequest):
+async def noise_impact(
+    req: NoiseImpactRequest,
+    _user: dict = Depends(require_hospital),  # noqa: B008
+):
     """
     Computes Noise Impact Delta = Accuracy_ideal - Accuracy_noisy for QSVM and VQC.
     PDF Section 19.30 & 20.30.
@@ -515,10 +550,13 @@ async def noise_impact(req: NoiseImpactRequest):
 # ─── 7. Dimension Sweep ───────────────────────────────────────────────────────
 class DimensionSweepRequest(BaseModel):
     experiment_id: str
-    qubit_counts: List[int] = [4, 6, 8, 10]
+    qubit_counts: list[int] = [4, 6, 8, 10]
 
 @router.post("/benchmark/dimension-sweep")
-async def dimension_sweep(req: DimensionSweepRequest):
+async def dimension_sweep(
+    req: DimensionSweepRequest,
+    _user: dict = Depends(require_hospital),  # noqa: B008
+):
     """
     Evaluates predictive accuracy across different qubit / PCA dimensionalities.
     Shows the Accuracy vs Qubit Count trade-off curve.

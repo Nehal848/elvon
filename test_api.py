@@ -1,5 +1,5 @@
-import urllib.request
 import json
+import urllib.request
 
 data = json.dumps({'full_name':'Test', 'license_no':'TEST-123', 'password':'test'}).encode('utf-8')
 req = urllib.request.Request('http://127.0.0.1:8000/api/doctor/signup', data=data, headers={'Content-Type': 'application/json'})

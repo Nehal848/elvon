@@ -1,47 +1,51 @@
-# -*- coding: utf-8 -*-
 """
-app/main.py — Hybrid Quantum Machine Learning Platform for Early Disease Detection
+app/main.py — ELVON: Hybrid Quantum Machine Learning Platform for Early Disease Detection
 Problem Statement ID: 26139 (Smart India Hackathon)
-All hospital-specific routes have been removed. This file exposes ONLY the
-QML research platform API as specified in SIH_139_QML.pdf.
+Integrated Hospital AI Ecosystem with QML Research, AutoML Pipeline,
+Doctor Portal, and Hospital Command Center.
 """
+# Updated: 2026-09-20 (Phase 5 complete)
 from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles as _SF
 
-from core.database import init_db
+import config
+from app.auth_router import router as auth_router
+from app.automl_router import router as automl_router
+from app.hospital_router import router as hospital_router
+from app.patient_router import router as patient_router
 from app.qml_router import router as qml_router
+from core.database import init_db
 
 # ─── Application Bootstrap ────────────────────────────────────────────────────
 app = FastAPI(
-    title="Hybrid Quantum Machine Learning Platform for Early Disease Detection",
+    title="ELVON — Hybrid Quantum ML Platform",
     description=(
-        "SIH Problem Statement ID: 26139\n\n"
-        "Implements a complete end-to-end Hybrid QML pipeline:\n"
+        "Integrated Hospital AI Ecosystem:\n"
+        "- **Quantum Lab**: QSVM, VQC, QNN vs Classical ML on biomedical datasets\n"
+        "- **Doctor Portal**: Patient alerts, AI reports, lab integrations\n"
+        "- **Hospital Command Center**: Model management, AutoML, integrations\n"
+        "- **AutoML Pipeline**: 10-step hospital self-service model creation\n"
+        "- **Model Marketplace**: Pre-trained licensed disease detection models\n"
         "- Biomedical Data Pipeline (70/15/15 leakage-safe split)\n"
-        "- Domain-aware clinical feature engineering\n"
-        "- PCA dimensionality reduction to 4-12 quantum-compatible qubits\n"
-        "- Classical Baselines: LR, SVM, RF, XGBoost/GB, MLP\n"
-        "- Hybrid QML: Quantum Kernel (QSVM), VQC, QNN\n"
-        "- Dual Simulation: Ideal Statevector + Noisy NISQ\n"
-        "- Explainable AI: Perturbation sensitivity (Delta-Z) + PCA attribution\n"
-        "- Hardware Readiness Scoring\n"
-        "- Automated Noise Impact Analysis\n"
-        "- Qubit Dimension Sweep (Accuracy vs Qubit Count)\n"
+        "- Explainable AI: Perturbation sensitivity + PCA attribution\n"
+        "- Hardware Readiness Scoring for NISQ devices\n"
     ),
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    version="2.1.0",
+    docs_url="/docs" if config.APP_ENV != "production" else None,
+    redoc_url="/redoc" if config.APP_ENV != "production" else None,
 )
 
-# CORS — allow the Next.js frontend dev server
+# CORS — allow only known frontend origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=config.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # ─── Initialize database on startup ──────────────────────────────────────────
@@ -49,34 +53,42 @@ app.add_middleware(
 async def startup_event():
     init_db()
 
-# ─── Mount QML router ─────────────────────────────────────────────────────────
-# All endpoints at /api/qml/*
-app.include_router(qml_router)
+# ─── Mount All Routers ────────────────────────────────────────────────────────
+app.include_router(auth_router)       # /api/auth/*
+app.include_router(patient_router)    # /api/patients/*, /api/alerts, /api/lab/*, /api/reports, /api/ai/stats
+app.include_router(hospital_router)   # /api/hospital/*
+app.include_router(automl_router)     # /api/automl/*
+app.include_router(qml_router)        # /api/qml/*
 
 # ─── Health check ─────────────────────────────────────────────────────────────
 @app.get("/api/health")
 async def health_check():
     return {
         "status": "ok",
-        "platform": "Hybrid QML Platform for Early Disease Detection",
+        "platform": "ELVON — Hybrid QML Platform for Early Disease Detection",
         "problem_statement_id": "26139",
-        "version": "2.0.0",
-        "endpoints": [
-            "GET  /api/qml/datasets               — List benchmark datasets",
-            "POST /api/qml/datasets/upload         — Upload custom CSV",
-            "POST /api/qml/datasets/profile        — Data quality audit report",
-            "POST /api/qml/experiment/run          — Run Classical + QML benchmark",
-            "GET  /api/qml/experiment/{id}         — Retrieve experiment results",
-            "GET  /api/qml/experiments/history     — Experiment history",
-            "POST /api/qml/predict                 — Real-time single-sample prediction",
-            "POST /api/qml/explain                 — Quantum perturbation XAI",
-            "GET  /api/qml/hardware/status         — Simulator & hardware status",
-            "POST /api/qml/benchmark/noise-impact  — Ideal vs Noisy delta analysis",
-            "POST /api/qml/benchmark/dimension-sweep — Accuracy vs Qubit Count sweep",
-        ]
+        "version": "2.1.0",
+        "modules": {
+            "auth": "/api/auth — Registration, Login, OTP, JWT",
+            "patients": "/api/patients — Patient CRUD, Alerts, Reports",
+            "lab": "/api/lab — Laboratory & Imaging Systems",
+            "hospital": "/api/hospital — Model Management, Feedback, Integrations",
+            "automl": "/api/automl — 10-Step AutoML Pipeline",
+            "qml": "/api/qml — Quantum ML Benchmarking Lab",
+        }
     }
 
-# ─── Serve built Next.js frontend (optional) ─────────────────────────────────
+# ─── Serve built Next.js frontend or redirect to dev server ─────────────────
 _frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
 if (_frontend_dir / "out").exists():
     app.mount("/", _SF(directory=str(_frontend_dir / "out"), html=True), name="frontend")
+else:
+    @app.get("/", include_in_schema=False)
+    async def root_redirect():
+        return RedirectResponse(url="http://localhost:3000/dashboard")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def catchall_redirect(full_path: str):
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path == "openapi.json":
+            return None
+        return RedirectResponse(url=f"http://localhost:3000/{full_path}")

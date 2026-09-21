@@ -28,10 +28,10 @@ export default function SettingsPage() {
       const sessStr = localStorage.getItem("qml_session")
       if (sessStr) {
         const sess = JSON.parse(sessStr)
-        if (sess.name) setUserName(sess.name)
+        if (sess.full_name || sess.name) setUserName(sess.full_name || sess.name)
         if (sess.email) setUserEmail(sess.email)
         if (sess.role) setUserRole(sess.role)
-        if (sess.org) setOrganization(sess.org)
+        if (sess.institution || sess.org) setOrganization(sess.institution || sess.org)
       }
     } catch {
       // ignore
@@ -41,11 +41,15 @@ export default function SettingsPage() {
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const existing = JSON.parse(localStorage.getItem("qml_session") || "{}")
       const updatedSession = {
+        ...existing,
         name: userName,
+        full_name: userName,
         email: userEmail,
         role: userRole,
         org: organization,
+        institution: organization,
         backend: activeBackend,
         shots: parseInt(shots),
         optLevel: parseInt(optLevel),
@@ -54,8 +58,8 @@ export default function SettingsPage() {
       setSavedSuccess(true)
       setTimeout(() => {
         setSavedSuccess(false)
-        window.location.reload() // Reload so layout picks up role change immediately
-      }, 1000)
+        window.location.reload()
+      }, 800)
     } catch (err) {
       console.error(err)
     }

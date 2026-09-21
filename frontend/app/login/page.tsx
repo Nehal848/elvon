@@ -1,221 +1,620 @@
 "use client"
 
-import React, { useState } from "react"
-import { useRouter } from "next/navigation"
+import React, { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Atom, User, Building, Eye, EyeOff, ArrowRight } from "lucide-react"
+import {
+  Stethoscope,
+  Building2,
+  Atom,
+  Sparkles,
+  ArrowRight,
+  Shield,
+  Loader2,
+  Eye,
+  EyeOff,
+  Zap,
+  CheckCircle2,
+  Lock,
+  ExternalLink
+} from "lucide-react"
 
-export default function LoginPage() {
+export type PlatformRole = "doctor" | "hospital" | "researcher" | "data-scientist"
+
+export interface RoleConfig {
+  id: PlatformRole
+  sessionRole: "doctor" | "institution" | "researcher" | "data_scientist"
+  label: string
+  sublabel: string
+  tagline: string
+  icon: any
+  demoId: string
+  demoPass: string
+  name: string
+  designation: string
+  institution: string
+  email: string
+  destination: string
+  accentGradient: string
+  badgeBg: string
+  badgeBorder: string
+  badgeText: string
+  features: string[]
+}
+
+export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
+  doctor: {
+    id: "doctor",
+    sessionRole: "doctor",
+    label: "Doctor / Clinician",
+    sublabel: "Medical Portal",
+    tagline: "Clinical triage, patient diagnostics, and PACS DICOM imaging",
+    icon: Stethoscope,
+    demoId: "MED-11001-DL",
+    demoPass: "doctor",
+    name: "Dr. Ananya Sharma",
+    designation: "Senior Cardiologist & Clinician",
+    institution: "AIIMS Delhi",
+    email: "doctor@elvon.ai",
+    destination: "/patients",
+    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
+    badgeBg: "rgba(37,99,235,0.12)",
+    badgeBorder: "rgba(37,99,235,0.3)",
+    badgeText: "#60a5fa",
+    features: [
+      "Real-time patient triage & risk stratification",
+      "Explainable AI clinical diagnostic reports",
+      "Full PACS DICOM viewer & FHIR integration",
+      "Discharge summaries & verified prescriptions"
+    ]
+  },
+  hospital: {
+    id: "hospital",
+    sessionRole: "institution",
+    label: "Hospital Admin",
+    sublabel: "Executive Portal",
+    tagline: "Command center, bed telemetry, deployed models & HL7/FHIR feeds",
+    icon: Building2,
+    demoId: "HOSP-MH-001",
+    demoPass: "admin",
+    name: "CityCare Hospital Admin",
+    designation: "Hospital Administrator",
+    institution: "CityCare Multi-Speciality Hospital",
+    email: "admin@citycare.in",
+    destination: "/dashboard",
+    accentGradient: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+    badgeBg: "rgba(79,70,229,0.12)",
+    badgeBorder: "rgba(79,70,229,0.3)",
+    badgeText: "#a5b4fc",
+    features: [
+      "Enterprise command center & occupancy metrics",
+      "Deployed clinical AI model inventory",
+      "EHR, PACS & FHIR interoperability gateways",
+      "Hospital-wide safety audit & governance"
+    ]
+  },
+  researcher: {
+    id: "researcher",
+    sessionRole: "researcher",
+    label: "Quantum Researcher",
+    sublabel: "Quantum ML Suite",
+    tagline: "PennyLane/Qiskit circuit workbench, quantum kernels & NISQ benchmarks",
+    icon: Atom,
+    demoId: "RES-QML-007",
+    demoPass: "researcher",
+    name: "Dr. Vikram Sarabhai",
+    designation: "Lead QML Research Scientist",
+    institution: "TIFR Quantum Computing Center",
+    email: "researcher@elvon.ai",
+    destination: "/research-dashboard",
+    accentGradient: "linear-gradient(135deg, #8b5cf6, #d946ef)",
+    badgeBg: "rgba(139,92,246,0.12)",
+    badgeBorder: "rgba(139,92,246,0.3)",
+    badgeText: "#c084fc",
+    features: [
+      "QSVM, VQC & Hybrid Quantum Neural Networks",
+      "NISQ simulator & IBM Falcon hardware profiles",
+      "Zero-data-leakage research benchmarking",
+      "Quantum circuit depth & fidelity telemetry"
+    ]
+  },
+  "data-scientist": {
+    id: "data-scientist",
+    sessionRole: "data_scientist",
+    label: "AutoML & Data Scientist",
+    sublabel: "AI Studio",
+    tagline: "Automated ML tournaments, custom model training & model marketplace",
+    icon: Sparkles,
+    demoId: "DS-AI-404",
+    demoPass: "datascience",
+    name: "Aarav Patel",
+    designation: "Principal ML & AutoML Engineer",
+    institution: "Elvon Medical AI Labs",
+    email: "datascientist@elvon.ai",
+    destination: "/create-model",
+    accentGradient: "linear-gradient(135deg, #059669, #0d9488)",
+    badgeBg: "rgba(5,150,105,0.12)",
+    badgeBorder: "rgba(5,150,105,0.3)",
+    badgeText: "#34d399",
+    features: [
+      "Stratified 5-fold cross-validation tournaments",
+      "RandomForest, XGBoost, LightGBM, QSVM pipeline",
+      "Verified AI Model Marketplace deployment",
+      "Dataset quality checks & SHAP interpretability"
+    ]
+  }
+}
+
+export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
   const router = useRouter()
-  const [role, setRole] = useState<"researcher" | "institution">("researcher")
+  const searchParams = useSearchParams()
+
+  const queryRole = searchParams.get("role") as PlatformRole
+  const callbackUrl = searchParams.get("callbackUrl")
+
+  const [activeRole, setActiveRole] = useState<PlatformRole>(
+    initialRole || (queryRole && ROLE_CONFIGS[queryRole] ? queryRole : "doctor")
+  )
+  const [identifier, setIdentifier] = useState(ROLE_CONFIGS[activeRole].demoId)
+  const [password, setPassword] = useState(ROLE_CONFIGS[activeRole].demoPass)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Form state
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  // OTP support
+  const [showOtp, setShowOtp] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [otpEmail, setOtpEmail] = useState("")
+  const [displayedOtp, setDisplayedOtp] = useState<string | null>(null)
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
+  // Sync inputs when tab changes
+  useEffect(() => {
+    setIdentifier(ROLE_CONFIGS[activeRole].demoId)
+    setPassword(ROLE_CONFIGS[activeRole].demoPass)
+    setError(null)
+  }, [activeRole])
+
+  const curConfig = ROLE_CONFIGS[activeRole]
+
+  const persistSessionAndNavigate = (sessionData: any) => {
+    localStorage.setItem("qml_session", JSON.stringify(sessionData))
+    localStorage.setItem("hospital_ai_session", JSON.stringify(sessionData))
+
+    const target = callbackUrl || curConfig.destination
+    router.push(target)
+  }
+
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     setLoading(true)
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Mock session based on role
-      const session = {
-        role,
-        full_name: role === "researcher" ? "Dr. Ananya Sharma" : "CityCare Admin",
-        designation: role === "researcher" ? "Lead Researcher" : "Hospital Admin",
-        institution: role === "researcher" ? "AIIMS Delhi" : "CityCare Hospital",
-        email: email || (role === "researcher" ? "researcher@qml.ai" : "hospital@qml.ai"),
-        token: "mock_jwt_token_12345"
+    setError(null)
+
+    try {
+      const res = await fetch("/api/auth/login/quick", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        persistSessionAndNavigate({
+          role: curConfig.sessionRole,
+          full_name: data.full_name || curConfig.name,
+          designation: data.designation || curConfig.designation,
+          institution: data.institution || curConfig.institution,
+          email: data.email || curConfig.email,
+          token: data.token || "jwt_demo_token",
+          identifier: data.identifier || curConfig.demoId,
+        })
+        return
       }
-      
-      localStorage.setItem("qml_session", JSON.stringify(session))
-      router.push("/dashboard")
-    }, 600)
+
+      // Try standard login with OTP if quick login failed
+      const stdRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      })
+
+      if (stdRes.ok) {
+        const stdData = await stdRes.json()
+        if (stdData.requires_otp) {
+          setShowOtp(true)
+          setOtpEmail(stdData.email || curConfig.email)
+          setDisplayedOtp("123456")
+          setLoading(false)
+          return
+        }
+      }
+
+      throw new Error("Invalid credentials")
+    } catch {
+      // Guaranteed robust demo fallback
+      setLoading(false)
+      persistSessionAndNavigate({
+        role: curConfig.sessionRole,
+        full_name: curConfig.name,
+        designation: curConfig.designation,
+        institution: curConfig.institution,
+        email: curConfig.email,
+        token: "jwt_demo_token_" + activeRole,
+        identifier: curConfig.demoId,
+      })
+    }
+  }
+
+  const handle1ClickDemo = () => {
+    setIdentifier(curConfig.demoId)
+    setPassword(curConfig.demoPass)
+    persistSessionAndNavigate({
+      role: curConfig.sessionRole,
+      full_name: curConfig.name,
+      designation: curConfig.designation,
+      institution: curConfig.institution,
+      email: curConfig.email,
+      token: "jwt_demo_token_" + activeRole,
+      identifier: curConfig.demoId,
+    })
+  }
+
+  const handleVerifyOtp = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail, otp }),
+      })
+      if (!res.ok) throw new Error("Invalid OTP code")
+      const data = await res.json()
+      persistSessionAndNavigate({
+        role: curConfig.sessionRole,
+        full_name: data.full_name || curConfig.name,
+        designation: data.designation || curConfig.designation,
+        institution: data.institution || curConfig.institution,
+        email: data.email || curConfig.email,
+        token: data.token || "jwt_demo_token",
+        identifier: data.identifier || curConfig.demoId,
+      })
+    } catch (err: any) {
+      setError(err.message)
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans text-slate-900">
-      
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex w-1/3 bg-white border-r border-slate-200 flex-col p-10 relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-50 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-violet-50 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none" />
-        
-        <div className="relative z-10 flex-1 flex flex-col">
-          {/* Logo */}
-          <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-md">
-              <Atom size={22} className="text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[18px] font-bold tracking-tight text-[#0f172a] leading-none mb-0.5">QML Platform</span>
-              <span className="text-[10px] tracking-wide text-indigo-500 font-semibold uppercase leading-none">SIH · PS-26139</span>
-            </div>
-          </div>
+    <div style={{ minHeight: "100vh", display: "flex", fontFamily: "'Inter', sans-serif", background: "#05070f", color: "#f1f5f9", position: "relative", overflow: "hidden" }}>
+      {/* Blurred Medical Pattern Wallpaper */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          backgroundImage: "url('/medical-pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "360px 360px",
+          opacity: 0.04,
+          filter: "blur(1.5px) invert(1)",
+        }}
+      />
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .auth-input {
+          width: 100%; padding: 13px 16px; border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+          color: #f1f5f9; font-size: 14px; outline: none;
+          transition: border-color 0.2s, background 0.2s;
+          font-family: 'Inter', sans-serif;
+        }
+        .auth-input:focus { border-color: #6366f1; background: rgba(99,102,241,0.06); }
+        .auth-input::placeholder { color: #475569; }
+        .role-tab-btn {
+          flex: 1; min-width: 0; padding: 12px 10px; border-radius: 12px;
+          border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);
+          cursor: pointer; transition: all 0.2s ease;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+          color: #94a3b8; font-size: 11px; font-weight: 600; text-align: center;
+        }
+        .role-tab-btn:hover:not(.active) {
+          border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #e2e8f0;
+        }
+        .role-tab-btn.active {
+          border-color: #6366f1; background: rgba(99,102,241,0.12); color: #fff;
+          box-shadow: 0 0 20px rgba(99,102,241,0.25);
+        }
+        .submit-btn {
+          width: 100%; padding: 14px; border-radius: 12px; border: none;
+          color: white; font-size: 14px; font-weight: 700; cursor: pointer;
+          transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;
+          font-family: 'Inter', sans-serif;
+        }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .one-click-btn {
+          width: 100%; padding: 12px; border-radius: 12px;
+          border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.03);
+          color: #e2e8f0; font-size: 13px; font-weight: 600; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          transition: all 0.2s; margin-top: 12px;
+        }
+        .one-click-btn:hover {
+          background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.35); color: #fff;
+        }
+        .grid-bg {
+          position: absolute; inset: 0; pointer-events: none;
+          background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+          background-size: 40px 40px;
+        }
+      `}</style>
 
-          <div className="mt-auto mb-12">
-            <h1 className="text-3xl font-bold text-slate-900 mb-4 tracking-tight">Welcome Back</h1>
-            <p className="text-slate-500 text-sm leading-relaxed mb-10 max-w-[280px]">
-              Sign in to your {role === "researcher" ? "individual" : "hospital"} account to access AI-powered clinical intelligence and quantum benchmarking.
+      {/* LEFT PANEL — Role Overview & Visual Brand */}
+      <div style={{ width: "48%", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 56px", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="grid-bg" />
+        <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", background: curConfig.accentGradient, opacity: 0.15, filter: "blur(120px)", top: -150, left: -150, pointerEvents: "none", transition: "all 0.6s ease" }} />
+
+        {/* Brand Header */}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 12, textDecoration: "none", marginBottom: 40 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: curConfig.accentGradient, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 0 24px rgba(99,102,241,0.4)" }}>
+              {React.createElement(curConfig.icon, { size: 24 })}
+            </div>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: "-0.5px", color: "#fff" }}>ELVON</div>
+              <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>Quantum Intelligence for Healthcare</div>
+            </div>
+          </Link>
+
+          {/* Active Persona Spotlight */}
+          <div style={{ marginTop: 24, marginBottom: 36 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 20, background: curConfig.badgeBg, border: `1px solid ${curConfig.badgeBorder}`, color: curConfig.badgeText, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 16 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} />
+              {curConfig.sublabel}
+            </div>
+
+            <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-1px", lineHeight: 1.15, marginBottom: 14 }}>
+              {curConfig.label}
+            </h1>
+            <p style={{ color: "#94a3b8", fontSize: 15, lineHeight: 1.6, maxWidth: 440 }}>
+              {curConfig.tagline}
             </p>
+          </div>
 
-            <h3 className="text-sm font-semibold text-slate-900 mb-4">Account Type</h3>
-            <div className="space-y-3">
-              {/* Researcher Toggle */}
-              <button
-                onClick={() => setRole("researcher")}
-                className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-start gap-4 ${
-                  role === "researcher" 
-                    ? "border-indigo-600 bg-indigo-50/50" 
-                    : "border-slate-100 hover:border-slate-200 bg-white"
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${role === "researcher" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-500"}`}>
-                  <User size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`font-semibold text-sm ${role === "researcher" ? "text-indigo-900" : "text-slate-700"}`}>Individual Person</span>
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${role === "researcher" ? "border-indigo-600" : "border-slate-300"}`}>
-                      {role === "researcher" && <div className="w-2 h-2 rounded-full bg-indigo-600" />}
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-snug">For doctors, researchers and clinical professionals</p>
-                </div>
-              </button>
+          {/* Persona Capabilities */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 460 }}>
+            {curConfig.features.map((feat, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <CheckCircle2 size={16} style={{ color: curConfig.badgeText, flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: "#cbd5e1", fontWeight: 500 }}>{feat}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-              {/* Institution Toggle */}
-              <button
-                onClick={() => setRole("institution")}
-                className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-start gap-4 ${
-                  role === "institution" 
-                    ? "border-indigo-600 bg-indigo-50/50" 
-                    : "border-slate-100 hover:border-slate-200 bg-white"
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${role === "institution" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-500"}`}>
-                  <Building size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`font-semibold text-sm ${role === "institution" ? "text-indigo-900" : "text-slate-700"}`}>Hospital Authorization</span>
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${role === "institution" ? "border-indigo-600" : "border-slate-300"}`}>
-                      {role === "institution" && <div className="w-2 h-2 rounded-full bg-indigo-600" />}
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-snug">For hospitals, research labs and organizations</p>
-                </div>
-              </button>
-            </div>
+        {/* Bottom Dedicated Route Quick Links */}
+        <div style={{ position: "relative", zIndex: 1, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 10 }}>
+            Direct Persona URLs
+          </div>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Link href="/login/doctor" style={{ fontSize: 12, color: activeRole === "doctor" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <span>/login/doctor</span>
+            </Link>
+            <Link href="/login/hospital" style={{ fontSize: 12, color: activeRole === "hospital" ? "#a5b4fc" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <span>/login/hospital</span>
+            </Link>
+            <Link href="/login/researcher" style={{ fontSize: 12, color: activeRole === "researcher" ? "#c084fc" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <span>/login/researcher</span>
+            </Link>
+            <Link href="/login/data-scientist" style={{ fontSize: 12, color: activeRole === "data-scientist" ? "#34d399" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <span>/login/data-scientist</span>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Right Panel - Form */}
-      <div className="flex-1 flex flex-col justify-center px-8 sm:px-16 md:px-24 lg:px-32 relative">
-        {/* Mobile Logo */}
-        <div className="lg:hidden flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-md">
-            <Atom size={22} className="text-white" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[18px] font-bold tracking-tight text-[#0f172a] leading-none mb-0.5">QML Platform</span>
-            <span className="text-[10px] tracking-wide text-indigo-500 font-semibold uppercase leading-none">SIH · PS-26139</span>
-          </div>
-        </div>
-
-        <div className="max-w-md w-full mx-auto">
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Sign in to your account</h2>
-          <p className="text-slate-500 text-sm mb-8">Enter your credentials to continue to QML Platform.</p>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            {role === "institution" && (
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-1.5">Hospital / Lab Name</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter institution name"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                {role === "researcher" ? "Medical Registration or Licence Number" : "Registration Number"}
-              </label>
-              <input 
-                type="text" 
-                placeholder={role === "researcher" ? "Enter licence number" : "Enter registration number"}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
-              />
+      {/* RIGHT PANEL — 4-Tab Interactive Form */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 56px", background: "rgba(10,15,30,0.5)", backdropFilter: "blur(12px)" }}>
+        <div style={{ maxWidth: 440, width: "100%", margin: "0 auto" }}>
+          
+          {/* Header */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "-0.5px", marginBottom: 6 }}>
+              Select Portal & Sign In
             </div>
+            <p style={{ color: "#64748b", fontSize: 14 }}>
+              Choose your role below to access your dedicated clinical or research workspace.
+            </p>
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-1.5">Email</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="Enter email address"
-                required
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-1.5">Password</label>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 pr-12"
-                />
-                <button 
+          {/* 4 Role Selector Tabs */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 28 }}>
+            {(Object.keys(ROLE_CONFIGS) as PlatformRole[]).map((rKey) => {
+              const cfg = ROLE_CONFIGS[rKey]
+              const IconComp = cfg.icon
+              const isSelected = activeRole === rKey
+              return (
+                <button
+                  key={rKey}
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  onClick={() => setActiveRole(rKey)}
+                  className={`role-tab-btn ${isSelected ? "active" : ""}`}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  <IconComp size={18} style={{ color: isSelected ? cfg.badgeText : "#64748b" }} />
+                  <span style={{ fontSize: 10, lineHeight: 1.2 }}>{cfg.label.split(" ")[0]}</span>
                 </button>
-              </div>
-              <div className="mt-2 text-right">
-                <button type="button" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">Forgot Password?</button>
-              </div>
-            </div>
+              )
+            })}
+          </div>
 
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-[#0a0f1c] hover:bg-[#1a2035] text-white font-medium py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-6"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>Sign In <ArrowRight size={18} /></>
+          {/* OTP Flow */}
+          {showOtp ? (
+            <div>
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Two-Factor Verification</div>
+                <p style={{ color: "#64748b", fontSize: 13 }}>Enter the 6-digit code for <strong>{otpEmail}</strong></p>
+              </div>
+
+              {displayedOtp && (
+                <div style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 12, padding: 14, marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", textTransform: "uppercase" }}>Demo 2FA Code</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "0.4em", fontFamily: "monospace", marginTop: 4 }}>{displayedOtp}</div>
+                </div>
               )}
-            </button>
-          </form>
 
-          <div className="mt-8 text-center text-sm text-slate-500">
-            Don't have an account? <Link href="/sign-up" className="font-semibold text-indigo-600 hover:text-indigo-700">Sign up as {role === "researcher" ? "Individual" : "Hospital"}</Link>
-          </div>
+              <div style={{ marginBottom: 20 }}>
+                <input
+                  className="auth-input"
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="• • • • • •"
+                  maxLength={6}
+                  style={{ textAlign: "center", fontSize: 24, letterSpacing: "0.4em", fontWeight: 800 }}
+                />
+              </div>
 
-          {/* Demo Info Box */}
-          <div className="mt-12 bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-            <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">Hackathon Demo Credentials</h4>
-            <p className="text-xs text-indigo-700 mb-1"><strong>Email:</strong> {role === "researcher" ? "researcher@qml.ai" : "hospital@qml.ai"}</p>
-            <p className="text-xs text-indigo-700"><strong>Password:</strong> demo123 (any password works)</p>
-          </div>
+              <button
+                className="submit-btn"
+                style={{ background: curConfig.accentGradient }}
+                onClick={handleVerifyOtp}
+                disabled={loading || otp.length < 6}
+              >
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <><Shield size={18} /> Verify & Access {curConfig.label}</>}
+              </button>
+            </div>
+          ) : (
+            /* Main Credentials Form */
+            <>
+              {error && (
+                <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 10, padding: 12, marginBottom: 20, color: "#fca5a5", fontSize: 13 }}>
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin}>
+                {/* Identifier */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+                      {activeRole === "doctor"
+                        ? "Medical Licence ID"
+                        : activeRole === "hospital"
+                        ? "Hospital Registration No."
+                        : activeRole === "researcher"
+                        ? "Researcher Identifier"
+                        : "AI / Developer ID"}
+                    </label>
+                    <span style={{ fontSize: 11, color: curConfig.badgeText, fontWeight: 600 }}>Default: {curConfig.demoId}</span>
+                  </div>
+                  <input
+                    className="auth-input"
+                    type="text"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Password */}
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>Password</label>
+                    <span style={{ fontSize: 11, color: "#64748b" }}>Demo: {curConfig.demoPass}</span>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      className="auth-input"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      style={{ paddingRight: 44 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b", display: "flex" }}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  style={{ background: curConfig.accentGradient }}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                  ) : (
+                    <>
+                      Sign In as {curConfig.label.split("/")[0]} <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* 1-Click Instant Demo Login CTA */}
+              <button
+                type="button"
+                className="one-click-btn"
+                onClick={handle1ClickDemo}
+              >
+                <Zap size={16} style={{ color: "#fbbf24" }} />
+                <span>Instant 1-Click Demo Login ({curConfig.name})</span>
+              </button>
+
+              {/* Verified Account Card */}
+              <div style={{ marginTop: 24, padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: curConfig.badgeBg, border: `1px solid ${curConfig.badgeBorder}`, display: "flex", alignItems: "center", justifyContent: "center", color: curConfig.badgeText, fontWeight: 800, fontSize: 14 }}>
+                  {curConfig.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", truncate: true }}>{curConfig.name}</div>
+                  <div style={{ fontSize: 11, color: "#64748b" }}>{curConfig.institution} · {curConfig.destination}</div>
+                </div>
+                <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, background: "rgba(16,185,129,0.15)", color: "#34d399", fontWeight: 700 }}>
+                  VERIFIED
+                </span>
+              </div>
+
+              {/* Footer links */}
+              <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#64748b" }}>
+                <Link href="/" style={{ color: "#94a3b8", textDecoration: "none" }}>
+                  ← Back to Home
+                </Link>
+                <div>
+                  New institution?{" "}
+                  <Link href="/sign-up" style={{ color: "#818cf8", fontWeight: 600, textDecoration: "none" }}>
+                    Register
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+
         </div>
       </div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
+  )
+}
+
+import { Suspense } from "react"
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#05070f" }} />}>
+      <LoginForm />
+    </Suspense>
   )
 }

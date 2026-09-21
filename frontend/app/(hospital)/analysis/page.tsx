@@ -495,7 +495,7 @@ export default function QuantumLabPage() {
         <div style={{ ...S.page, minHeight: "auto", background: "transparent" }}>
           {/* Action Header Bar */}
           <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 12, marginBottom: 20 }}>
-            <Badge label="SIH · PS-26139" color={COLORS.accent2} />
+            <Badge label="ELVON · Quantum Lab" color={COLORS.accent2} />
             {hardwareStatus && <Badge label={`Backend: ${hardwareStatus.active_backend}`} color={COLORS.cyan} />}
             {experimentResult && (
               <button style={S.btnSecondary} onClick={handleExportReport}>

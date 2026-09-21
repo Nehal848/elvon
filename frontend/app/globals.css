@@ -223,9 +223,10 @@ html {
   --theme-dark: #1E293B;
 }
 
+/* Per-page body overrides (not !important to allow page-level dark themes) */
 body {
-  background-color: var(--theme-ice) !important;
-  color: var(--theme-dark) !important;
+  background-color: var(--theme-ice);
+  color: var(--theme-dark);
 }
 
 /* Designer gradient highlights */

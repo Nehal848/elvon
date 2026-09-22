@@ -35,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased relative min-h-screen`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans antialiased relative min-h-screen`} suppressHydrationWarning>
         {/* Global Blurred Minimal Medical Pattern Background */}
         <div
           aria-hidden="true"

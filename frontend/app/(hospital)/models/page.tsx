@@ -46,8 +46,9 @@ export default function ModelsPage() {
 
   // Group models by disease
   const groupedModels = models.reduce((acc, model) => {
-    if (!acc[model.disease]) acc[model.disease] = []
-    acc[model.disease].push(model)
+    const disease = model.disease || "Unknown"
+    if (!acc[disease]) acc[disease] = []
+    acc[disease].push(model)
     return acc
   }, {} as Record<string, Model[]>)
 
@@ -105,9 +106,9 @@ export default function ModelsPage() {
               // Determine appropriate icon for disease
               let icon = <BrainCircuit size={24} className="text-purple-500" />
               let iconBg = "bg-purple-50"
-              if (disease.toLowerCase().includes("cardio")) {
+              if ((disease || "").toLowerCase().includes("cardio")) {
                 icon = <HeartPulse size={24} className="text-red-500" />; iconBg = "bg-red-50"
-              } else if (disease.toLowerCase().includes("diab")) {
+              } else if ((disease || "").toLowerCase().includes("diab")) {
                 icon = <Droplet size={24} className="text-rose-500" />; iconBg = "bg-rose-50"
               }
 
@@ -138,7 +139,7 @@ export default function ModelsPage() {
 
 function ModelSection({ title, icon, iconBg, models }: { title: string, icon: React.ReactNode, iconBg: string, models: Model[] }) {
   // Sort models: Quantum first, then Classical, just for consistent display order
-  const sortedModels = [...models].sort((a, b) => b.category.localeCompare(a.category))
+  const sortedModels = [...models].sort((a, b) => (b.category || "").localeCompare(a.category || ""))
 
   return (
     <div className="bg-white rounded-[24px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
@@ -165,7 +166,7 @@ function ModelSection({ title, icon, iconBg, models }: { title: string, icon: Re
 }
 
 function ModelCard({ model }: { model: Model }) {
-  const isQuantum = model.category.toLowerCase().includes("quantum") || model.type.toLowerCase().includes("quantum")
+  const isQuantum = (model.category || "").toLowerCase().includes("quantum") || (model.type || "").toLowerCase().includes("quantum")
   
   // Theme assignments
   const cardBorder = isQuantum ? "border-purple-100/50" : "border-slate-100"

@@ -17,7 +17,9 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from fastapi.testclient import TestClient
+
 from app.main import app
+
 
 def run_all_tests():
     with TestClient(app) as client:

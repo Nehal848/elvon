@@ -8,15 +8,15 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.auth_router import (
+    get_db,
     require_any_auth,
     require_doctor,
     require_hospital,
-    get_db,
 )
-from sqlalchemy.orm import Session
-from core.database import DeployedModel, DoctorFeedback, AutomlJob
+from core.database import AutomlJob, DeployedModel, DoctorFeedback
 
 router = APIRouter(
     prefix="/api/hospital",
@@ -416,7 +416,7 @@ class FeedbackRequest(BaseModel):
 # ─── 1. Dashboard Stats ──────────────────────────────────────────────────────
 @router.get("/stats")
 async def get_hospital_stats(
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
     db: Session = Depends(get_db),
 ):
     """Hospital dashboard overview stats. README Section 5.1."""
@@ -450,7 +450,7 @@ async def get_hospital_stats(
 @router.get("/models")
 async def list_models(
     ownership: str | None = Query(None),
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
     db: Session = Depends(get_db),
 ):
     """List all deployed models. README Section 5.2."""
@@ -466,7 +466,7 @@ async def list_models(
 # ─── 3. Doctor Feedback ──────────────────────────────────────────────────────
 @router.get("/feedback")
 async def list_feedback(
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
     db: Session = Depends(get_db),
 ):
     """List recent doctor feedback. README Section 5.1."""
@@ -479,7 +479,7 @@ async def list_feedback(
 async def submit_feedback(
     model_id: str,
     req: FeedbackRequest,
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """Submit doctor feedback on a model. README Section 4.3."""
@@ -508,7 +508,7 @@ async def submit_feedback(
 # ─── 4. Training Jobs ────────────────────────────────────────────────────────
 @router.get("/training-jobs")
 async def list_training_jobs(
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """List models currently being trained. README Section 5.1, 5.4."""
     return {"jobs": _TRAINING_JOBS}
@@ -517,7 +517,7 @@ async def list_training_jobs(
 # ─── 5. Integrations ─────────────────────────────────────────────────────────
 @router.get("/integrations")
 async def list_integrations(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """List system integrations and their health. README Section 5.6."""
     return {
@@ -535,7 +535,7 @@ async def list_integrations(
 @router.get("/versions")
 async def list_versions(
     model_id: str | None = Query(None),
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """Model version history. README Section 5.5."""
     results = _VERSION_HISTORY.copy()

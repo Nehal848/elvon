@@ -7,25 +7,10 @@ import {
   Search, Bell, Settings, LayoutDashboard, Box, Users, FileText,
   Power, Menu, ChevronDown, ShoppingBag, PlusCircle, Layers, Link as LinkIcon,
   Activity, Stethoscope, Building2, Atom, Sparkles, LogOut, Check, ArrowRight, X,
-  Database, ShieldCheck, Zap, BarChart2, Lightbulb, Clock, CheckCircle2
+  Database, ShieldCheck, Zap, BarChart2, Lightbulb, Clock, CheckCircle2, Brain
 } from "lucide-react"
 
-// ── Medical Cross Logo Icon ───────────────────────────────────────────────────
-function MedicalCrossIcon({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="14" y="4" width="12" height="32" rx="4" fill="url(#crossGrad)" />
-      <rect x="4" y="14" width="32" height="12" rx="4" fill="url(#crossGrad)" />
-      <circle cx="20" cy="20" r="4" fill="#ffffff" />
-      <defs>
-        <linearGradient id="crossGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#0284c7" />
-          <stop offset="1" stopColor="#06b6d4" />
-        </linearGradient>
-      </defs>
-    </svg>
-  )
-}
+// ── Removed MedicalCrossIcon in favor of Lucide Brain ───────────────────────
 
 // ── Persona Configurations with Numbered Steppers ─────────────────────────────
 export const PERSONA_CONFIGS = {
@@ -66,12 +51,13 @@ export const PERSONA_CONFIGS = {
       avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80"
     },
     nav: [
-      { step: 1, href: "/patients",      icon: Users,           label: "Patients Triage" },
-      { step: 2, href: "/laboratory",    icon: FileText,        label: "Clinical Lab & PACS" },
-      { step: 3, href: "/analysis",      icon: Activity,        label: "AI Diagnostic Lab" },
-      { step: 4, href: "/reports",       icon: FileText,        label: "Patient Reports" },
-      { step: 5, href: "/notifications", icon: Bell,            label: "Notifications", badge: 2 },
-      { step: 6, href: "/settings",      icon: Settings,        label: "Settings" },
+      { href: "/dashboard",      icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/analyze-report", icon: FileText,        label: "Analyze Patient Report" },
+      { href: "/patients",       icon: Users,           label: "Patients" },
+      { href: "/models",         icon: Brain,           label: "Models" },
+      { href: "/reports",        icon: FileText,        label: "Reports", badge: 2 },
+      { href: "/notifications",  icon: Bell,            label: "Notifications" },
+      { href: "/settings",       icon: Settings,        label: "Settings" },
     ]
   },
   institution: {
@@ -88,13 +74,14 @@ export const PERSONA_CONFIGS = {
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
     },
     nav: [
-      { step: 1, href: "/dashboard",     icon: LayoutDashboard, label: "Command Center" },
-      { step: 2, href: "/models",        icon: Box,             label: "AI Models Catalog" },
-      { step: 3, href: "/integrations",  icon: LinkIcon,        label: "PACS & FHIR Gateways" },
-      { step: 4, href: "/version",       icon: Layers,          label: "Platform Architecture" },
-      { step: 5, href: "/reports",       icon: FileText,        label: "Hospital Reports" },
-      { step: 6, href: "/notifications", icon: Bell,            label: "Notifications", badge: 3 },
-      { step: 7, href: "/settings",      icon: Settings,        label: "Settings" },
+      { href: "/dashboard",     icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/users",         icon: Users,           label: "User Management" },
+      { href: "/models",        icon: Box,             label: "Model Management" },
+      { href: "/patients",      icon: Users,           label: "Patients & Data" },
+      { href: "/reports",       icon: BarChart2,       label: "Analytics & Reports" },
+      { href: "/audit",         icon: ShieldCheck,     label: "Audit & Activity" },
+      { href: "/notifications", icon: Bell,            label: "Notifications" },
+      { href: "/settings",      icon: Settings,        label: "Settings" },
     ]
   },
   researcher: {
@@ -211,24 +198,27 @@ export default function HospitalLayout({
   }
 
   const Sidebar = () => (
-    <aside className="w-[260px] flex-shrink-0 bg-white border-r border-slate-200/80 flex flex-col justify-between h-full relative z-20 shadow-[2px_0_16px_rgba(0,0,0,0.02)]">
+    <aside 
+      className="w-[260px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 shadow-[2px_0_16px_rgba(0,0,0,0.15)]"
+      style={{ backgroundImage: 'var(--sidebar-gradient)' }}
+    >
       <div>
         {/* Brand Header */}
         <div className="pt-7 pb-6 px-6">
           <Link href="/" className="flex items-center gap-3 no-underline">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center border border-sky-100 shadow-xs">
-              <MedicalCrossIcon size={26} />
+            <div className="w-10 h-10 rounded-xl bg-cyan-950 flex items-center justify-center border border-cyan-800 shadow-[0_0_15px_rgba(14,165,233,0.3)]">
+              <Brain size={24} className="text-cyan-400" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[20px] font-extrabold tracking-tight text-[#0f172a] leading-none mb-1">ELVON</span>
-              <span className="text-[11px] font-medium text-slate-500 leading-none">Clinical Intelligence</span>
+              <span className="text-[20px] font-extrabold tracking-tight text-white leading-none mb-1">ELVON</span>
+              <span className="text-[11px] font-medium text-cyan-400 leading-none">Clinical Intelligence</span>
             </div>
           </Link>
         </div>
 
         {/* Stepper Navigation */}
         <nav className="px-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-250px)]">
-          {activeNav.map(({ step, href, icon: Icon, label, badge }) => {
+          {activeNav.map(({ step, href, icon: Icon, label, badge }: any) => {
             const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href))
             return (
               <Link
@@ -237,17 +227,19 @@ export default function HospitalLayout({
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-semibold text-[13.5px] transition-all no-underline ${
                   isActive
-                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-400 text-white shadow-md shadow-cyan-500/25"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] text-white shadow-md shadow-cyan-500/25"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* Step Number Circle */}
-                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-400"
-                  }`}>
-                    {step}
-                  </span>
+                  {/* Step Number Circle (Only render if step exists) */}
+                  {step !== undefined && (
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      isActive ? "bg-white/20 text-white" : "bg-white/10 text-slate-400"
+                    }`}>
+                      {step}
+                    </span>
+                  )}
 
                   <Icon size={17} className={isActive ? "text-white" : "text-slate-400"} />
                   <span className="truncate">{label}</span>
@@ -255,7 +247,7 @@ export default function HospitalLayout({
 
                 {badge && (
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    isActive ? "bg-white text-blue-600" : "bg-red-500 text-white"
+                    isActive ? "bg-white text-blue-600" : "bg-rose-500 text-white"
                   }`}>
                     {badge}
                   </span>
@@ -267,27 +259,27 @@ export default function HospitalLayout({
       </div>
 
       {/* User Profile & Logout Bottom Card */}
-      <div className="p-4 border-t border-slate-100 bg-white">
-        <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-slate-50 transition-colors">
+      <div className="p-4 border-t border-white/10 bg-transparent">
+        <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-white/5 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <img
               src={userAvatar}
               alt={userName}
-              className="w-10 h-10 rounded-full object-cover border-2 border-sky-100 shadow-xs"
+              className="w-10 h-10 rounded-full object-cover border-2 border-cyan-800 shadow-xs"
             />
             <div className="min-w-0">
-              <div className="text-[13px] font-bold text-slate-900 truncate leading-tight">{userName}</div>
-              <div className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">{userRole}</div>
+              <div className="text-[13px] font-bold text-white truncate leading-tight">{userName}</div>
+              <div className="text-[11px] text-slate-400 truncate leading-tight mt-0.5">{userRole}</div>
             </div>
           </div>
-          <Link href="/settings" title="Settings" className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+          <Link href="/settings" title="Settings" className="text-slate-400 hover:text-white p-1.5 rounded-lg">
             <Settings size={16} />
           </Link>
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-[12.5px] font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl transition-colors cursor-pointer"
+          className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-[12.5px] font-semibold text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
         >
           <LogOut size={15} />
           <span>Logout</span>
@@ -352,15 +344,27 @@ export default function HospitalLayout({
           </div>
 
           {/* Header Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {/* Search Pill */}
+            <div className="hidden lg:flex items-center bg-white rounded-full px-4 py-2 border border-slate-200 shadow-sm min-w-[280px] hover:border-slate-300 transition-colors">
+              <Search size={16} className="text-slate-400 mr-2" />
+              <input type="text" placeholder="Search patients, models..." className="bg-transparent border-none outline-none text-[13px] font-medium text-slate-700 w-full placeholder:text-slate-400" />
+            </div>
+
+            {/* Date Pill */}
+            <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-4 py-2 border border-slate-200 shadow-sm text-[12.5px] font-bold text-slate-600">
+              <Clock size={15} className="text-cyan-600" />
+              <span>Sep 16, 2026</span>
+            </div>
+
             {/* Quick Switch Portal */}
             <div className="relative" ref={switcherRef}>
               <button
                 onClick={() => setRoleSwitcherOpen(!roleSwitcherOpen)}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer text-[12px] font-bold text-slate-700"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-slate-200 shadow-sm hover:border-slate-300 transition-all cursor-pointer text-[12.5px] font-bold text-slate-700"
               >
-                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400" />
-                <span>Switch Portal</span>
+                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500" />
+                <span className="hidden sm:inline">Switch Portal</span>
                 <ChevronDown size={14} className={`text-slate-400 transition-transform ${roleSwitcherOpen ? "rotate-180" : ""}`} />
               </button>
 

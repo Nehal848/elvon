@@ -7,7 +7,7 @@ Doctor Portal, and Hospital Command Center.
 # Updated: 2026-09-20 (Phase 5 complete)
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles as _SF
@@ -39,13 +39,14 @@ app = FastAPI(
     redoc_url="/redoc" if config.APP_ENV != "production" else None,
 )
 
-# CORS — allow only known frontend origins
+# CORS — resilient localhost and configured origin connectivity
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.ALLOWED_ORIGINS,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ─── Initialize database on startup ──────────────────────────────────────────
@@ -85,10 +86,10 @@ if (_frontend_dir / "out").exists():
 else:
     @app.get("/", include_in_schema=False)
     async def root_redirect():
-        return RedirectResponse(url="http://localhost:3000/dashboard")
+        return RedirectResponse(url="http://localhost:3000/")
 
     @app.get("/{full_path:path}", include_in_schema=False)
     async def catchall_redirect(full_path: str):
-        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path == "openapi.json":
-            return None
+        if full_path.startswith(("api", "docs", "redoc")) or full_path == "openapi.json":
+            raise HTTPException(status_code=404, detail="Not Found")
         return RedirectResponse(url=f"http://localhost:3000/{full_path}")

@@ -247,6 +247,7 @@ def init_db():
 
 def seed_db():
     import bcrypt
+
     from app.hospital_router import _DEPLOYED_MODELS, _DOCTOR_FEEDBACK
     from app.patient_router import _LAB_SOURCES, _LAB_UPLOADS, _PATIENTS, _REPORTS
 
@@ -358,7 +359,7 @@ def seed_db():
                 db.add(DoctorFeedback(**f))
             db.commit()
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"Error seeding DB: {e}")
         db.rollback()
     finally:

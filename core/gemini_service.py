@@ -1,5 +1,11 @@
 import logging
-from config import GEMINI_API_KEY, GEMINI_MODEL, GEMINI_MAX_TOKENS, GEMINI_ENABLED, LOCAL_FALLBACK_ENABLED
+
+from config import (
+    GEMINI_API_KEY,
+    GEMINI_ENABLED,
+    GEMINI_MAX_TOKENS,
+    GEMINI_MODEL,
+)
 
 logger = logging.getLogger("gemini_service")
 
@@ -24,7 +30,7 @@ class GeminiService:
             except ImportError:
                 logger.warning("google-genai package not found. Using local clinical AI fallback.")
                 self.client = None
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Gemini client initialization failed ({e}). Using local clinical AI fallback.")
                 self.client = None
         else:
@@ -77,7 +83,7 @@ Instructions:
                 "evidence": result.get("evidence", "Biomarker telemetry recorded."),
                 "reasoning": result.get("reasoning", "Evidence consistent with clinical pattern.")
             }
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Remote Gemini call failed ({e}); switching to local clinical AI reasoning engine.")
             return self._generate_fallback_report(safe_payload, disease_context)
 

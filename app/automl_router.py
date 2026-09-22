@@ -14,9 +14,8 @@ import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from app.auth_router import require_hospital
-
 import config
+from app.auth_router import require_hospital
 from core.database import AutomlJob, SessionLocal, deserialize, serialize
 
 logger = logging.getLogger("automl")
@@ -48,7 +47,7 @@ def _sync_job_to_db(job: dict):
         from datetime import datetime, timezone
         db_job.updated_at = datetime.now(timezone.utc).isoformat()
         db.commit()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"Error syncing AutoML job to DB: {e}")
     finally:
         db.close()
@@ -77,9 +76,9 @@ def _require_step(job: dict | None, required_step: int):
 # ─── Step 1: Data Upload ─────────────────────────────────────────────────────
 @router.post("/upload")
 async def upload_data(
-    file: UploadFile = File(...),  # noqa: B008
+    file: UploadFile = File(...),
     disease_name: str = Form("Unknown Disease"),
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 1: Hospital uploads dataset. Accepts CSV files.
@@ -151,7 +150,7 @@ async def upload_data(
     ]
     suggested_target = target_candidates[0] if target_candidates else df.columns[-1]
 
-    _sync_job_to_db(job if 'job' in locals() else _ACTIVE_JOBS[job_id])
+    _sync_job_to_db(_ACTIVE_JOBS[job_id])
     return {
         "job_id": job_id,
         "filename": file.filename,
@@ -168,7 +167,7 @@ async def upload_data(
 @router.post("/profile/{job_id}")
 async def profile_data(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 2: Automated data quality report and validation.
@@ -266,7 +265,7 @@ async def profile_data(
 async def configure_data(
     job_id: str,
     req: ConfigureRequest,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 3: Hospital sets the target column and removes patient-identifying data.
@@ -316,7 +315,7 @@ async def configure_data(
 @router.post("/clean/{job_id}")
 async def clean_data(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 4: Automated data cleaning, standardisation, feature engineering.
@@ -392,7 +391,7 @@ async def clean_data(
 @router.get("/review/{job_id}")
 async def review_data(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 5: Human verification dashboard. Shows quality score.
@@ -446,8 +445,8 @@ async def review_data(
             "feature_richness_score": float(round(min(100.0, float(feature_score)), 1)),
         },
         "data_summary": {
-            "rows": int(len(df)),
-            "columns": int(len(df.columns)),
+            "rows": len(df),
+            "columns": len(df.columns),
             "target_column": str(target_col),
             "class_distribution": (
                 {str(k): int(v) for k, v in df[target_col].value_counts().items()}
@@ -475,7 +474,7 @@ async def review_data(
 @router.post("/detect-problem/{job_id}")
 async def detect_problem(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 6: Automatically detect problem type.
@@ -533,7 +532,7 @@ async def detect_problem(
 @router.post("/train/{job_id}")
 async def train_model(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 7: Run AutoML pipeline — trains multiple algorithms and picks the best.
@@ -644,7 +643,7 @@ async def train_model(
 @router.get("/explainability/{job_id}")
 async def get_explainability(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 8: Explainability report — why this model, metrics, predictions.
@@ -700,7 +699,7 @@ async def get_explainability(
 async def approve_model(
     job_id: str,
     req: ApproveRequest,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 9: Hospital reviews and approves/rejects the model.
@@ -736,7 +735,7 @@ async def approve_model(
 @router.post("/deploy/{job_id}")
 async def deploy_model(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Step 10: Deploy the approved model. Added to 'My Models' section.
@@ -783,7 +782,7 @@ async def deploy_model(
 # ─── List Jobs ────────────────────────────────────────────────────────────────
 @router.get("/jobs")
 async def list_jobs(
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """List all AutoML jobs with their current status."""
     jobs = []
@@ -837,7 +836,7 @@ async def list_jobs(
 @router.get("/jobs/{job_id}")
 async def get_job(
     job_id: str,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """Get full details of an AutoML job."""
     job = _ACTIVE_JOBS.get(job_id)

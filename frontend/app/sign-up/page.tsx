@@ -18,7 +18,9 @@ import {
   Hexagon,
   FileText,
   Globe,
-  ChevronDown
+  ChevronDown,
+  Building2,
+  IdCard
 } from "lucide-react"
 
 type Role = "doctor" | "data_scientist" | "researcher" | "administrator"
@@ -133,55 +135,56 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="signup-container">
+    <div className="signup-container font-sans text-slate-900">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
         
         .signup-container {
           min-height: 100vh;
           display: flex;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           background: #ffffff;
         }
 
         /* LEFT PANEL */
         .left-panel {
-          width: 420px;
-          background: #f4f8fc;
+          width: 440px;
+          background: #f8fafc;
           position: relative;
           display: flex;
           flex-direction: column;
-          padding: 40px;
-          border-right: 1px solid #e2e8f0;
+          padding: 48px 40px;
+          border-right: 1px solid #f1f5f9;
           overflow: hidden;
         }
 
-        .left-bg-pattern {
+        .hospital-graphic {
           position: absolute;
           bottom: 0;
           left: 0;
           right: 0;
-          height: 300px;
-          background-image: 
-            repeating-linear-gradient(-45deg, rgba(99, 102, 241, 0.05) 0px, rgba(99, 102, 241, 0.05) 1px, transparent 1px, transparent 10px),
-            repeating-linear-gradient(45deg, rgba(99, 102, 241, 0.05) 0px, rgba(99, 102, 241, 0.05) 1px, transparent 1px, transparent 10px);
-          opacity: 0.6;
-          z-index: 0;
-        }
-        
-        .hospital-graphic {
-          position: absolute;
-          bottom: 20px;
-          left: 20px;
-          width: 180px;
-          height: 180px;
-          opacity: 0.4;
+          height: 250px;
+          background-image: url('data:image/svg+xml;utf8,<svg width="440" height="250" viewBox="0 0 440 250" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 250L40 100L140 70L240 100L240 250Z" fill="%23f1f5f9" stroke="%23e2e8f0" stroke-width="2"/><path d="M90 250L90 160L190 160L190 250Z" fill="%23f8fafc" stroke="%23e2e8f0" stroke-width="2"/><circle cx="140" cy="115" r="16" fill="%23e2e8f0"/><rect x="65" y="120" width="16" height="24" fill="%23ffffff" stroke="%23e2e8f0" stroke-width="2"/><rect x="195" y="120" width="16" height="24" fill="%23ffffff" stroke="%23e2e8f0" stroke-width="2"/><path d="M0 250L440 250" stroke="%23e2e8f0" stroke-width="4"/><circle cx="30" cy="220" r="25" fill="%23e2e8f0" opacity="0.6"/><circle cx="280" cy="210" r="30" fill="%23e2e8f0" opacity="0.6"/><circle cx="380" cy="230" r="20" fill="%23e2e8f0" opacity="0.6"/></svg>');
+          background-position: bottom left;
+          background-repeat: no-repeat;
+          opacity: 0.9;
           z-index: 1;
+        }
+
+        .left-bg-pattern {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.03) 0%, transparent 50%),
+                      radial-gradient(circle at 100% 100%, rgba(37, 99, 235, 0.03) 0%, transparent 50%);
+          z-index: 0;
         }
 
         .left-content {
           position: relative;
           z-index: 2;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
 
         .logo-container {
@@ -192,10 +195,10 @@ export default function SignUpPage() {
         }
         
         .logo-icon {
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           background: linear-gradient(135deg, #0284c7, #06b6d4);
-          border-radius: 8px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -204,7 +207,7 @@ export default function SignUpPage() {
         }
 
         .logo-text-main {
-          font-size: 24px;
+          font-size: 26px;
           font-weight: 800;
           color: #0f172a;
           letter-spacing: -0.5px;
@@ -217,27 +220,28 @@ export default function SignUpPage() {
           color: #1e3a8a;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          margin-top: 2px;
+          margin-top: 4px;
         }
 
         .welcome-title {
-          font-size: 28px;
+          font-size: 32px;
           font-weight: 800;
-          color: #1e3a8a;
+          color: #0f172a;
           margin-bottom: 12px;
           letter-spacing: -0.5px;
         }
 
         .welcome-subtitle {
           font-size: 14px;
+          font-weight: 500;
           color: #64748b;
-          line-height: 1.6;
+          line-height: 1.5;
           margin-bottom: 32px;
         }
 
         .account-type-heading {
-          font-size: 13px;
-          color: #64748b;
+          font-size: 13.5px;
+          color: #475569;
           font-weight: 600;
           margin-bottom: 16px;
         }
@@ -246,7 +250,7 @@ export default function SignUpPage() {
           background: #ffffff;
           border: 1px solid #e2e8f0;
           border-radius: 12px;
-          padding: 16px;
+          padding: 14px 16px;
           display: flex;
           align-items: center;
           gap: 16px;
@@ -257,18 +261,16 @@ export default function SignUpPage() {
 
         .role-card:hover {
           border-color: #cbd5e1;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
         .role-card.active {
           background: #f0f9ff;
-          border-color: #0ea5e9;
-          box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+          border-color: #3b82f6;
         }
 
         .role-icon {
-          width: 48px;
-          height: 48px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -276,7 +278,7 @@ export default function SignUpPage() {
         }
         
         .role-card.active .role-icon {
-          background: transparent;
+          background: transparent !important;
         }
 
         .role-info {
@@ -287,15 +289,12 @@ export default function SignUpPage() {
           font-size: 15px;
           font-weight: 700;
           color: #0f172a;
-          margin-bottom: 4px;
-        }
-
-        .role-card.active .role-title {
-          color: #0369a1;
+          margin-bottom: 2px;
         }
 
         .role-desc {
           font-size: 12px;
+          font-weight: 500;
           color: #64748b;
           line-height: 1.4;
         }
@@ -308,17 +307,18 @@ export default function SignUpPage() {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         .role-card.active .role-radio {
-          border-color: #0ea5e9;
+          border-color: #3b82f6;
         }
 
         .role-radio-inner {
           width: 10px;
           height: 10px;
           border-radius: 50%;
-          background: #0ea5e9;
+          background: #3b82f6;
           opacity: 0;
           transition: opacity 0.2s;
         }
@@ -340,25 +340,25 @@ export default function SignUpPage() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 24px 40px;
+          padding: 24px 48px;
         }
 
         .back-btn {
           display: flex;
           align-items: center;
-          gap: 8px;
-          color: #0ea5e9;
+          gap: 6px;
+          color: #3b82f6;
           font-weight: 600;
-          font-size: 14px;
+          font-size: 14.5px;
           text-decoration: none;
         }
 
         .step-indicator {
-          background: #f1f5f9;
-          color: #334155;
+          background: #eff6ff;
+          color: #1e3a8a;
           font-size: 13px;
-          font-weight: 600;
-          padding: 6px 12px;
+          font-weight: 700;
+          padding: 6px 16px;
           border-radius: 20px;
         }
 
@@ -372,19 +372,20 @@ export default function SignUpPage() {
 
         .form-wrapper {
           width: 100%;
-          max-width: 480px;
+          max-width: 520px;
         }
 
         .form-title {
           font-size: 32px;
           font-weight: 800;
           color: #1e3a8a;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
           letter-spacing: -0.5px;
         }
 
         .form-subtitle {
           font-size: 15px;
+          font-weight: 500;
           color: #64748b;
           margin-bottom: 40px;
         }
@@ -397,8 +398,8 @@ export default function SignUpPage() {
           display: block;
           font-size: 14px;
           font-weight: 700;
-          color: #1e40af;
-          margin-bottom: 8px;
+          color: #0f172a;
+          margin-bottom: 10px;
         }
 
         .input-wrapper {
@@ -410,15 +411,16 @@ export default function SignUpPage() {
         .input-icon {
           position: absolute;
           left: 16px;
-          color: #3b82f6;
+          color: #334155;
         }
 
         .auth-input {
           width: 100%;
           padding: 14px 16px 14px 48px;
           border-radius: 8px;
-          border: 1px solid #cbd5e1;
-          font-size: 15px;
+          border: 1px solid #e2e8f0;
+          font-size: 14.5px;
+          font-weight: 500;
           color: #0f172a;
           outline: none;
           transition: all 0.2s;
@@ -430,7 +432,7 @@ export default function SignUpPage() {
 
         .auth-input:focus {
           border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .password-toggle {
@@ -438,7 +440,7 @@ export default function SignUpPage() {
           right: 16px;
           background: none;
           border: none;
-          color: #64748b;
+          color: #0f172a;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -447,9 +449,10 @@ export default function SignUpPage() {
 
         .input-hint {
           display: block;
-          font-size: 12px;
+          font-size: 12.5px;
+          font-weight: 500;
           color: #94a3b8;
-          margin-top: 8px;
+          margin-top: 10px;
         }
 
         .submit-btn {
@@ -457,7 +460,7 @@ export default function SignUpPage() {
           padding: 16px;
           border-radius: 8px;
           border: none;
-          background: linear-gradient(90deg, #2563eb, #0ea5e9);
+          background: linear-gradient(90deg, #1d4ed8, #0ea5e9);
           color: white;
           font-size: 16px;
           font-weight: 600;
@@ -472,19 +475,20 @@ export default function SignUpPage() {
 
         .submit-btn:hover {
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+          box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
         }
 
         .login-link {
           text-align: center;
-          margin-top: 24px;
-          font-size: 14px;
+          margin-top: 28px;
+          font-size: 14.5px;
           color: #64748b;
+          font-weight: 500;
         }
         
         .login-link a {
-          color: #2563eb;
-          font-weight: 600;
+          color: #3b82f6;
+          font-weight: 700;
           text-decoration: none;
         }
       `}</style>
@@ -492,22 +496,8 @@ export default function SignUpPage() {
       {/* LEFT PANEL */}
       <div className="left-panel">
         <div className="left-bg-pattern" />
+        <div className="hospital-graphic" />
         
-        {/* Mockup Hospital Graphic (using CSS shapes/icons to approximate) */}
-        <div className="hospital-graphic">
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M40 180 L40 100 L100 80 L160 100 L160 180 Z" fill="#e0e7ff" stroke="#c7d2fe" strokeWidth="2" />
-            <path d="M70 180 L70 140 L130 140 L130 180 Z" fill="#ffffff" stroke="#c7d2fe" strokeWidth="2" />
-            <circle cx="100" cy="110" r="10" fill="#a5b4fc" />
-            <rect x="55" y="110" width="10" height="15" fill="#ffffff" stroke="#c7d2fe" />
-            <rect x="135" y="110" width="10" height="15" fill="#ffffff" stroke="#c7d2fe" />
-            <path d="M10 180 L190 180" stroke="#a5b4fc" strokeWidth="4" strokeLinecap="round" />
-            {/* Trees */}
-            <circle cx="25" cy="160" r="15" fill="#c7d2fe" opacity="0.8" />
-            <circle cx="175" cy="150" r="20" fill="#c7d2fe" opacity="0.8" />
-          </svg>
-        </div>
-
         <div className="left-content">
           <div className="logo-container">
             <div className="logo-icon">
@@ -531,8 +521,8 @@ export default function SignUpPage() {
             className={`role-card ${role === "doctor" ? "active" : ""}`}
             onClick={() => setRole("doctor")}
           >
-            <div className="role-icon" style={{ background: role === "doctor" ? "transparent" : "#f0fdfa", color: role === "doctor" ? "#0ea5e9" : "#0d9488" }}>
-              <Stethoscope size={24} />
+            <div className="role-icon" style={{ background: "#e0f2fe", color: "#0284c7" }}>
+              <User size={22} />
             </div>
             <div className="role-info">
               <div className="role-title">Doctor</div>
@@ -545,8 +535,8 @@ export default function SignUpPage() {
             className={`role-card ${role === "data_scientist" ? "active" : ""}`}
             onClick={() => setRole("data_scientist")}
           >
-            <div className="role-icon" style={{ background: role === "data_scientist" ? "transparent" : "#ecfdf5", color: role === "data_scientist" ? "#0ea5e9" : "#059669" }}>
-              <LineChart size={24} />
+            <div className="role-icon" style={{ background: "#ccfbf1", color: "#0d9488" }}>
+              <LineChart size={22} />
             </div>
             <div className="role-info">
               <div className="role-title">Data Scientist</div>
@@ -559,8 +549,8 @@ export default function SignUpPage() {
             className={`role-card ${role === "researcher" ? "active" : ""}`}
             onClick={() => setRole("researcher")}
           >
-            <div className="role-icon" style={{ background: role === "researcher" ? "transparent" : "#f5f3ff", color: role === "researcher" ? "#0ea5e9" : "#7c3aed" }}>
-              <FlaskConical size={24} />
+            <div className="role-icon" style={{ background: "#f3e8ff", color: "#7e22ce" }}>
+              <FlaskConical size={22} />
             </div>
             <div className="role-info">
               <div className="role-title">Researcher</div>
@@ -573,8 +563,8 @@ export default function SignUpPage() {
             className={`role-card ${role === "administrator" ? "active" : ""}`}
             onClick={() => setRole("administrator")}
           >
-            <div className="role-icon" style={{ background: role === "administrator" ? "transparent" : "#fffbeb", color: role === "administrator" ? "#0ea5e9" : "#d97706" }}>
-              <Settings size={24} />
+            <div className="role-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
+              <Settings size={22} />
             </div>
             <div className="role-info">
               <div className="role-title">Administrator</div>
@@ -628,12 +618,12 @@ export default function SignUpPage() {
                   onClick={handleVerifyOtp}
                   disabled={loading || otp.length < 6}
                 >
-                  Verify Account
+                  Verify Account <ArrowRight size={18} />
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSignUp}>
-                <h2 className="form-title">Sign up as a {getRoleTitle()}</h2>
+                <h2 className="form-title">Sign up as {role === "administrator" ? "an" : "a"} {getRoleTitle()}</h2>
                 <p className="form-subtitle">Create your account to start using ELVON Clinical Intelligence.</p>
 
                 {role === "doctor" && (
@@ -641,7 +631,7 @@ export default function SignUpPage() {
                     <div className="input-group">
                       <label className="input-label">Full Name</label>
                       <div className="input-wrapper">
-                        <User size={20} className="input-icon" />
+                        <User size={18} className="input-icon" />
                         <input
                           type="text"
                           className="auth-input"
@@ -656,7 +646,7 @@ export default function SignUpPage() {
                     <div className="input-group">
                       <label className="input-label">Medical Registration or Licence Number</label>
                       <div className="input-wrapper">
-                        <FileText size={20} className="input-icon" />
+                        <IdCard size={18} className="input-icon" />
                         <input
                           type="text"
                           className="auth-input"
@@ -671,7 +661,7 @@ export default function SignUpPage() {
                     <div className="input-group">
                       <label className="input-label">State or Country of Registration</label>
                       <div className="input-wrapper">
-                        <Globe size={20} className="input-icon" />
+                        <Globe size={18} className="input-icon" />
                         <select
                           className="auth-input"
                           value={stateName}
@@ -685,7 +675,7 @@ export default function SignUpPage() {
                           <option value="Karnataka">Karnataka</option>
                           <option value="International">International</option>
                         </select>
-                        <div style={{ position: "absolute", right: 16, pointerEvents: "none", color: "#64748b", display: "flex", alignItems: "center" }}>
+                        <div style={{ position: "absolute", right: 16, pointerEvents: "none", display: "flex", alignItems: "center", color: "#0f172a" }}>
                           <ChevronDown size={18} />
                         </div>
                       </div>
@@ -694,7 +684,7 @@ export default function SignUpPage() {
                     <div className="input-group">
                       <label className="input-label">Hospital or Clinic Email</label>
                       <div className="input-wrapper">
-                        <Mail size={20} className="input-icon" />
+                        <Mail size={18} className="input-icon" />
                         <input
                           type="email"
                           className="auth-input"
@@ -713,7 +703,7 @@ export default function SignUpPage() {
                     <div className="input-group">
                       <label className="input-label">Full Name</label>
                       <div className="input-wrapper">
-                        <User size={20} className="input-icon" />
+                        <User size={18} className="input-icon" />
                         <input
                           type="text"
                           className="auth-input"
@@ -728,11 +718,11 @@ export default function SignUpPage() {
                     <div className="input-group">
                       <label className="input-label">Organization Email</label>
                       <div className="input-wrapper">
-                        <Mail size={20} className="input-icon" />
+                        <Mail size={18} className="input-icon" />
                         <input
                           type="email"
                           className="auth-input"
-                          placeholder="you@hospital.org"
+                          placeholder="Enter your organization email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -745,24 +735,9 @@ export default function SignUpPage() {
                 {role === "administrator" && (
                   <>
                     <div className="input-group">
-                      <label className="input-label">Hospital Name</label>
+                      <label className="input-label">Full Name</label>
                       <div className="input-wrapper">
-                        <User size={20} className="input-icon" />
-                        <input
-                          type="text"
-                          className="auth-input"
-                          placeholder="Enter hospital or institution name"
-                          value={hospitalName}
-                          onChange={(e) => setHospitalName(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="input-group">
-                      <label className="input-label">Admin Full Name</label>
-                      <div className="input-wrapper">
-                        <User size={20} className="input-icon" />
+                        <User size={18} className="input-icon" />
                         <input
                           type="text"
                           className="auth-input"
@@ -775,13 +750,28 @@ export default function SignUpPage() {
                     </div>
 
                     <div className="input-group">
+                      <label className="input-label">Hospital Name</label>
+                      <div className="input-wrapper">
+                        <Building2 size={18} className="input-icon" />
+                        <input
+                          type="text"
+                          className="auth-input"
+                          placeholder="Enter your hospital name"
+                          value={hospitalName}
+                          onChange={(e) => setHospitalName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="input-group">
                       <label className="input-label">Hospital Email</label>
                       <div className="input-wrapper">
-                        <Mail size={20} className="input-icon" />
+                        <Mail size={18} className="input-icon" />
                         <input
                           type="email"
                           className="auth-input"
-                          placeholder="admin@hospital.org"
+                          placeholder="Enter your hospital email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -791,35 +781,35 @@ export default function SignUpPage() {
                   </>
                 )}
 
-                <div className="input-group">
+                <div className="input-group" style={{ marginBottom: "16px" }}>
                   <label className="input-label">Password</label>
                   <div className="input-wrapper">
-                    <Lock size={20} className="input-icon" />
+                    <Lock size={18} className="input-icon" />
                     <input
                       type={showPassword ? "text" : "password"}
                       className="auth-input"
-                      placeholder="••••••••"
+                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      minLength={8}
                     />
-                    <button 
+                    <button
                       type="button"
                       className="password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                     </button>
                   </div>
                   <span className="input-hint">Use at least 8 characters with a mix of letters, numbers & symbols</span>
                 </div>
 
-                {error && <div style={{ color: "#ef4444", fontSize: 13, marginTop: -8, marginBottom: 16 }}>{error}</div>}
-
-                <button type="submit" className="submit-btn" disabled={loading}>
-                  {loading ? "Creating..." : "Create Account"}
-                  <ArrowRight size={18} />
+                <button 
+                  type="submit" 
+                  className="submit-btn"
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "Create Account"} <ArrowRight size={18} />
                 </button>
 
                 <div className="login-link">

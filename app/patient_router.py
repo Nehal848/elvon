@@ -3,15 +3,15 @@ app/patient_router.py — Patient & Lab Management Router
 Patient CRUD, AI Reports, Laboratory Uploads, Alerts
 README Section 4.2, 4.4, 4.5
 """
+import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.auth_router import get_db, require_any_auth, require_doctor
-from sqlalchemy.orm import Session
-from core.database import Patient, AIReport, LabSource, LabUpload, DeployedModel
-import uuid
+from core.database import AIReport, DeployedModel, LabSource, LabUpload, Patient
 
 router = APIRouter(prefix="/api", tags=["Patients & Laboratory"])
 
@@ -176,7 +176,7 @@ class GenerateReportRequest(BaseModel):
 async def list_patients(
     search: str | None = Query(None),
     status: str | None = Query(None),
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """List all patients with optional search and status filter."""
@@ -205,7 +205,7 @@ async def list_patients(
 @router.post("/patients")
 async def add_patient(
     req: AddPatientRequest,
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """Add a new patient."""
@@ -238,7 +238,7 @@ async def add_patient(
 @router.get("/patients/{patient_id}")
 async def get_patient(
     patient_id: str,
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """Get patient details with their reports."""
@@ -265,7 +265,7 @@ async def get_patient(
 @router.get("/patients/{patient_id}/reports")
 async def get_patient_reports(
     patient_id: str,
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """Get AI analysis reports for a patient. README Section 4.2."""
@@ -278,13 +278,14 @@ async def get_patient_reports(
 async def generate_patient_report(
     patient_id: str,
     req: GenerateReportRequest,
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """Generate AI report using Gemini with de-identification."""
+    import time
+
     from core.deidentification import deidentify_payload
     from core.gemini_service import GeminiService
-    import time
     
     p = db.query(Patient).filter(Patient.id == patient_id).first()
     if not p:
@@ -334,7 +335,7 @@ async def generate_patient_report(
 # ─── 2. Alerts ────────────────────────────────────────────────────────────────
 @router.get("/alerts")
 async def get_alerts(
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """
@@ -362,7 +363,7 @@ async def get_alerts(
 # ─── 3. Reports Overview ─────────────────────────────────────────────────────
 @router.get("/reports")
 async def list_reports(
-    _user: dict = Depends(require_doctor),  # noqa: B008
+    _user: dict = Depends(require_doctor),
     db: Session = Depends(get_db),
 ):
     """List all AI analysis reports across patients. README Section 4.2."""
@@ -374,7 +375,7 @@ async def list_reports(
 # ─── 4. Laboratory & Imaging ─────────────────────────────────────────────────
 @router.get("/lab/sources")
 async def get_lab_sources(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
     db: Session = Depends(get_db),
 ):
     """Get connected laboratory and imaging systems. README Section 4.5."""
@@ -391,7 +392,7 @@ async def get_lab_sources(
 async def get_lab_uploads(
     source: str | None = Query(None),
     status: str | None = Query(None),
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
     db: Session = Depends(get_db),
 ):
     """Get recent uploads from lab/imaging systems. README Section 4.5."""
@@ -408,11 +409,12 @@ async def get_lab_uploads(
 
 @router.get("/lab/pacs/studies")
 async def get_pacs_studies(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """Retrieve indexed imaging studies from the connected PACS/DICOMWeb gateway."""
-    import config
     import json
+
+    import config
     pacs_file = config.BASE_DIR / "app" / "storage" / "mock-data" / "dicom" / "studies.json"
     if pacs_file.exists():
         return {"studies": json.loads(pacs_file.read_text(encoding="utf-8"))}
@@ -421,11 +423,12 @@ async def get_pacs_studies(
 
 @router.get("/lab/fhir/bundles")
 async def get_fhir_bundles(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """Retrieve FHIR observation bundles from the EHR interoperability gateway."""
-    import config
     import json
+
+    import config
     fhir_file = config.BASE_DIR / "app" / "storage" / "mock-data" / "fhir" / "bundles.json"
     if fhir_file.exists():
         return json.loads(fhir_file.read_text(encoding="utf-8"))
@@ -435,7 +438,7 @@ async def get_fhir_bundles(
 # ─── 5. AI Performance Stats ─────────────────────────────────────────────────
 @router.get("/ai/stats")
 async def get_ai_stats(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
     db: Session = Depends(get_db),
 ):
     """

@@ -1,5 +1,4 @@
 import re
-import json
 import uuid
 
 # Common regex patterns for PHI (Protected Health Information)
@@ -8,7 +7,7 @@ PHONE_REGEX = re.compile(r"(\+\d{1,3}\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}
 # Simple MRN/ID regex (e.g., PAT-001, MED-1234, etc.)
 ID_REGEX = re.compile(r"(PAT|MED|ID|MRN)-?\d{3,}")
 
-def deidentify_text(text: str, patient_name: str = None) -> tuple[str, dict]:
+def deidentify_text(text: str, patient_name: str | None = None) -> tuple[str, dict]:
     """
     Strips PHI from a string and replaces it with tokens.
     Returns the de-identified text and a dictionary of applied tokens.
@@ -57,7 +56,7 @@ def deidentify_text(text: str, patient_name: str = None) -> tuple[str, dict]:
     return deidentified, tokens
 
 
-def deidentify_payload(payload: dict, patient_name: str = None) -> tuple[dict, dict]:
+def deidentify_payload(payload: dict, patient_name: str | None = None) -> tuple[dict, dict]:
     """
     Deeply traverses a dictionary/list payload and de-identifies strings.
     Returns the de-identified payload and a mapping of applied tokens.

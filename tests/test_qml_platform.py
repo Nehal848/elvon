@@ -3,6 +3,13 @@ tests/test_qml_platform.py
 Comprehensive unit & integration test suite for the
 Hybrid Quantum Machine Learning Platform for Early Disease Detection (Problem Statement ID: 26139).
 """
+import sys
+from pathlib import Path
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
 import numpy as np
 from fastapi.testclient import TestClient
 
@@ -170,3 +177,34 @@ def test_api_qml_endpoints():
     assert r_exp_xai.status_code == 200
     xai_res = r_exp_xai.json()
     assert "component_sensitivities" in xai_res
+
+
+def run_all_tests():
+    print("=" * 70)
+    print(" Running Quantum ML Platform Test Suite (SIH 26139)")
+    print("=" * 70)
+    test_quantum_circuit_creation_and_resources()
+    print("  [OK] Circuit creation and resource summary")
+    test_quantum_simulator_ideal_and_expectation()
+    print("  [OK] Ideal simulator and expectation values")
+    test_quantum_simulator_noisy()
+    print("  [OK] Noisy simulator execution")
+    test_hardware_readiness_checker()
+    print("  [OK] Hardware readiness checker")
+    test_dataset_loading_and_profiling()
+    print("  [OK] Dataset loading and profiling")
+    test_pipeline_zero_leakage_and_transforms()
+    print("  [OK] Pipeline zero leakage and transforms")
+    test_quantum_kernel_classifier()
+    print("  [OK] Quantum Kernel (QSVM) classifier")
+    test_vqc_classifier()
+    print("  [OK] Variational Quantum Classifier (VQC)")
+    test_api_qml_endpoints()
+    print("  [OK] End-to-end QML API endpoints")
+    print("=" * 70)
+    print(" >>> ALL QML TESTS PASSED SUCCESSFULLY! (100% GREEN) <<<")
+    print("=" * 70)
+
+
+if __name__ == "__main__":
+    run_all_tests()

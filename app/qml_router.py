@@ -23,7 +23,6 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, ConfigDict
 
 from app.auth_router import require_any_auth, require_hospital
-
 from core.database import QmlExperiment, SessionLocal, deserialize, serialize
 from core.quantum.benchmark import QMLBenchmarkingEngine
 from core.quantum.pipeline import (
@@ -76,7 +75,7 @@ class ExplainRequest(BaseModel):
 # ─── 1. Datasets Management ──────────────────────────────────────────────────
 @router.get("/datasets")
 async def list_datasets(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Returns available biomedical benchmark datasets and custom upload status.
@@ -141,8 +140,8 @@ async def list_datasets(
 
 @router.post("/datasets/upload")
 async def upload_custom_dataset(
-    file: UploadFile = File(...),  # noqa: B008
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    file: UploadFile = File(...),
+    _user: dict = Depends(require_hospital),
 ):
     """
     Uploads a custom biomedical CSV dataset and returns a temporary upload ID.
@@ -186,7 +185,7 @@ async def upload_custom_dataset(
 @router.post("/datasets/profile")
 async def profile_dataset(
     req: ProfileRequest,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Generates an automated Data Quality Report and schema audit.
@@ -211,7 +210,7 @@ async def profile_dataset(
 @router.post("/experiment/run")
 async def run_qml_experiment(
     req: RunExperimentRequest,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Executes the complete end-to-end Classical vs Hybrid Quantum Machine Learning experiment:
@@ -341,7 +340,7 @@ async def run_qml_experiment(
 @router.get("/experiment/{exp_id}")
 async def get_experiment_results(
     exp_id: str,
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Retrieves stored experiment results by ID.
@@ -376,7 +375,7 @@ async def get_experiment_results(
 @router.post("/predict")
 async def predict_single_sample(
     req: PredictRequest,
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Executes real-time disease classification on an unseen patient sample.
@@ -437,7 +436,7 @@ async def predict_single_sample(
 @router.post("/explain")
 async def explain_prediction(
     req: ExplainRequest,
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Generates feature attribution and quantum sensitivity analysis for a patient prediction.
@@ -473,7 +472,7 @@ async def explain_prediction(
 # ─── 4. Quantum Hardware & Simulator Status ──────────────────────────────────
 @router.get("/hardware/status")
 async def get_hardware_status(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Returns available quantum simulation and hardware profiles.
@@ -494,7 +493,7 @@ async def get_hardware_status(
 # ─── 5. Experiment History ───────────────────────────────────────────────────
 @router.get("/experiments/history")
 async def get_experiment_history(
-    _user: dict = Depends(require_any_auth),  # noqa: B008
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Returns list of recorded experiments for reproducibility and audit trail.
@@ -529,7 +528,7 @@ class NoiseImpactRequest(BaseModel):
 @router.post("/benchmark/noise-impact")
 async def noise_impact(
     req: NoiseImpactRequest,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Computes Noise Impact Delta = Accuracy_ideal - Accuracy_noisy for QSVM and VQC.
@@ -555,7 +554,7 @@ class DimensionSweepRequest(BaseModel):
 @router.post("/benchmark/dimension-sweep")
 async def dimension_sweep(
     req: DimensionSweepRequest,
-    _user: dict = Depends(require_hospital),  # noqa: B008
+    _user: dict = Depends(require_hospital),
 ):
     """
     Evaluates predictive accuracy across different qubit / PCA dimensionalities.

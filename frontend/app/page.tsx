@@ -169,11 +169,11 @@ export default function LandingPage() {
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #03050c; --bg2: #060a16; --surf: #0a0e1c; --surf2: #0e1326; --surf3: #121830;
-      --border: rgba(99,102,241,0.1); --border2: rgba(99,102,241,0.2); --border3: rgba(99,102,241,0.35);
-      --accent: #6366f1; --accent2: #8b5cf6; --cyan: #06b6d4; --green: #10b981; --gold: #f59e0b; --pink: #ec4899;
-      --text: #eef2ff; --text2: #94a3b8; --text3: #475569;
-      --r: 16px; --shadow: 0 8px 40px rgba(99,102,241,0.12); --glow: 0 0 80px rgba(99,102,241,0.12);
+      --bg: #052436; --bg2: #071f30; --surf: #0a2d42; --surf2: #0e3b54; --surf3: #124867;
+      --border: rgba(14,165,233,0.15); --border2: rgba(14,165,233,0.3); --border3: rgba(14,165,233,0.45);
+      --accent: #0ea5e9; --accent2: #06b6d4; --cyan: #00d2ff; --green: #10b981; --gold: #f59e0b; --pink: #ec4899;
+      --text: #f0f6fa; --text2: #bae6fd; --text3: #38bdf8;
+      --r: 16px; --shadow: 0 8px 40px rgba(14,165,233,0.15); --glow: 0 0 80px rgba(14,165,233,0.2);
     }
     html { scroll-behavior: smooth; }
     body { background: var(--bg); color: var(--text); font-family: Inter, -apple-system, sans-serif; line-height: 1.6; overflow-x: hidden; }
@@ -194,7 +194,7 @@ export default function LandingPage() {
 
     /* ── NAVBAR ── */
     .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 68px; transition: all .4s cubic-bezier(0.16,1,0.3,1); }
-    .navbar.scrolled { background: rgba(3,5,12,0.85); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid var(--border2); box-shadow: 0 4px 40px rgba(0,0,0,0.5); }
+    .navbar.scrolled { background: rgba(5,36,54,0.85); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid var(--border2); box-shadow: 0 4px 40px rgba(0,0,0,0.2); }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
     .nav-logo-icon { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--accent), var(--cyan)); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 20px rgba(99,102,241,0.4); transition: all .3s; }
     .nav-logo:hover .nav-logo-icon { box-shadow: 0 6px 28px rgba(99,102,241,0.6); transform: scale(1.05); }
@@ -267,7 +267,7 @@ export default function LandingPage() {
 
     /* ── SECTION LAYOUT ── */
     .section-outer { padding: 100px 80px; position: relative; z-index: 1; }
-    .section-outer.alt { background: linear-gradient(180deg, rgba(7,10,23,0.8), rgba(3,5,12,0.9)); }
+    .section-outer.alt { background: linear-gradient(180deg, rgba(7,31,48,0.8), rgba(5,36,54,0.9)); }
     .section-inner { max-width: 1200px; margin: 0 auto; }
     .section-chip { display: inline-flex; align-items: center; gap: 7px; background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.18); color: #a5b4fc; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 24px; margin-bottom: 18px; letter-spacing: .8px; text-transform: uppercase; }
     .section-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(30px, 4vw, 48px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 18px; }

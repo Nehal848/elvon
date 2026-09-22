@@ -284,7 +284,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", fontFamily: "'Inter', sans-serif", background: "#05070f", color: "#f1f5f9", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", display: "flex", fontFamily: "'Inter', sans-serif", background: "#f0f6fa", color: "#1e293b", position: "relative", overflow: "hidden" }}>
       {/* Blurred Medical Pattern Wallpaper */}
       <div
         aria-hidden="true"
@@ -296,8 +296,8 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
           backgroundImage: "url('/medical-pattern.png')",
           backgroundRepeat: "repeat",
           backgroundSize: "360px 360px",
-          opacity: 0.04,
-          filter: "blur(1.5px) invert(1)",
+          opacity: 0.03,
+          filter: "blur(1.5px)",
         }}
       />
       <style>{`
@@ -305,26 +305,26 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         .auth-input {
           width: 100%; padding: 13px 16px; border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
-          color: #f1f5f9; font-size: 14px; outline: none;
-          transition: border-color 0.2s, background 0.2s;
+          border: 1px solid #e2eaf1; background: #ffffff;
+          color: #1e293b; font-size: 14px; outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
           font-family: 'Inter', sans-serif;
         }
-        .auth-input:focus { border-color: #6366f1; background: rgba(99,102,241,0.06); }
-        .auth-input::placeholder { color: #475569; }
+        .auth-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
+        .auth-input::placeholder { color: #94a3b8; }
         .role-tab-btn {
           flex: 1; min-width: 0; padding: 12px 10px; border-radius: 12px;
-          border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);
+          border: 1.5px solid #e2eaf1; background: #ffffff;
           cursor: pointer; transition: all 0.2s ease;
           display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-          color: #94a3b8; font-size: 11px; font-weight: 600; text-align: center;
+          color: #64748b; font-size: 11px; font-weight: 600; text-align: center;
         }
         .role-tab-btn:hover:not(.active) {
-          border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #e2e8f0;
+          border-color: #cbd5e1; background: #f8fafc; color: #334155;
         }
         .role-tab-btn.active {
-          border-color: #6366f1; background: rgba(99,102,241,0.12); color: #fff;
-          box-shadow: 0 0 20px rgba(99,102,241,0.25);
+          border-color: #0ea5e9; background: rgba(14,165,233,0.08); color: #0ea5e9;
+          box-shadow: 0 4px 12px rgba(14,165,233,0.1);
         }
         .submit-btn {
           width: 100%; padding: 14px; border-radius: 12px; border: none;
@@ -332,18 +332,8 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
           transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;
           font-family: 'Inter', sans-serif;
         }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14,165,233,0.3); }
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .one-click-btn {
-          width: 100%; padding: 12px; border-radius: 12px;
-          border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.03);
-          color: #e2e8f0; font-size: 13px; font-weight: 600; cursor: pointer;
-          display: flex; align-items: center; justify-content: center; gap: 8px;
-          transition: all 0.2s; margin-top: 12px;
-        }
-        .one-click-btn:hover {
-          background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.35); color: #fff;
-        }
         .grid-bg {
           position: absolute; inset: 0; pointer-events: none;
           background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -352,8 +342,8 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
         }
       `}</style>
 
-      {/* LEFT PANEL — Role Overview & Visual Brand */}
-      <div style={{ width: "48%", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 56px", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+      {/* LEFT PANEL — Role Overview & Visual Brand (DARK CLINICAL THEME) */}
+      <div style={{ width: "48%", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 56px", background: "linear-gradient(180deg, #071f30 0%, #052436 100%)", borderRight: "1px solid #e2eaf1" }}>
         <div className="grid-bg" />
         <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", background: curConfig.accentGradient, opacity: 0.15, filter: "blur(120px)", top: -150, left: -150, pointerEvents: "none", transition: "all 0.6s ease" }} />
 
@@ -376,7 +366,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
               {curConfig.sublabel}
             </div>
 
-            <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-1px", lineHeight: 1.15, marginBottom: 14 }}>
+            <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-1px", lineHeight: 1.15, marginBottom: 14, color: "#fff" }}>
               {curConfig.label}
             </h1>
             <p style={{ color: "#94a3b8", fontSize: 15, lineHeight: 1.6, maxWidth: 440 }}>
@@ -417,13 +407,13 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
         </div>
       </div>
 
-      {/* RIGHT PANEL — 4-Tab Interactive Form */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 56px", background: "rgba(10,15,30,0.5)", backdropFilter: "blur(12px)" }}>
+      {/* RIGHT PANEL — 4-Tab Interactive Form (LIGHT ICE-BLUE THEME) */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 56px", background: "#ffffff" }}>
         <div style={{ maxWidth: 440, width: "100%", margin: "0 auto" }}>
           
           {/* Header */}
           <div style={{ marginBottom: 28 }}>
-            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "-0.5px", marginBottom: 6 }}>
+            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "-0.5px", marginBottom: 6, color: "#1e293b" }}>
               Select Portal & Sign In
             </div>
             <p style={{ color: "#64748b", fontSize: 14 }}>
@@ -439,12 +429,13 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
               const isSelected = activeRole === rKey
               return (
                 <button
+                  suppressHydrationWarning
                   key={rKey}
                   type="button"
                   onClick={() => setActiveRole(rKey)}
                   className={`role-tab-btn ${isSelected ? "active" : ""}`}
                 >
-                  <IconComp size={18} style={{ color: isSelected ? cfg.badgeText : "#64748b" }} />
+                  <IconComp size={18} style={{ color: isSelected ? "#0ea5e9" : "#94a3b8" }} />
                   <span style={{ fontSize: 10, lineHeight: 1.2 }}>{cfg.label.split(" ")[0]}</span>
                 </button>
               )
@@ -455,19 +446,20 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
           {showOtp ? (
             <div>
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Two-Factor Verification</div>
+                <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4, color: "#1e293b" }}>Two-Factor Verification</div>
                 <p style={{ color: "#64748b", fontSize: 13 }}>Enter the 6-digit code for <strong>{otpEmail}</strong></p>
               </div>
 
               {displayedOtp && (
-                <div style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 12, padding: 14, marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", textTransform: "uppercase" }}>Demo 2FA Code</div>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "0.4em", fontFamily: "monospace", marginTop: 4 }}>{displayedOtp}</div>
+                <div style={{ background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 12, padding: 14, marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#0ea5e9", textTransform: "uppercase" }}>Demo 2FA Code</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "#0f172a", letterSpacing: "0.4em", fontFamily: "monospace", marginTop: 4 }}>{displayedOtp}</div>
                 </div>
               )}
 
               <div style={{ marginBottom: 20 }}>
                 <input
+                  suppressHydrationWarning
                   className="auth-input"
                   type="text"
                   value={otp}
@@ -479,6 +471,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
               </div>
 
               <button
+                suppressHydrationWarning
                 className="submit-btn"
                 style={{ background: curConfig.accentGradient }}
                 onClick={handleVerifyOtp}
@@ -491,7 +484,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
             /* Main Credentials Form */
             <>
               {error && (
-                <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 10, padding: 12, marginBottom: 20, color: "#fca5a5", fontSize: 13 }}>
+                <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 10, padding: 12, marginBottom: 20, color: "#ef4444", fontSize: 13 }}>
                   {error}
                 </div>
               )}
@@ -500,7 +493,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
                 {/* Identifier */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.6 }}>
                       {activeRole === "doctor"
                         ? "Medical Licence ID"
                         : activeRole === "hospital"
@@ -509,9 +502,10 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
                         ? "Researcher Identifier"
                         : "AI / Developer ID"}
                     </label>
-                    <span style={{ fontSize: 11, color: curConfig.badgeText, fontWeight: 600 }}>Default: {curConfig.demoId}</span>
+                    <span style={{ fontSize: 11, color: "#0ea5e9", fontWeight: 600 }}>Default: {curConfig.demoId}</span>
                   </div>
                   <input
+                    suppressHydrationWarning
                     className="auth-input"
                     type="text"
                     value={identifier}
@@ -523,11 +517,12 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
                 {/* Password */}
                 <div style={{ marginBottom: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>Password</label>
-                    <span style={{ fontSize: 11, color: "#64748b" }}>Demo: {curConfig.demoPass}</span>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.6 }}>Password</label>
+                    <span style={{ fontSize: 11, color: "#94a3b8" }}>Demo: {curConfig.demoPass}</span>
                   </div>
                   <div style={{ position: "relative" }}>
                     <input
+                      suppressHydrationWarning
                       className="auth-input"
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -536,9 +531,10 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
                       style={{ paddingRight: 44 }}
                     />
                     <button
+                      suppressHydrationWarning
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b", display: "flex" }}
+                      style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", display: "flex" }}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -547,6 +543,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
 
                 {/* Submit button */}
                 <button
+                  suppressHydrationWarning
                   type="submit"
                   className="submit-btn"
                   style={{ background: curConfig.accentGradient }}
@@ -562,30 +559,6 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
                 </button>
               </form>
 
-              {/* 1-Click Instant Demo Login CTA */}
-              <button
-                type="button"
-                className="one-click-btn"
-                onClick={handle1ClickDemo}
-              >
-                <Zap size={16} style={{ color: "#fbbf24" }} />
-                <span>Instant 1-Click Demo Login ({curConfig.name})</span>
-              </button>
-
-              {/* Verified Account Card */}
-              <div style={{ marginTop: 24, padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: curConfig.badgeBg, border: `1px solid ${curConfig.badgeBorder}`, display: "flex", alignItems: "center", justifyContent: "center", color: curConfig.badgeText, fontWeight: 800, fontSize: 14 }}>
-                  {curConfig.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", truncate: true }}>{curConfig.name}</div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>{curConfig.institution} · {curConfig.destination}</div>
-                </div>
-                <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, background: "rgba(16,185,129,0.15)", color: "#34d399", fontWeight: 700 }}>
-                  VERIFIED
-                </span>
-              </div>
-
               {/* Footer links */}
               <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#64748b" }}>
                 <Link href="/" style={{ color: "#94a3b8", textDecoration: "none" }}>
@@ -593,7 +566,7 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
                 </Link>
                 <div>
                   New institution?{" "}
-                  <Link href="/sign-up" style={{ color: "#818cf8", fontWeight: 600, textDecoration: "none" }}>
+                  <Link href="/sign-up" style={{ color: "#0ea5e9", fontWeight: 600, textDecoration: "none" }}>
                     Register
                   </Link>
                 </div>

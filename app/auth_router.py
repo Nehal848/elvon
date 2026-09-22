@@ -3,7 +3,6 @@ app/auth_router.py — Authentication Router
 Doctor & Hospital Registration, Login, OTP Verification, JWT
 """
 import logging
-import random
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -22,7 +21,9 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 # ─── In-memory stores (demo mode) ────────────────────────────────────────────
 _PENDING_OTP: dict = {}        # {email: {otp, expires, user_data, attempts, action}}
 from sqlalchemy.orm import Session
+
 from core.database import SessionLocal, User
+
 
 def get_db():
     db = SessionLocal()
@@ -129,7 +130,7 @@ def require_role(*allowed_roles: str):
     Usage: Depends(require_role("doctor", "institution"))
     """
     def _guard(
-        user: dict = Depends(get_current_user),  # noqa: B008
+        user: dict = Depends(get_current_user),
     ) -> dict:
         if config.DEMO_MODE:
             return user
@@ -377,7 +378,7 @@ async def quick_login(req: LoginRequest, db: Session = Depends(get_db)):
     valid = False
     try:
         valid = bcrypt.checkpw(req.password.encode(), user.password_hash.encode())
-    except Exception:
+    except Exception:  # noqa: S110, BLE001
         pass
 
     if not valid and config.DEMO_MODE:
@@ -417,7 +418,7 @@ async def quick_login(req: LoginRequest, db: Session = Depends(get_db)):
 
 # ─── 6. Get Current User ─────────────────────────────────────────────────────
 @router.get("/me")
-async def get_me(user: dict = Depends(get_current_user)):  # noqa: B008
+async def get_me(user: dict = Depends(get_current_user)):
     """Returns the current authenticated user profile."""
     return {
         "id": user.get("sub"),

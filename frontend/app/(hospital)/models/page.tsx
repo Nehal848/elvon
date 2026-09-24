@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import Link from "next/link"
 import HospitalLayout from "@/components/hospital-layout"
 import { 
   BrainCircuit, HeartPulse, Droplet, CheckCircle2, ArrowRight, Network, Loader2, AlertCircle
@@ -220,9 +221,9 @@ function ModelCard({ model }: { model: Model }) {
       <div className="flex items-center justify-between mt-auto relative z-10">
         <div className="text-[11px] font-bold text-slate-400">{model.type}</div>
         <div className="flex flex-col items-end gap-3">
-          <button className={`bg-gradient-to-r text-white px-6 py-2.5 rounded-full text-[14px] font-bold flex items-center gap-2 transition-all transform hover:scale-[1.02] shadow-lg ${isQuantum ? 'from-blue-600 to-cyan-400 hover:from-blue-700 hover:to-cyan-500 shadow-blue-500/25' : 'from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 shadow-blue-500/20'}`}>
+          <Link href="/analysis-report" className={`bg-gradient-to-r text-white px-6 py-2.5 rounded-full text-[14px] font-bold flex items-center gap-2 transition-all transform hover:scale-[1.02] shadow-lg no-underline ${isQuantum ? 'from-blue-600 to-cyan-400 hover:from-blue-700 hover:to-cyan-500 shadow-blue-500/25' : 'from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 shadow-blue-500/20'}`}>
             Use {isQuantum ? 'Hybrid QML' : 'Classical ML'} <ArrowRight size={16} />
-          </button>
+          </Link>
         </div>
       </div>
     </div>

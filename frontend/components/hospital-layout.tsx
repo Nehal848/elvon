@@ -51,9 +51,9 @@ export const PERSONA_CONFIGS = {
       avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80"
     },
     nav: [
-      { href: "/dashboard",      icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/analyze-report", icon: FileText,        label: "Analyze Patient Report" },
-      { href: "/patients",       icon: Users,           label: "Patients" },
+      { href: "/dashboard",        icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/analysis-report",  icon: FileText,        label: "Analyze Patient Report" },
+      { href: "/patients",         icon: Users,           label: "Patients" },
       { href: "/models",         icon: Brain,           label: "Models" },
       { href: "/reports",        icon: FileText,        label: "Reports", badge: 2 },
       { href: "/notifications",  icon: Bell,            label: "Notifications" },

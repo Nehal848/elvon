@@ -503,7 +503,7 @@ function DoctorDashboard({ session }: { session: any }) {
             <div>
               <h2 className="text-[22px] font-extrabold text-slate-900 mb-1">Analyze a New Patient Report</h2>
               <p className="text-[14px] text-slate-600 font-medium mb-4 max-w-md">Upload a patient's medical report to begin AI-powered disease analysis.</p>
-              <a href="/analyze-report" className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-400 text-white px-6 py-2.5 rounded-full text-[14px] font-bold shadow-md shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/30 transition-all cursor-pointer">
+              <a href="/analysis-report" className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-400 text-white px-6 py-2.5 rounded-full text-[14px] font-bold shadow-md shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/30 transition-all cursor-pointer">
                 <Cloud size={16} /> Analyze Patient Report <ArrowRight size={16} />
               </a>
             </div>

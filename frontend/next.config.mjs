@@ -6,6 +6,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/analyze-report',
+        destination: '/analysis-report',
+        permanent: false,
+      },
+    ]
+  },
   async rewrites() {
     return [
       {

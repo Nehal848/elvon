@@ -7,9 +7,27 @@ Write-Host "============================================================" -Foreg
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+# Detect Python Executable in Virtualenv
+$pyExe = "python"
+if (Test-Path "$scriptDir\.venv\Scripts\python.exe") {
+    $pyExe = "$scriptDir\.venv\Scripts\python.exe"
+    Write-Host "[*] Found virtual environment: .venv" -ForegroundColor Green
+} elseif (Test-Path "$scriptDir\venv\Scripts\python.exe") {
+    $pyExe = "$scriptDir\venv\Scripts\python.exe"
+    Write-Host "[*] Found virtual environment: venv" -ForegroundColor Green
+} elseif (Test-Path "$scriptDir\win_venv\Scripts\python.exe") {
+    $pyExe = "$scriptDir\win_venv\Scripts\python.exe"
+    Write-Host "[*] Found virtual environment: win_venv" -ForegroundColor Green
+} elseif (Test-Path "$scriptDir\env\Scripts\python.exe") {
+    $pyExe = "$scriptDir\env\Scripts\python.exe"
+    Write-Host "[*] Found virtual environment: env" -ForegroundColor Green
+} else {
+    Write-Host "[*] Using system Python" -ForegroundColor Yellow
+}
+
 # 1. Start FastAPI Backend in new window
 Write-Host "[1/3] Launching FastAPI Backend on http://127.0.0.1:8000 ..." -ForegroundColor Yellow
-$backendCmd = "Set-Location '$scriptDir'; if (Test-Path '.\win_venv\Scripts\Activate.ps1') { & '.\win_venv\Scripts\Activate.ps1' } elseif (Test-Path '.\venv\Scripts\Activate.ps1') { & '.\venv\Scripts\Activate.ps1' }; python main.py"
+$backendCmd = "Set-Location '$scriptDir'; & '$pyExe' main.py"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCmd
 
 # 2. Start Next.js Frontend in new window

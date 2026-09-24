@@ -62,6 +62,8 @@ app.include_router(automl_router)     # /api/automl/*
 app.include_router(qml_router)        # /api/qml/*
 
 # ─── Health check ─────────────────────────────────────────────────────────────
+@app.get("/api", include_in_schema=False)
+@app.get("/api/", include_in_schema=False)
 @app.get("/api/health")
 async def health_check():
     return {

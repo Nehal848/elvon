@@ -8,8 +8,26 @@ echo ============================================================
 set ROOT=%~dp0
 cd /d "%ROOT%"
 
+:: Auto-detect virtual environment across all common naming patterns
+set "PY_EXE=python"
+if exist "%ROOT%.venv\Scripts\python.exe" (
+    set "PY_EXE=%ROOT%.venv\Scripts\python.exe"
+    echo [*] Detected virtual environment: .venv
+) else if exist "%ROOT%venv\Scripts\python.exe" (
+    set "PY_EXE=%ROOT%venv\Scripts\python.exe"
+    echo [*] Detected virtual environment: venv
+) else if exist "%ROOT%win_venv\Scripts\python.exe" (
+    set "PY_EXE=%ROOT%win_venv\Scripts\python.exe"
+    echo [*] Detected virtual environment: win_venv
+) else if exist "%ROOT%env\Scripts\python.exe" (
+    set "PY_EXE=%ROOT%env\Scripts\python.exe"
+    echo [*] Detected virtual environment: env
+) else (
+    echo [*] Using system python
+)
+
 echo [1/3] Launching FastAPI Backend on http://127.0.0.1:8000 ...
-start "ELVON - Backend (FastAPI :8000)" cmd /k "cd /d "%ROOT%" && (if exist win_venv\Scripts\activate.bat (call win_venv\Scripts\activate.bat) else if exist venv\Scripts\activate.bat (call venv\Scripts\activate.bat)) && python main.py"
+start "ELVON - Backend (FastAPI :8000)" cmd /k "cd /d "%ROOT%" && "%PY_EXE%" main.py"
 
 echo [2/3] Launching Next.js Frontend on http://localhost:3000 ...
 start "ELVON - Frontend (Next.js :3000)" cmd /k "cd /d "%ROOT%frontend" && npm run dev"

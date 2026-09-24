@@ -16,7 +16,7 @@ from app.auth_router import (
     require_doctor,
     require_hospital,
 )
-from core.database import AutomlJob, DeployedModel, DoctorFeedback
+from core.database import AutomlJob, DeployedModel, DoctorFeedback, User, AuditLog
 
 router = APIRouter(
     prefix="/api/hospital",
@@ -542,3 +542,277 @@ async def list_versions(
     if model_id:
         results = [v for v in results if v["model_id"] == model_id]
     return {"versions": results}
+
+
+# ─── 7. User Management ──────────────────────────────────────────────────────
+class CreateUserRequest(BaseModel):
+    full_name: str
+    identifier: str
+    email: str
+    role: str
+    institution: str | None = None
+    designation: str | None = None
+    phone: str | None = None
+    password: str | None = "Welcome@123"
+
+
+_DEFAULT_USERS = [
+    {
+        "id": "USR-001",
+        "name": "Dr. Ananya Sharma",
+        "full_name": "Dr. Ananya Sharma",
+        "role": "Senior Cardiologist & Clinician",
+        "department": "Cardiology & Clinical AI",
+        "institution": "AIIMS Delhi",
+        "licenseId": "MED-11001-DL",
+        "identifier": "MED-11001-DL",
+        "email": "doctor@elvon.ai",
+        "status": "Verified",
+        "lastActive": "Active Now",
+        "avatarColor": "from-blue-600 to-cyan-500",
+    },
+    {
+        "id": "USR-002",
+        "name": "Dr. Vikram Sarabhai",
+        "full_name": "Dr. Vikram Sarabhai",
+        "role": "Lead QML Research Scientist",
+        "department": "Quantum Computing Lab",
+        "institution": "TIFR Quantum Center",
+        "licenseId": "RES-QML-007",
+        "identifier": "RES-QML-007",
+        "email": "researcher@elvon.ai",
+        "status": "Verified",
+        "lastActive": "14 mins ago",
+        "avatarColor": "from-purple-600 to-fuchsia-600",
+    },
+    {
+        "id": "USR-003",
+        "name": "Aarav Patel",
+        "full_name": "Aarav Patel",
+        "role": "Principal ML & AutoML Engineer",
+        "department": "Diagnostic AI Studio",
+        "institution": "Elvon Medical AI Labs",
+        "licenseId": "DS-AI-404",
+        "identifier": "DS-AI-404",
+        "email": "datascientist@elvon.ai",
+        "status": "Verified",
+        "lastActive": "1 hour ago",
+        "avatarColor": "from-emerald-600 to-teal-500",
+    },
+    {
+        "id": "USR-004",
+        "name": "CityCare Admin",
+        "full_name": "CityCare Admin",
+        "role": "Hospital Administrator",
+        "department": "Executive Operations",
+        "institution": "CityCare Multi-Speciality",
+        "licenseId": "HOSP-MH-001",
+        "identifier": "HOSP-MH-001",
+        "email": "admin@citycare.in",
+        "status": "Active",
+        "lastActive": "Active Now",
+        "avatarColor": "from-indigo-600 to-violet-600",
+    },
+]
+
+
+@router.get("/users")
+async def list_users(
+    db: Session = Depends(get_db),
+    _user: dict = Depends(require_any_auth),
+):
+    """List registered users and clinical staff."""
+    db_users = db.query(User).all()
+    if not db_users:
+        return {"users": _DEFAULT_USERS}
+
+    results = []
+    for u in db_users:
+        role_label = u.designation or (
+            "Clinician" if u.role == "doctor"
+            else "Hospital Administrator" if u.role == "institution"
+            else "Quantum Researcher" if u.role == "researcher"
+            else "AutoML & Data Scientist"
+        )
+        avatar = (
+            "from-blue-600 to-cyan-500" if u.role == "doctor"
+            else "from-indigo-600 to-violet-600" if u.role == "institution"
+            else "from-purple-600 to-fuchsia-600" if u.role == "researcher"
+            else "from-emerald-600 to-teal-500"
+        )
+        results.append({
+            "id": u.id,
+            "name": u.full_name,
+            "full_name": u.full_name,
+            "identifier": u.identifier,
+            "licenseId": u.identifier,
+            "email": u.email,
+            "role": role_label,
+            "department": u.designation or "Clinical Operations",
+            "institution": u.institution or "CityCare Multi-Speciality Hospital",
+            "status": "Verified" if u.verified else "Active",
+            "lastActive": "Active Recently",
+            "avatarColor": avatar,
+        })
+    return {"users": results}
+
+
+@router.post("/users")
+async def create_user(
+    body: CreateUserRequest,
+    db: Session = Depends(get_db),
+    _user: dict = Depends(require_any_auth),
+):
+    """Register a new clinician, researcher, or staff member."""
+    import bcrypt
+    new_id = f"usr_{uuid.uuid4().hex[:8]}"
+    pw = (body.password or "Welcome@123").encode("utf-8")
+    pw_hash = bcrypt.hashpw(pw, bcrypt.gensalt()).decode()
+
+    new_user = User(
+        id=new_id,
+        full_name=body.full_name,
+        identifier=body.identifier,
+        email=body.email,
+        role=body.role,
+        institution=body.institution or "CityCare Multi-Speciality Hospital",
+        designation=body.designation or body.role,
+        phone=body.phone or "+91-9876543210",
+        password_hash=pw_hash,
+        verified=1,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "success": True,
+        "message": f"User {body.full_name} registered successfully",
+        "user": {
+            "id": new_user.id,
+            "name": new_user.full_name,
+            "full_name": new_user.full_name,
+            "identifier": new_user.identifier,
+            "licenseId": new_user.identifier,
+            "email": new_user.email,
+            "role": new_user.designation or new_user.role,
+            "department": new_user.designation or "Clinical Operations",
+            "institution": new_user.institution,
+            "status": "Verified",
+            "lastActive": "Active Now",
+            "avatarColor": "from-blue-600 to-cyan-500",
+        }
+    }
+
+
+# ─── 8. Audit & Activity Log ─────────────────────────────────────────────────
+_MOCK_AUDIT_LOGS = [
+    {
+        "id": "AUD-8921",
+        "timestamp": "2 mins ago",
+        "user": "Dr. Ananya Sharma",
+        "role": "Clinician",
+        "action": "Model Inference Executed",
+        "resource": "QSVM Breast Cancer v2.1",
+        "category": "Inference",
+        "status": "verified",
+        "ip": "10.0.4.18 (Enclave)",
+        "details": "Zero-leakage inference on Patient P-1024; Perturbation score 0.94.",
+    },
+    {
+        "id": "AUD-8920",
+        "timestamp": "14 mins ago",
+        "user": "Dr. Vikram Sarabhai",
+        "role": "Quantum Researcher",
+        "action": "NISQ Simulator Job Dispatched",
+        "resource": "VQC Circuit (8-Qubit Statevector)",
+        "category": "Config",
+        "status": "success",
+        "ip": "10.0.12.91",
+        "details": "PennyLane default.qubit simulator; 2048 shots; Hardware readiness score 87%.",
+    },
+    {
+        "id": "AUD-8919",
+        "timestamp": "42 mins ago",
+        "user": "CityCare Admin",
+        "role": "Hospital Admin",
+        "action": "HL7/FHIR Feed Synced",
+        "resource": "PACS DICOM Server 02",
+        "category": "Access",
+        "status": "verified",
+        "ip": "192.168.1.105",
+        "details": "18 new radiology imaging studies ingested with verified SHA-256 integrity hash.",
+    },
+    {
+        "id": "AUD-8918",
+        "timestamp": "1 hour ago",
+        "user": "Aarav Patel",
+        "role": "Data Scientist",
+        "action": "AutoML Pipeline Completed",
+        "resource": "Tournament #TRN-2026-04",
+        "category": "Inference",
+        "status": "success",
+        "ip": "10.0.8.44",
+        "details": "Trained 5 candidate models (XGBoost, RandomForest, QSVM); Champion accuracy 95.8%.",
+    },
+    {
+        "id": "AUD-8917",
+        "timestamp": "2 hours ago",
+        "user": "System Daemon",
+        "role": "Security Sentinel",
+        "action": "Enclave Memory Integrity Check",
+        "resource": "Isolated RAM Sandbox",
+        "category": "Security",
+        "status": "verified",
+        "ip": "127.0.0.1 (Localhost)",
+        "details": "Zero memory leakage detected across all running containerized inference workers.",
+    },
+    {
+        "id": "AUD-8916",
+        "timestamp": "3 hours ago",
+        "user": "Dr. Ananya Sharma",
+        "role": "Clinician",
+        "action": "Patient Diagnostic Report Export",
+        "resource": "Report #REP-9041 (Patient P-1088)",
+        "category": "Export",
+        "status": "success",
+        "ip": "10.0.4.18 (Enclave)",
+        "details": "Encrypted PDF generated with digital cryptographic clinician signature.",
+    },
+    {
+        "id": "AUD-8915",
+        "timestamp": "5 hours ago",
+        "user": "System Daemon",
+        "role": "Compliance Sentinel",
+        "action": "Differential Privacy Noise Audit",
+        "resource": "Patient Cohort Registry",
+        "category": "Security",
+        "status": "verified",
+        "ip": "127.0.0.1 (Localhost)",
+        "details": "Epsilon budget epsilon=0.5 validated; Patient re-identification risk < 0.01%.",
+    },
+]
+
+
+@router.get("/audit")
+async def list_audit(
+    category: str | None = Query(None),
+    limit: int = Query(50),
+    db: Session = Depends(get_db),
+    _user: dict = Depends(require_any_auth),
+):
+    """List system telemetry and audit logs."""
+    logs = _MOCK_AUDIT_LOGS.copy()
+    if category and category.lower() != "all":
+        logs = [l for l in logs if l["category"].lower() == category.lower()]
+    return {
+        "summary": {
+            "total_events": 1428,
+            "security_incidents": 0,
+            "model_inferences": 842,
+            "data_access_events": 586,
+            "enclave_status": "Active (Zero Leakage)",
+        },
+        "logs": logs[:limit],
+    }
+

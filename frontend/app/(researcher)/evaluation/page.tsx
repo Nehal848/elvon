@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import ResearcherLayout from "@/components/researcher-layout"
+import HospitalLayout from "@/components/hospital-layout"
 import { 
   Info, BarChart2, Shield, Activity, Target, BrainCircuit,
   Zap, Clock, Layers, ArrowRight, Check
@@ -9,8 +9,8 @@ import {
 
 export default function EvaluationPage() {
   return (
-    <ResearcherLayout 
-      title="Model Evaluation" 
+    <HospitalLayout 
+      title="Evaluation & Benchmarking" 
       subtitle="Evaluate and compare classical ML and hybrid QML model performance for the selected experiment."
     >
       <div className="max-w-[1600px] space-y-6 pb-12">
@@ -478,7 +478,7 @@ export default function EvaluationPage() {
         </div>
 
       </div>
-    </ResearcherLayout>
+    </HospitalLayout>
   )
 }
 

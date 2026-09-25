@@ -98,13 +98,14 @@ export const PERSONA_CONFIGS = {
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80"
     },
     nav: [
-      { step: 1, href: "/quantum-lab",         icon: Atom,            label: "Quantum Simulator" },
-      { step: 2, href: "/research-dashboard",   icon: LayoutDashboard, label: "Experiment Hub" },
-      { step: 3, href: "/evaluation",          icon: BarChart2,       label: "Benchmarks & Eval" },
-      { step: 4, href: "/analysis-report",     icon: FileText,        label: "AI Interpretability" },
-      { step: 5, href: "/history",             icon: Layers,          label: "Experiment History" },
-      { step: 6, href: "/marketplace",         icon: ShoppingBag,     label: "Model Marketplace" },
-      { step: 7, href: "/notifications",       icon: Bell,            label: "Notifications" },
+      { href: "/quantum-lab",         icon: Atom,            label: "Quantum Simulator" },
+      { href: "/research-dashboard",   icon: LayoutDashboard, label: "Experiment Hub" },
+      { href: "/evaluation",          icon: BarChart2,       label: "Evaluation & Benchmarking" },
+      { href: "/analysis-report",     icon: FileText,        label: "AI Interpretability" },
+      { href: "/history",             icon: Layers,          label: "Experiment History" },
+      { href: "/marketplace",         icon: ShoppingBag,     label: "Model Marketplace" },
+      { href: "/notifications",       icon: Bell,            label: "Notifications" },
+      { href: "/settings",            icon: Settings,        label: "Settings" },
     ]
   }
 }

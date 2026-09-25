@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import ResearcherLayout from "@/components/researcher-layout"
+import HospitalLayout from "@/components/hospital-layout"
 import { 
   BarChart2, Shield, Activity, Target, BrainCircuit,
   Zap, Clock, Layers, ArrowRight, Check, FileText,
@@ -11,8 +11,8 @@ import {
 
 export default function AnalysisReportPage() {
   return (
-    <ResearcherLayout 
-      title="Analysis & Report" 
+    <HospitalLayout 
+      title="AI Interpretability" 
       subtitle="Understand experiment behavior, analyze features, and generate research-ready insights."
     >
       <div className="max-w-[1600px] space-y-6 pb-12">
@@ -390,7 +390,7 @@ export default function AnalysisReportPage() {
 
       </div>
       </div>
-    </ResearcherLayout>
+    </HospitalLayout>
   )
 }
 

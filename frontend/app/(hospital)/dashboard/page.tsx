@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import HospitalLayout from "@/components/hospital-layout"
 import {
   Database, Settings, Activity, Box, Zap, BarChart2, Lightbulb, ChevronRight,
@@ -10,6 +12,7 @@ import {
 } from "lucide-react"
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [session, setSession] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -17,13 +20,22 @@ export default function DashboardPage() {
     try {
       const raw = localStorage.getItem("qml_session") || localStorage.getItem("hospital_ai_session")
       if (raw) {
-        setSession(JSON.parse(raw))
+        const parsed = JSON.parse(raw)
+        setSession(parsed)
+        if (parsed.role === "researcher") {
+          router.replace("/research-dashboard")
+          return
+        }
       }
     } catch {}
     setLoading(false)
-  }, [])
+  }, [router])
 
   if (loading) return null
+
+  if (session?.role === "researcher") {
+    return null
+  }
 
   if (session?.role === "hospital" || session?.role === "institution") {
     return <AdminDashboard session={session} />
@@ -45,9 +57,9 @@ function AdminDashboard({ session }: { session: any }) {
         
         {/* TOP STAT CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px]">
+          <Link href="/users" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px] hover:border-blue-200 hover:shadow-md transition-all group no-underline">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <User size={20} />
               </div>
               <div className="flex flex-col">
@@ -56,13 +68,13 @@ function AdminDashboard({ session }: { session: any }) {
               </div>
             </div>
             <div className="mt-auto flex items-center gap-2 text-[11px] font-semibold text-slate-500">
-              <div className="w-1 h-3 rounded-full bg-blue-600" /> Active doctors
+              <div className="w-1 h-3 rounded-full bg-blue-600" /> Manage Doctors →
             </div>
-          </div>
+          </Link>
           
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px]">
+          <Link href="/users" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px] hover:border-teal-200 hover:shadow-md transition-all group no-underline">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <Laptop size={20} />
               </div>
               <div className="flex flex-col">
@@ -71,13 +83,13 @@ function AdminDashboard({ session }: { session: any }) {
               </div>
             </div>
             <div className="mt-auto flex items-center gap-2 text-[11px] font-semibold text-slate-500">
-              <div className="w-1 h-3 rounded-full bg-teal-500" /> Active users
+              <div className="w-1 h-3 rounded-full bg-teal-500" /> Active Users →
             </div>
-          </div>
+          </Link>
           
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px]">
+          <Link href="/users" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px] hover:border-purple-200 hover:shadow-md transition-all group no-underline">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <FlaskConical size={20} />
               </div>
               <div className="flex flex-col">
@@ -86,13 +98,13 @@ function AdminDashboard({ session }: { session: any }) {
               </div>
             </div>
             <div className="mt-auto flex items-center gap-2 text-[11px] font-semibold text-slate-500">
-              <div className="w-1 h-3 rounded-full bg-purple-500" /> Active researchers
+              <div className="w-1 h-3 rounded-full bg-purple-500" /> Research Staff →
             </div>
-          </div>
+          </Link>
           
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px]">
+          <Link href="/patients" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px] hover:border-emerald-200 hover:shadow-md transition-all group no-underline">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <Users size={20} />
               </div>
               <div className="flex flex-col">
@@ -103,11 +115,11 @@ function AdminDashboard({ session }: { session: any }) {
             <div className="mt-auto flex items-center gap-2 text-[11px] font-semibold text-slate-500">
               <div className="w-1 h-3 rounded-full bg-emerald-500" /> Registered patients
             </div>
-          </div>
+          </Link>
           
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px]">
+          <Link href="/models" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px] hover:border-blue-200 hover:shadow-md transition-all group no-underline">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <Brain size={20} />
               </div>
               <div className="flex flex-col">
@@ -118,11 +130,11 @@ function AdminDashboard({ session }: { session: any }) {
             <div className="mt-auto flex items-center gap-2 text-[11px] font-semibold text-slate-500">
               <div className="w-1 h-3 rounded-full bg-blue-600" /> Deployed models
             </div>
-          </div>
+          </Link>
           
-          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px]">
+          <Link href="/reports" className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col h-[104px] hover:border-orange-200 hover:shadow-md transition-all group no-underline">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <FileText size={20} />
               </div>
               <div className="flex flex-col">
@@ -133,7 +145,7 @@ function AdminDashboard({ session }: { session: any }) {
             <div className="mt-auto flex items-center gap-2 text-[11px] font-semibold text-slate-500">
               <div className="w-1 h-3 rounded-full bg-orange-500" /> Completed analyses
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* SECOND ROW: SYSTEM HEALTH & USER ACTIVITY */}
@@ -188,8 +200,13 @@ function AdminDashboard({ session }: { session: any }) {
               <div className="flex items-center gap-2 text-slate-800 font-bold">
                 <Users size={18} className="text-blue-500" /> User Activity
               </div>
-              <div className="flex items-center gap-2 text-[12px] font-semibold text-slate-500 border border-slate-200 rounded-lg px-3 py-1">
-                <Clock size={14} /> Last 7 days
+              <div className="flex items-center gap-3">
+                <Link href="/users" className="text-[12px] font-bold text-blue-600 hover:underline">
+                  Manage Users →
+                </Link>
+                <div className="flex items-center gap-2 text-[12px] font-semibold text-slate-500 border border-slate-200 rounded-lg px-3 py-1">
+                  <Clock size={14} /> Last 7 days
+                </div>
               </div>
             </div>
             
@@ -410,7 +427,7 @@ function AdminDashboard({ session }: { session: any }) {
             <div className="flex items-center gap-2 text-slate-800 font-bold">
               <Clock size={18} className="text-blue-500" /> Recent Activity
             </div>
-            <a href="/audit" className="text-[12px] font-bold text-blue-600 hover:underline">View All Activity →</a>
+            <Link href="/audit" className="text-[12px] font-bold text-blue-600 hover:underline">View All Activity →</Link>
           </div>
 
           <div className="overflow-x-auto">

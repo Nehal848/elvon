@@ -513,7 +513,7 @@ export default function LandingPage() {
         </div>
         <div className="nav-actions">
           <Link href="/login" className="btn-nav-outline">Login</Link>
-          <Link href="/login?callbackUrl=/dashboard" className="btn-nav-primary">Explore Platform →</Link>
+          <Link href="/login" className="btn-nav-primary">Explore Platform →</Link>
         </div>
       </nav>
 
@@ -1088,7 +1088,7 @@ export default function LandingPage() {
               Get explainable predictions and benchmark evidence — in one platform.
             </p>
             <div className="cta-actions">
-              <Link href="/login?callbackUrl=/dashboard" className="btn-primary" style={{ fontSize: 16, padding: "17px 38px" }}>🚀 Launch Quantum HealthAI →</Link>
+              <Link href="/login/researcher" className="btn-primary" style={{ fontSize: 16, padding: "17px 38px" }}>🚀 Launch Quantum HealthAI →</Link>
               <Link href="/login" className="btn-secondary" style={{ fontSize: 16, padding: "17px 38px" }}>Login to Platform</Link>
             </div>
             <div className="cta-disclaimer">

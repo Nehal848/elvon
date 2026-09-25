@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import ResearcherLayout from "@/components/researcher-layout"
+import HospitalLayout from "@/components/hospital-layout"
 import {
   FlaskConical, CheckCircle2, PlayCircle, XCircle, Search, ChevronDown,
   Bookmark, Plus, ChevronRight, MoreVertical, Clock, Database, SlidersHorizontal,
@@ -94,7 +94,7 @@ export default function ExperimentHistoryPage() {
   const runningCount = experiments.filter(e => e.status === "RUNNING").length
 
   return (
-    <ResearcherLayout 
+    <HospitalLayout 
       title="Experiment History" 
       subtitle="Track, reproduce and manage your research experiments."
     >
@@ -428,6 +428,6 @@ export default function ExperimentHistoryPage() {
 
         </div>
       </div>
-    </ResearcherLayout>
+    </HospitalLayout>
   )
 }

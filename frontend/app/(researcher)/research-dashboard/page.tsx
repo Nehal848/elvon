@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import ResearcherLayout from "@/components/researcher-layout"
+import HospitalLayout from "@/components/hospital-layout"
 import { 
   Folder, FlaskConical, Play, ArrowRight, MoreHorizontal, 
   Database, Atom, Activity, FileText
@@ -9,9 +9,9 @@ import {
 
 export default function ResearchDashboardPage() {
   return (
-    <ResearcherLayout 
-      title="Research Dashboard" 
-      subtitle="Monitor your research, experiments and model performance."
+    <HospitalLayout 
+      title="Experiment Hub" 
+      subtitle="Monitor your research, experiments and quantum model performance."
     >
       <div className="max-w-[1500px] space-y-6 pb-12">
         
@@ -238,7 +238,7 @@ export default function ResearchDashboardPage() {
         </div>
 
       </div>
-    </ResearcherLayout>
+    </HospitalLayout>
   )
 }
 

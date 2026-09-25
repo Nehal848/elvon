@@ -208,52 +208,52 @@ export default function HospitalLayout({
 
   const Sidebar = () => (
     <aside 
-      className="w-[292px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 bg-gradient-to-b from-[#09223d] via-[#0c2a4a] to-[#07192e] text-white select-none overflow-hidden border-r border-cyan-500/20 shadow-[8px_0_32px_rgba(0,0,0,0.35)]"
+      className="w-[305px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 bg-gradient-to-b from-[#0e3357] via-[#103d69] to-[#0a233c] text-white select-none overflow-hidden border-r border-cyan-400/30 shadow-[8px_0_36px_rgba(0,0,0,0.4)]"
     >
       {/* Luminous Ambient Glow in Background */}
-      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-cyan-500/20 via-sky-500/10 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-teal-500/15 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-cyan-400/25 via-sky-400/15 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-72 h-72 bg-teal-400/20 blur-3xl rounded-full pointer-events-none" />
 
       {/* Neural Constellation SVG Background */}
-      <div className="absolute inset-0 pointer-events-none opacity-40 z-0 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none opacity-50 z-0 overflow-hidden">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           {/* Constellation Lines */}
-          <line x1="20" y1="40" x2="110" y2="90" stroke="#38bdf8" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.7" />
-          <line x1="110" y1="90" x2="230" y2="60" stroke="#38bdf8" strokeWidth="0.8" opacity="0.6" />
-          <line x1="230" y1="60" x2="270" y2="180" stroke="#38bdf8" strokeWidth="0.8" opacity="0.5" />
-          <line x1="270" y1="180" x2="200" y2="280" stroke="#38bdf8" strokeWidth="0.8" opacity="0.5" />
-          <line x1="200" y1="280" x2="80" y2="350" stroke="#38bdf8" strokeWidth="0.8" opacity="0.5" />
-          <line x1="80" y1="350" x2="250" y2="480" stroke="#38bdf8" strokeWidth="0.8" opacity="0.6" />
-          <line x1="250" y1="480" x2="170" y2="590" stroke="#38bdf8" strokeWidth="0.8" opacity="0.6" />
-          <line x1="170" y1="590" x2="60" y2="700" stroke="#38bdf8" strokeWidth="0.8" opacity="0.7" />
-          <line x1="60" y1="700" x2="230" y2="760" stroke="#38bdf8" strokeWidth="0.8" opacity="0.5" />
-          <line x1="230" y1="760" x2="190" y2="860" stroke="#38bdf8" strokeWidth="0.8" opacity="0.6" />
+          <line x1="20" y1="40" x2="110" y2="90" stroke="#38bdf8" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.75" />
+          <line x1="110" y1="90" x2="230" y2="60" stroke="#38bdf8" strokeWidth="0.9" opacity="0.7" />
+          <line x1="230" y1="60" x2="270" y2="180" stroke="#38bdf8" strokeWidth="0.9" opacity="0.6" />
+          <line x1="270" y1="180" x2="200" y2="280" stroke="#38bdf8" strokeWidth="0.9" opacity="0.6" />
+          <line x1="200" y1="280" x2="80" y2="350" stroke="#38bdf8" strokeWidth="0.9" opacity="0.6" />
+          <line x1="80" y1="350" x2="250" y2="480" stroke="#38bdf8" strokeWidth="0.9" opacity="0.7" />
+          <line x1="250" y1="480" x2="170" y2="590" stroke="#38bdf8" strokeWidth="0.9" opacity="0.7" />
+          <line x1="170" y1="590" x2="60" y2="700" stroke="#38bdf8" strokeWidth="0.9" opacity="0.75" />
+          <line x1="60" y1="700" x2="230" y2="760" stroke="#38bdf8" strokeWidth="0.9" opacity="0.6" />
+          <line x1="230" y1="760" x2="190" y2="860" stroke="#38bdf8" strokeWidth="0.9" opacity="0.7" />
           
           {/* Constellation Glowing Nodes */}
-          <circle cx="20" cy="40" r="2.5" fill="#7dd3fc" />
-          <circle cx="110" cy="90" r="4" fill="#38bdf8" className="animate-pulse" />
-          <circle cx="230" cy="60" r="2.5" fill="#7dd3fc" />
-          <circle cx="270" cy="180" r="2.5" fill="#0ea5e9" />
-          <circle cx="200" cy="280" r="3.5" fill="#38bdf8" />
-          <circle cx="80" cy="350" r="3" fill="#7dd3fc" />
-          <circle cx="250" cy="480" r="4" fill="#38bdf8" className="animate-pulse" />
-          <circle cx="170" cy="590" r="3" fill="#7dd3fc" />
-          <circle cx="60" cy="700" r="3.5" fill="#38bdf8" />
-          <circle cx="230" cy="760" r="3" fill="#7dd3fc" />
-          <circle cx="190" cy="860" r="2.5" fill="#0ea5e9" />
+          <circle cx="20" cy="40" r="3" fill="#bae6fd" />
+          <circle cx="110" cy="90" r="4.5" fill="#38bdf8" className="animate-pulse" />
+          <circle cx="230" cy="60" r="3" fill="#bae6fd" />
+          <circle cx="270" cy="180" r="3" fill="#38bdf8" />
+          <circle cx="200" cy="280" r="4" fill="#38bdf8" />
+          <circle cx="80" cy="350" r="3.5" fill="#bae6fd" />
+          <circle cx="250" cy="480" r="4.5" fill="#38bdf8" className="animate-pulse" />
+          <circle cx="170" cy="590" r="3.5" fill="#bae6fd" />
+          <circle cx="60" cy="700" r="4" fill="#38bdf8" />
+          <circle cx="230" cy="760" r="3.5" fill="#bae6fd" />
+          <circle cx="190" cy="860" r="3" fill="#38bdf8" />
         </svg>
       </div>
 
       {/* MAIN CONTENT OF SIDEBAR */}
-      <div className="relative z-10 flex flex-col flex-1 overflow-y-auto px-4 pt-6 pb-2">
+      <div className="relative z-10 flex flex-col flex-1 overflow-y-auto px-3.5 pt-6 pb-2">
         
         {/* BRAND HEADER WITH 3D CRYSTAL BRAIN */}
         <div className="px-2 mb-5">
           <Link href="/" className="flex items-center gap-3.5 no-underline group">
             {/* Low-Poly 3D Crystal Brain SVG */}
             <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
-              <div className="absolute inset-0 bg-cyan-400/30 blur-lg rounded-full" />
-              <svg viewBox="0 0 100 100" className="w-12 h-12 relative z-10 filter drop-shadow-[0_0_14px_rgba(56,189,248,0.85)] group-hover:scale-105 transition-transform duration-300">
+              <div className="absolute inset-0 bg-cyan-400/40 blur-lg rounded-full" />
+              <svg viewBox="0 0 100 100" className="w-12 h-12 relative z-10 filter drop-shadow-[0_0_16px_rgba(56,189,248,0.9)] group-hover:scale-105 transition-transform duration-300">
                 <defs>
                   <linearGradient id="crystal1_light" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#bae6fd" />
@@ -269,7 +269,7 @@ export default function HospitalLayout({
                   </linearGradient>
                   <linearGradient id="crystalEdge_light" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.6" />
                   </linearGradient>
                 </defs>
                 {/* Left Hemisphere Facets */}
@@ -308,8 +308,8 @@ export default function HospitalLayout({
           </Link>
         </div>
 
-        {/* FLOATING FROSTED GLASS CAPSULE CONTAINER (LIGHTER & LUMINOUS) */}
-        <div className="rounded-[26px] p-2.5 bg-gradient-to-b from-[#143d63]/65 via-[#0e2d4a]/55 to-[#0a2034]/65 border border-cyan-300/35 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.35),0_0_20px_rgba(6,182,212,0.15),inset_0_1px_2px_rgba(255,255,255,0.25)] flex flex-col gap-1.5">
+        {/* FLOATING FROSTED GLASS CAPSULE CONTAINER (LIGHTER, LUMINOUS & HIGH CONTRAST) */}
+        <div className="rounded-[26px] p-2.5 bg-gradient-to-b from-[#1b4b7a]/70 via-[#133c64]/60 to-[#0c2a47]/70 border border-cyan-300/40 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.3),0_0_24px_rgba(34,211,238,0.2),inset_0_1px_2px_rgba(255,255,255,0.35)] flex flex-col gap-1.5">
           {activeNav.map(({ step, href, icon: Icon, label, badge }: any) => {
             const isActive = isLinkActive(href)
             
@@ -326,28 +326,28 @@ export default function HospitalLayout({
                 onClick={() => setSidebarOpen(false)}
                 className={`group relative flex items-center justify-between px-3.5 py-2.5 rounded-[18px] transition-all duration-300 no-underline ${
                   isActive
-                    ? "bg-gradient-to-r from-sky-400/40 via-cyan-400/30 to-teal-400/20 border-2 border-cyan-300/80 shadow-[0_0_24px_rgba(34,211,238,0.45),inset_0_1px_2px_rgba(255,255,255,0.6)] text-white"
-                    : "text-slate-200 hover:text-white hover:bg-white/15 border border-transparent hover:border-white/20"
+                    ? "bg-gradient-to-r from-sky-400/50 via-cyan-400/40 to-teal-400/30 border-2 border-cyan-200 shadow-[0_0_28px_rgba(34,211,238,0.65),inset_0_1px_3px_rgba(255,255,255,0.75)] text-white ring-1 ring-cyan-300/60"
+                    : "text-slate-100/90 hover:text-white hover:bg-white/20 border border-transparent hover:border-cyan-300/35 hover:shadow-[0_0_16px_rgba(6,182,212,0.3)]"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Square Glass Icon Box */}
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${
                     isActive
-                      ? "bg-cyan-400/35 border border-cyan-200 text-white shadow-[0_0_14px_rgba(34,211,238,0.7)]"
+                      ? "bg-cyan-400/50 border-2 border-cyan-100 text-white shadow-[0_0_18px_rgba(34,211,238,0.95)]"
                       : isModels
-                      ? "bg-cyan-900/45 border border-cyan-300/40 text-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                      : "bg-white/10 border border-white/20 text-cyan-200 group-hover:bg-cyan-400/30 group-hover:border-cyan-300 group-hover:text-white group-hover:shadow-[0_0_14px_rgba(6,182,212,0.5)]"
+                      ? "bg-cyan-800/60 border border-cyan-300/50 text-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.45)]"
+                      : "bg-white/15 border border-white/25 text-cyan-100 group-hover:bg-cyan-400/35 group-hover:border-cyan-200 group-hover:text-white group-hover:shadow-[0_0_16px_rgba(6,182,212,0.6)]"
                   }`}>
                     {isModels ? (
-                      <Brain size={19} className="text-cyan-200 drop-shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+                      <Brain size={19} className="text-cyan-100 drop-shadow-[0_0_8px_rgba(34,211,238,0.95)]" />
                     ) : (
                       <Icon size={19} />
                     )}
                   </div>
 
                   {/* Nav Label */}
-                  <span className={`text-[13.5px] truncate tracking-tight ${isActive ? "font-black text-white drop-shadow-sm" : "font-bold text-slate-200 group-hover:text-white"}`}>
+                  <span className={`text-[13.5px] truncate tracking-tight ${isActive ? "font-black text-white drop-shadow-sm" : "font-bold text-slate-100 group-hover:text-white"}`}>
                     {label}
                   </span>
                 </div>
@@ -356,18 +356,18 @@ export default function HospitalLayout({
                 <div className="flex items-center shrink-0 ml-1">
                   {isReports ? (
                     // 3D Glossy Red Orb Badge with "2"
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-rose-700 via-red-600 to-rose-400 border border-rose-200/80 text-white font-black text-[11px] shadow-[0_0_18px_rgba(239,68,68,0.95)] flex items-center justify-center ring-2 ring-red-950/40">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-rose-700 via-red-600 to-rose-400 border border-rose-200/90 text-white font-black text-[11px] shadow-[0_0_18px_rgba(239,68,68,0.95)] flex items-center justify-center ring-2 ring-red-950/40">
                       {badge || 2}
                     </div>
                   ) : isPatientReport ? (
                     // Glowing Turquoise Dot
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-300 shadow-[0_0_10px_#38bdf8] opacity-90" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-300 shadow-[0_0_12px_#38bdf8] opacity-95 ring-1 ring-cyan-200/60" />
                   ) : isPatients ? (
                     // Glowing Mint Teal Dot
-                    <span className="w-2.5 h-2.5 rounded-full bg-teal-300 shadow-[0_0_10px_#2dd4bf] opacity-90" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-teal-300 shadow-[0_0_12px_#2dd4bf] opacity-95 ring-1 ring-teal-200/60" />
                   ) : isModels ? (
                     // Glowing Particle
-                    <span className="w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_8px_#67e8f9] opacity-80" />
+                    <span className="w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_10px_#67e8f9] opacity-90 ring-1 ring-cyan-200/60" />
                   ) : null}
                 </div>
               </Link>
@@ -378,16 +378,16 @@ export default function HospitalLayout({
       </div>
 
       {/* BOTTOM USER PROFILE & LOGOUT SECTION (LIGHTER FROSTED GLASS) */}
-      <div className="p-4 relative z-10 flex flex-col gap-3">
+      <div className="p-3.5 relative z-10 flex flex-col gap-3">
         {/* User Card Capsule */}
-        <div className="relative rounded-[22px] p-3 bg-gradient-to-r from-[#143d63]/80 via-[#0f3150]/70 to-[#0a2339]/80 border border-cyan-300/35 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.35),0_0_16px_rgba(6,182,212,0.15),inset_0_1px_2px_rgba(255,255,255,0.3)] flex items-center justify-between">
+        <div className="relative rounded-[22px] p-3 bg-gradient-to-r from-[#1b4b7a]/85 via-[#144169]/75 to-[#0e3050]/85 border border-cyan-300/40 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.3),0_0_18px_rgba(34,211,238,0.25),inset_0_1px_2px_rgba(255,255,255,0.4)] flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             {/* User Avatar with Neon Cyan Ring */}
             <div className="relative shrink-0">
               <img
                 src={userAvatar}
                 alt={userName}
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.7)]"
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.8)]"
               />
             </div>
             <div className="min-w-0">
@@ -400,13 +400,13 @@ export default function HospitalLayout({
           <Link 
             href="/settings" 
             title="Settings" 
-            className="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 flex items-center justify-center text-slate-200 hover:text-white transition-all shrink-0 ml-2 shadow-xs"
+            className="w-8 h-8 rounded-xl bg-white/20 hover:bg-white/30 border border-white/30 flex items-center justify-center text-white transition-all shrink-0 ml-2 shadow-xs"
           >
             <Settings size={16} />
           </Link>
 
           {/* Decorative Sparkle */}
-          <div className="absolute -bottom-1.5 -right-1.5 text-cyan-300/60 pointer-events-none text-sm drop-shadow-[0_0_6px_rgba(56,189,248,0.8)]">
+          <div className="absolute -bottom-1.5 -right-1.5 text-cyan-300/70 pointer-events-none text-sm drop-shadow-[0_0_8px_rgba(56,189,248,0.9)]">
             ✦
           </div>
         </div>
@@ -414,7 +414,7 @@ export default function HospitalLayout({
         {/* Minimalist Logout Link */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2.5 px-3 py-1.5 text-[13px] font-bold text-slate-300 hover:text-cyan-300 transition-colors cursor-pointer bg-transparent border-0 self-start"
+          className="flex items-center gap-2.5 px-3 py-1.5 text-[13px] font-bold text-slate-200 hover:text-cyan-300 transition-colors cursor-pointer bg-transparent border-0 self-start"
         >
           <LogOut size={16} />
           <span>Logout</span>

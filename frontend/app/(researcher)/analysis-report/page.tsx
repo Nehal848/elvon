@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import HospitalLayout from "@/components/hospital-layout"
 import { 
   BarChart2, Shield, Activity, Target, BrainCircuit,
@@ -327,7 +328,25 @@ const MODEL_DATA: Record<string, ModelAnalysisData> = {
 }
 
 export default function AnalysisReportPage() {
-  const [selectedModelKey, setSelectedModelKey] = useState<string>("qsvm")
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-slate-400 font-bold">Loading Interpretability Engine...</div>}>
+      <AnalysisReportContent />
+    </Suspense>
+  )
+}
+
+function AnalysisReportContent() {
+  const searchParams = useSearchParams()
+  const initialModel = searchParams.get("model") || "qsvm"
+  const [selectedModelKey, setSelectedModelKey] = useState<string>(initialModel)
+
+  useEffect(() => {
+    const urlModel = searchParams.get("model")
+    if (urlModel && MODEL_DATA[urlModel]) {
+      setSelectedModelKey(urlModel)
+    }
+  }, [searchParams])
+
   const currentModel = MODEL_DATA[selectedModelKey] || MODEL_DATA.qsvm
 
   return (

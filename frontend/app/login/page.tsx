@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
@@ -13,10 +13,13 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Zap,
   CheckCircle2,
   Lock,
-  ExternalLink
+  ExternalLink,
+  ShieldCheck,
+  Zap,
+  Activity,
+  UserCheck
 } from "lucide-react"
 
 export type PlatformRole = "doctor" | "hospital" | "researcher" | "data-scientist"
@@ -35,10 +38,8 @@ export interface RoleConfig {
   institution: string
   email: string
   destination: string
-  accentGradient: string
-  badgeBg: string
-  badgeBorder: string
-  badgeText: string
+  image: string
+  tags: [string, string]
   features: string[]
 }
 
@@ -47,7 +48,7 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     id: "doctor",
     sessionRole: "doctor",
     label: "Doctor / Clinician",
-    sublabel: "Medical Portal",
+    sublabel: "MEDICAL PORTAL",
     tagline: "Clinical triage, patient diagnostics, and PACS DICOM imaging",
     icon: Stethoscope,
     demoId: "MED-11001-DL",
@@ -57,10 +58,8 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "AIIMS Delhi",
     email: "doctor@elvon.ai",
     destination: "/dashboard",
-    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
-    badgeBg: "rgba(37,99,235,0.12)",
-    badgeBorder: "rgba(37,99,235,0.3)",
-    badgeText: "#60a5fa",
+    image: "/images/login-doctor.jpg",
+    tags: ["Secure Data Access", "User Authentication"],
     features: [
       "Real-time patient triage & risk stratification",
       "Explainable AI clinical diagnostic reports",
@@ -72,7 +71,7 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     id: "hospital",
     sessionRole: "institution",
     label: "Hospital Admin",
-    sublabel: "Executive Portal",
+    sublabel: "EXECUTIVE PORTAL",
     tagline: "Command center, bed telemetry, deployed models & HL7/FHIR feeds",
     icon: Building2,
     demoId: "HOSP-MH-001",
@@ -82,10 +81,8 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "CityCare Multi-Speciality Hospital",
     email: "admin@citycare.in",
     destination: "/dashboard",
-    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
-    badgeBg: "rgba(37,99,235,0.12)",
-    badgeBorder: "rgba(37,99,235,0.3)",
-    badgeText: "#60a5fa",
+    image: "/images/login-hospital.jpg",
+    tags: ["Enterprise Command", "FHIR Interoperability"],
     features: [
       "Enterprise command center & occupancy metrics",
       "Deployed clinical AI model inventory",
@@ -97,7 +94,7 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     id: "researcher",
     sessionRole: "researcher",
     label: "Quantum Researcher",
-    sublabel: "Quantum ML Suite",
+    sublabel: "QUANTUM ML SUITE",
     tagline: "PennyLane/Qiskit circuit workbench, quantum kernels & NISQ benchmarks",
     icon: Atom,
     demoId: "RES-QML-007",
@@ -107,10 +104,8 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "TIFR Quantum Computing Center",
     email: "researcher@elvon.ai",
     destination: "/research-dashboard",
-    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
-    badgeBg: "rgba(37,99,235,0.12)",
-    badgeBorder: "rgba(37,99,235,0.3)",
-    badgeText: "#60a5fa",
+    image: "/images/login-quantum.jpg",
+    tags: ["PennyLane Circuit", "Zero-Leakage Enclave"],
     features: [
       "QSVM, VQC & Hybrid Quantum Neural Networks",
       "NISQ simulator & IBM Falcon hardware profiles",
@@ -122,7 +117,7 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     id: "data-scientist",
     sessionRole: "data_scientist",
     label: "AutoML & Data Scientist",
-    sublabel: "AI Studio",
+    sublabel: "AI STUDIO",
     tagline: "Automated ML tournaments, custom model training & model marketplace",
     icon: Sparkles,
     demoId: "DS-AI-404",
@@ -132,10 +127,8 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "Elvon Medical AI Labs",
     email: "datascientist@elvon.ai",
     destination: "/dashboard",
-    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
-    badgeBg: "rgba(37,99,235,0.12)",
-    badgeBorder: "rgba(37,99,235,0.3)",
-    badgeText: "#60a5fa",
+    image: "/images/login-automl.jpg",
+    tags: ["Tournament Engine", "SHAP Interpretability"],
     features: [
       "Stratified 5-fold cross-validation tournaments",
       "RandomForest, XGBoost, LightGBM, QSVM pipeline",
@@ -180,7 +173,6 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
     localStorage.setItem("qml_session", JSON.stringify(sessionData))
     localStorage.setItem("hospital_ai_session", JSON.stringify(sessionData))
 
-    // Always ensure dashboard opens on login across all roles
     const target = curConfig.sessionRole === "researcher" ? "/research-dashboard" : "/dashboard"
     router.push(target)
   }
@@ -211,7 +203,6 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
         return
       }
 
-      // Try standard login with OTP if quick login failed
       const stdRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -245,20 +236,6 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
     }
   }
 
-  const handle1ClickDemo = () => {
-    setIdentifier(curConfig.demoId)
-    setPassword(curConfig.demoPass)
-    persistSessionAndNavigate({
-      role: curConfig.sessionRole,
-      full_name: curConfig.name,
-      designation: curConfig.designation,
-      institution: curConfig.institution,
-      email: curConfig.email,
-      token: "jwt_demo_token_" + activeRole,
-      identifier: curConfig.demoId,
-    })
-  }
-
   const handleVerifyOtp = async () => {
     setLoading(true)
     try {
@@ -285,309 +262,321 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", fontFamily: "'Inter', sans-serif", background: "#f0f6fa", color: "#1e293b", position: "relative", overflow: "hidden" }}>
-      {/* Blurred Medical Pattern Wallpaper */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          inset: 0,
-          pointerEvents: "none",
-          zIndex: 0,
-          backgroundImage: "url('/medical-pattern.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "360px 360px",
-          opacity: 0.03,
-          filter: "blur(1.5px)",
-        }}
-      />
+    <div className="min-h-screen flex flex-col lg:flex-row font-sans relative overflow-hidden bg-[#071a24]">
+      {/* Import Serif / Display Fonts */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .auth-input {
-          width: 100%; padding: 13px 16px; border-radius: 12px;
-          border: 1px solid #e2eaf1; background: #ffffff;
-          color: #1e293b; font-size: 14px; outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          font-family: 'Inter', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700&display=swap');
+        
+        .font-display-serif {
+          font-family: 'Playfair Display', Georgia, serif;
         }
-        .auth-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
-        .auth-input::placeholder { color: #94a3b8; }
-        .role-tab-btn {
-          flex: 1; min-width: 0; padding: 12px 10px; border-radius: 12px;
-          border: 1.5px solid #e2eaf1; background: #ffffff;
-          cursor: pointer; transition: all 0.2s ease;
-          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-          color: #64748b; font-size: 11px; font-weight: 600; text-align: center;
+
+        .frosted-glass-card {
+          background: rgba(255, 255, 255, 0.42);
+          backdrop-filter: blur(28px);
+          -webkit-backdrop-filter: blur(28px);
+          border: 1.5px solid rgba(255, 255, 255, 0.65);
+          box-shadow: 0 25px 50px -12px rgba(10, 80, 75, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
         }
-        .role-tab-btn:hover:not(.active) {
-          border-color: #cbd5e1; background: #f8fafc; color: #334155;
+
+        .frosted-input {
+          background: rgba(255, 255, 255, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(12px);
+          transition: all 0.2s ease;
         }
-        .role-tab-btn.active {
-          border-color: #0ea5e9; background: rgba(14,165,233,0.08); color: #0ea5e9;
-          box-shadow: 0 4px 12px rgba(14,165,233,0.1);
+        .frosted-input:focus {
+          background: rgba(255, 255, 255, 0.85);
+          border-color: #06b6d4;
+          box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
         }
-        .submit-btn {
-          width: 100%; padding: 14px; border-radius: 12px; border: none;
-          color: white; font-size: 14px; font-weight: 700; cursor: pointer;
-          transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;
-          font-family: 'Inter', sans-serif;
+
+        .portal-tab-card {
+          background: rgba(255, 255, 255, 0.6);
+          border: 1.5px solid rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(10px);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14,165,233,0.3); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .grid-bg {
-          position: absolute; inset: 0; pointer-events: none;
-          background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 40px 40px;
+        .portal-tab-card:hover:not(.active) {
+          background: rgba(255, 255, 255, 0.8);
+          transform: translateY(-2px);
+        }
+        .portal-tab-card.active {
+          background: #ffffff;
+          border-color: #06b6d4;
+          box-shadow: 0 4px 15px rgba(6, 182, 212, 0.25), 0 0 0 1px #06b6d4;
         }
       `}</style>
 
-      {/* LEFT PANEL — Role Overview & Visual Brand (DARK CLINICAL THEME) */}
-      <div style={{ width: "48%", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 56px", background: "linear-gradient(180deg, #071f30 0%, #052436 100%)", borderRight: "1px solid #e2eaf1" }}>
-        <div className="grid-bg" />
-        <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", background: curConfig.accentGradient, opacity: 0.15, filter: "blur(120px)", top: -150, left: -150, pointerEvents: "none", transition: "all 0.6s ease" }} />
+      {/* ── LEFT PANEL: DEEP MIDNIGHT TECH SHOWCASE ────────────────────────── */}
+      <div className="w-full lg:w-[50%] p-8 lg:p-14 flex flex-col justify-between relative z-10 bg-gradient-to-b from-[#071d2b] via-[#051722] to-[#04121b] border-b lg:border-b-0 lg:border-r border-cyan-500/20">
+        
+        {/* Background Mesh Grid Overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(14, 165, 233, 0.3) 1px, transparent 0)`,
+            backgroundSize: '28px 28px'
+          }}
+        />
+
+        {/* Ambient Cyan Radial Lights */}
+        <div className="absolute top-10 left-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Brand Header */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 12, textDecoration: "none", marginBottom: 40 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: curConfig.accentGradient, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 0 24px rgba(99,102,241,0.4)" }}>
-              {React.createElement(curConfig.icon, { size: 24 })}
+        <div className="relative z-10">
+          <Link href="/" className="inline-flex items-center gap-3.5 no-underline group mb-10">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 via-sky-500 to-blue-600 flex items-center justify-center text-white shadow-[0_0_24px_rgba(14,165,233,0.5)] group-hover:scale-105 transition-transform">
+              <ShieldCheck size={24} className="text-white drop-shadow-xs" />
             </div>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: "-0.5px", color: "#fff" }}>ELVON</div>
-              <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>Quantum Intelligence for Healthcare</div>
+            <div className="flex flex-col">
+              <span className="text-[22px] font-black tracking-tight text-white leading-none mb-1">ELVON</span>
+              <span className="text-[11px] font-bold text-cyan-400 tracking-wider leading-none">Quantum Intelligence for Healthcare</span>
             </div>
           </Link>
 
-          {/* Active Persona Spotlight */}
-          <div style={{ marginTop: 24, marginBottom: 36 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 20, background: curConfig.badgeBg, border: `1px solid ${curConfig.badgeBorder}`, color: curConfig.badgeText, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 16 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }} />
+          {/* Persona Showcase Glass Card */}
+          <div className="rounded-[28px] bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 lg:p-8 shadow-2xl relative overflow-hidden">
+            
+            {/* Pill Tag */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-[11px] font-extrabold tracking-widest uppercase mb-4 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
               {curConfig.sublabel}
             </div>
 
-            <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-1px", lineHeight: 1.15, marginBottom: 14, color: "#fff" }}>
+            {/* Serif Title matching mockup */}
+            <h1 className="font-display-serif text-[32px] lg:text-[38px] font-bold text-white tracking-tight leading-tight mb-2">
               {curConfig.label}
             </h1>
-            <p style={{ color: "#94a3b8", fontSize: 15, lineHeight: 1.6, maxWidth: 440 }}>
+            
+            <p className="text-slate-300 text-[14px] leading-relaxed mb-6 max-w-lg font-normal">
               {curConfig.tagline}
             </p>
-          </div>
 
-          {/* Persona Capabilities */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 460 }}>
-            {curConfig.features.map((feat, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <CheckCircle2 size={16} style={{ color: curConfig.badgeText, flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: "#cbd5e1", fontWeight: 500 }}>{feat}</span>
+            {/* Showcase Image with Floating Glass Tags */}
+            <div className="rounded-2xl overflow-hidden border border-white/15 relative group shadow-2xl bg-slate-900/60">
+              <img
+                src={curConfig.image}
+                alt={curConfig.label}
+                className="w-full h-[220px] lg:h-[260px] object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              
+              {/* Image Vignette Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+              {/* Bottom Floating Glass Tags */}
+              <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2.5 z-10">
+                <div className="flex-1 py-2.5 px-4 rounded-xl bg-slate-950/70 backdrop-blur-md border border-white/15 text-white text-[12.5px] font-bold tracking-wide flex items-center gap-2 shadow-lg">
+                  <Lock size={13} className="text-cyan-400 flex-shrink-0" />
+                  <span className="truncate">{curConfig.tags[0]}</span>
+                </div>
+                <div className="flex-1 py-2.5 px-4 rounded-xl bg-slate-950/70 backdrop-blur-md border border-white/15 text-white text-[12.5px] font-bold tracking-wide flex items-center gap-2 shadow-lg">
+                  <UserCheck size={13} className="text-cyan-400 flex-shrink-0" />
+                  <span className="truncate">{curConfig.tags[1]}</span>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
-        {/* Bottom Dedicated Route Quick Links */}
-        <div style={{ position: "relative", zIndex: 1, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 10 }}>
-            Direct Persona URLs
-          </div>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <Link href="/login/doctor" style={{ fontSize: 12, color: activeRole === "doctor" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-              <span>/login/doctor</span>
-            </Link>
-            <Link href="/login/hospital" style={{ fontSize: 12, color: activeRole === "hospital" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-              <span>/login/hospital</span>
-            </Link>
-            <Link href="/login/researcher" style={{ fontSize: 12, color: activeRole === "researcher" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-              <span>/login/researcher</span>
-            </Link>
-            <Link href="/login/data-scientist" style={{ fontSize: 12, color: activeRole === "data-scientist" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-              <span>/login/data-scientist</span>
-            </Link>
+        {/* Left Footer Links */}
+        <div className="relative z-10 pt-8 mt-6 border-t border-white/10 flex items-center justify-between text-[12px] text-slate-400">
+          <span>Enterprise Healthcare Platform</span>
+          <div className="flex items-center gap-4 text-cyan-400/80">
+            <Link href="/login/doctor" className={`hover:text-cyan-300 no-underline ${activeRole === 'doctor' ? 'text-cyan-300 font-bold' : ''}`}>Doctor</Link>
+            <Link href="/login/hospital" className={`hover:text-cyan-300 no-underline ${activeRole === 'hospital' ? 'text-cyan-300 font-bold' : ''}`}>Hospital</Link>
+            <Link href="/login/researcher" className={`hover:text-cyan-300 no-underline ${activeRole === 'researcher' ? 'text-cyan-300 font-bold' : ''}`}>Quantum</Link>
+            <Link href="/login/data-scientist" className={`hover:text-cyan-300 no-underline ${activeRole === 'data-scientist' ? 'text-cyan-300 font-bold' : ''}`}>AutoML</Link>
           </div>
         </div>
       </div>
 
-      {/* RIGHT PANEL — 4-Tab Interactive Form (LIGHT ICE-BLUE THEME) */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 56px", background: "#ffffff" }}>
-        <div style={{ maxWidth: 440, width: "100%", margin: "0 auto" }}>
+      {/* ── RIGHT PANEL: LUMINOUS AQUA / FROSTED GLASS LOGIN FORM ───────── */}
+      <div className="w-full lg:w-[50%] p-6 sm:p-10 lg:p-14 flex items-center justify-center relative bg-gradient-to-br from-[#a7e5de] via-[#75cdc3] to-[#4eb8b2]">
+        
+        {/* Soft Ambient Light Glows */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-800/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* 3D Frosted Glass Container Card matching mockup */}
+        <div className="frosted-glass-card rounded-[32px] p-8 sm:p-10 w-full max-w-[470px] relative z-10">
           
           {/* Header */}
-          <div style={{ marginBottom: 28 }}>
-            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "-0.5px", marginBottom: 6, color: "#1e293b" }}>
+          <div className="mb-6">
+            <h2 className="text-[26px] sm:text-[28px] font-black text-[#083634] tracking-tight mb-1.5">
               Select Portal & Sign In
-            </div>
-            <p style={{ color: "#64748b", fontSize: 14 }}>
+            </h2>
+            <p className="text-[#195653] text-[13.5px] leading-relaxed font-medium">
               Choose your role below to access your dedicated clinical or research workspace.
             </p>
           </div>
 
-          {/* 4 Role Selector Tabs */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 28 }}>
-            {(Object.keys(ROLE_CONFIGS) as PlatformRole[]).map((rKey) => {
+          {/* 4 Role Selector Buttons matching mockup icons */}
+          <div className="grid grid-cols-4 gap-2.5 mb-7">
+            {(["doctor", "hospital", "researcher", "data-scientist"] as PlatformRole[]).map((rKey) => {
               const cfg = ROLE_CONFIGS[rKey]
               const IconComp = cfg.icon
               const isSelected = activeRole === rKey
+              const shortLabel = rKey === "doctor" ? "Doctor" : rKey === "hospital" ? "Hospital" : rKey === "researcher" ? "Quantum" : "AutoML"
+
               return (
                 <button
                   suppressHydrationWarning
                   key={rKey}
                   type="button"
                   onClick={() => setActiveRole(rKey)}
-                  className={`role-tab-btn ${isSelected ? "active" : ""}`}
+                  className={`portal-tab-card rounded-2xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer ${
+                    isSelected ? "active" : ""
+                  }`}
                 >
-                  <IconComp size={18} style={{ color: isSelected ? "#0ea5e9" : "#94a3b8" }} />
-                  <span style={{ fontSize: 10, lineHeight: 1.2 }}>{cfg.label.split(" ")[0]}</span>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                    isSelected ? "bg-cyan-50 text-cyan-600 shadow-xs" : "text-slate-500"
+                  }`}>
+                    <IconComp size={20} className={isSelected ? "text-cyan-600" : "text-slate-600"} />
+                  </div>
+                  <span className={`text-[11.5px] font-bold leading-none ${
+                    isSelected ? "text-cyan-800" : "text-slate-600"
+                  }`}>
+                    {shortLabel}
+                  </span>
                 </button>
               )
             })}
           </div>
 
-          {/* OTP Flow */}
+          {/* OTP Verification Flow */}
           {showOtp ? (
             <div>
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4, color: "#1e293b" }}>Two-Factor Verification</div>
-                <p style={{ color: "#64748b", fontSize: 13 }}>Enter the 6-digit code for <strong>{otpEmail}</strong></p>
+              <div className="mb-5">
+                <div className="text-[18px] font-black text-[#083634] mb-1">Two-Factor Verification</div>
+                <p className="text-[#195653] text-[13px]">Enter the 6-digit code for <strong>{otpEmail}</strong></p>
               </div>
 
               {displayedOtp && (
-                <div style={{ background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 12, padding: 14, marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#0ea5e9", textTransform: "uppercase" }}>Demo 2FA Code</div>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: "#0f172a", letterSpacing: "0.4em", fontFamily: "monospace", marginTop: 4 }}>{displayedOtp}</div>
+                <div className="bg-white/70 border border-cyan-400/40 rounded-2xl p-4 mb-5 text-center shadow-xs">
+                  <div className="text-[10.5px] font-extrabold text-cyan-800 uppercase tracking-wider mb-1">Demo 2FA Code</div>
+                  <div className="text-[28px] font-black text-slate-900 tracking-[0.35em] font-mono">{displayedOtp}</div>
                 </div>
               )}
 
-              <div style={{ marginBottom: 20 }}>
+              <div className="mb-5">
                 <input
                   suppressHydrationWarning
-                  className="auth-input"
+                  className="frosted-input w-full px-4 py-3.5 rounded-xl text-center text-[22px] tracking-[0.35em] font-black text-slate-900 outline-none"
                   type="text"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  placeholder="• • • • • •"
+                  placeholder="••••••"
                   maxLength={6}
-                  style={{ textAlign: "center", fontSize: 24, letterSpacing: "0.4em", fontWeight: 800 }}
                 />
               </div>
 
               <button
                 suppressHydrationWarning
-                className="submit-btn"
-                style={{ background: curConfig.accentGradient }}
                 onClick={handleVerifyOtp}
                 disabled={loading || otp.length < 6}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#0284c7] via-[#0891b2] to-[#0d9488] hover:from-[#0369a1] hover:to-[#0f766e] text-white font-bold text-[14px] shadow-[0_8px_20px_rgba(6,182,212,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
               >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <><Shield size={18} /> Verify & Access {curConfig.label}</>}
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <><Shield size={18} /> Verify & Access {curConfig.label.split("/")[0]}</>}
               </button>
             </div>
           ) : (
             /* Main Credentials Form */
-            <>
+            <form onSubmit={handleLogin} className="space-y-4">
               {error && (
-                <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 10, padding: 12, marginBottom: 20, color: "#ef4444", fontSize: 13 }}>
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-700 text-[13px] font-semibold">
                   {error}
                 </div>
               )}
 
-              <form onSubmit={handleLogin}>
-                {/* Identifier */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.6 }}>
-                      {activeRole === "doctor"
-                        ? "Medical Licence ID"
-                        : activeRole === "hospital"
-                        ? "Hospital Registration No."
-                        : activeRole === "researcher"
-                        ? "Researcher Identifier"
-                        : "AI / Developer ID"}
-                    </label>
-                    <span style={{ fontSize: 11, color: "#0ea5e9", fontWeight: 600 }}>Default: {curConfig.demoId}</span>
-                  </div>
+              {/* Identifier Field */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5 px-0.5">
+                  <label className="text-[11px] font-black text-[#0f4d49] uppercase tracking-wider">
+                    {activeRole === "doctor"
+                      ? "MEDICAL LICENCE ID"
+                      : activeRole === "hospital"
+                      ? "HOSPITAL REGISTRATION NO."
+                      : activeRole === "researcher"
+                      ? "RESEARCHER IDENTIFIER"
+                      : "AI / DEVELOPER ID"}
+                  </label>
+                  <span className="text-[11px] font-bold text-[#0e7490]">Default: {curConfig.demoId}</span>
+                </div>
+                <input
+                  suppressHydrationWarning
+                  className="frosted-input w-full px-4 py-3 rounded-xl text-slate-900 font-semibold text-[14px] outline-none"
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5 px-0.5">
+                  <label className="text-[11px] font-black text-[#0f4d49] uppercase tracking-wider">PASSWORD</label>
+                  <span className="text-[11px] font-medium text-[#195653]">Demo: {curConfig.demoPass}</span>
+                </div>
+                <div className="relative">
                   <input
                     suppressHydrationWarning
-                    className="auth-input"
-                    type="text"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
+                    className="frosted-input w-full px-4 py-3 rounded-xl text-slate-900 font-semibold text-[14px] outline-none pr-11"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-                </div>
-
-                {/* Password */}
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.6 }}>Password</label>
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>Demo: {curConfig.demoPass}</span>
-                  </div>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      suppressHydrationWarning
-                      className="auth-input"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      style={{ paddingRight: 44 }}
-                    />
-                    <button
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", display: "flex" }}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Submit button */}
-                <button
-                  suppressHydrationWarning
-                  type="submit"
-                  className="submit-btn"
-                  style={{ background: curConfig.accentGradient }}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
-                  ) : (
-                    <>
-                      Sign In as {curConfig.label.split("/")[0]} <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Footer links */}
-              <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#64748b" }}>
-                <Link href="/" style={{ color: "#94a3b8", textDecoration: "none" }}>
-                  ← Back to Home
-                </Link>
-                <div>
-                  New institution?{" "}
-                  <Link href="/sign-up" style={{ color: "#0ea5e9", fontWeight: 600, textDecoration: "none" }}>
-                    Register
-                  </Link>
+                  <button
+                    suppressHydrationWarning
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer p-1"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
-            </>
+
+              {/* Submit Button */}
+              <button
+                suppressHydrationWarning
+                type="submit"
+                disabled={loading}
+                className="w-full mt-2 py-3.5 rounded-xl bg-gradient-to-r from-[#0284c7] via-[#0891b2] to-[#0d9488] hover:from-[#0369a1] hover:to-[#0f766e] text-white font-bold text-[14px] shadow-[0_8px_20px_rgba(6,182,212,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 hover:shadow-lg"
+              >
+                {loading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <>
+                    Sign In as {activeRole === "data-scientist" ? "AutoML" : curConfig.label.split("/")[0].trim()} <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+
+              {/* Footer navigation */}
+              <div className="pt-3 flex items-center justify-between text-[13px] text-[#195653]">
+                <Link href="/" className="hover:text-[#083634] font-semibold text-[#155e5b] no-underline">
+                  ← Back to Home
+                </Link>
+                <Link href="/sign-up" className="hover:underline font-bold text-[#0c6b65] no-underline inline-flex items-center gap-1">
+                  New Institution? <span className="underline">Register</span> ✨
+                </Link>
+              </div>
+            </form>
           )}
 
         </div>
       </div>
-
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
 
-import { Suspense } from "react"
-
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#05070f" }} />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#071a24]" />}>
       <LoginForm />
     </Suspense>
   )

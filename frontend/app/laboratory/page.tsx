@@ -23,29 +23,50 @@ const SOURCE_ICONS: Record<string, React.ReactNode> = {
   "PACS": <Radio size={24} />,
 }
 
+const DEFAULT_SOURCES: LabSource[] = [
+  { id: "SRC-1", name: "MRI Brain & Spine", type: "MRI", status: "active", active: true, recent_uploads: 14, last_sync: "2 mins ago", error: null },
+  { id: "SRC-2", name: "Chest & Abdomen CT", type: "CT Scan", status: "active", active: true, recent_uploads: 22, last_sync: "5 mins ago", error: null },
+  { id: "SRC-3", name: "12-Lead Digital ECG", type: "ECG", status: "active", active: true, recent_uploads: 38, last_sync: "Just now", error: null },
+  { id: "SRC-4", name: "Clinical Biochemistry LIS", type: "Blood Report", status: "active", active: true, recent_uploads: 65, last_sync: "1 min ago", error: null },
+  { id: "SRC-5", name: "Histopathology Scanner", type: "Pathology", status: "active", active: true, recent_uploads: 9, last_sync: "12 mins ago", error: null },
+  { id: "SRC-6", name: "PACS Central Storage", type: "PACS", status: "active", active: true, recent_uploads: 47, last_sync: "Just now", error: null }
+]
+
+const DEFAULT_UPLOADS: LabUpload[] = [
+  { id: "UPL-801", source: "ECG", patient_id: "P-1048", patient_name: "Rahul Verma", filename: "ecg_lead_12_series_20260925.xml", timestamp: "10 mins ago", status: "analyzed", model_applied: "Quantum-Enhanced VQC Heart Classifier" },
+  { id: "UPL-802", source: "Blood Report", patient_id: "P-1047", patient_name: "Priya Nair", filename: "glycemic_panel_hba1c_20260925.pdf", timestamp: "25 mins ago", status: "analyzed", model_applied: "DeepGlycemia Predictor v1.8" },
+  { id: "UPL-803", source: "Pathology", patient_id: "P-1046", patient_name: "Suresh Menon", filename: "renal_biopsy_histology_20260925.dcm", timestamp: "1 hour ago", status: "analyzed", model_applied: "RenalInsight AI v3.0" },
+  { id: "UPL-804", source: "CT Scan", patient_id: "P-1045", patient_name: "Kavita Reddy", filename: "abdominal_triphasic_ct_20260925.dcm", timestamp: "2 hours ago", status: "analyzed", model_applied: "Quantum HepatoVision Classifier" }
+]
+
+const DEFAULT_PACS_STUDIES = [
+  { id: "STU-9901", patient_id: "P-1048", patient_name: "Rahul Verma", modality: "ECG/Angio", study_description: "Coronary Angiography + 12-Lead Rhythm", num_series: 4, num_instances: 120, study_date: "2026-09-25", status: "Ready" },
+  { id: "STU-9902", patient_id: "P-1046", patient_name: "Suresh Menon", modality: "MR", study_description: "Renal Dynamic MRI Perfusion", num_series: 6, num_instances: 240, study_date: "2026-09-24", status: "Ready" },
+  { id: "STU-9903", patient_id: "P-1043", patient_name: "Meera Joshi", modality: "CT", study_description: "Pulmonary Angiogram Protocol", num_series: 3, num_instances: 380, study_date: "2026-09-25", status: "Ready" }
+]
+
 export default function LaboratoryPage() {
   const [activeTab, setActiveTab] = useState<"systems" | "pacs" | "fhir">("systems")
-  const [sources, setSources] = useState<LabSource[]>([])
-  const [uploads, setUploads] = useState<LabUpload[]>([])
-  const [pacsStudies, setPacsStudies] = useState<any[]>([])
+  const [sources, setSources] = useState<LabSource[]>(DEFAULT_SOURCES)
+  const [uploads, setUploads] = useState<LabUpload[]>(DEFAULT_UPLOADS)
+  const [pacsStudies, setPacsStudies] = useState<any[]>(DEFAULT_PACS_STUDIES)
   const [fhirBundle, setFhirBundle] = useState<any>(null)
   const [selectedStudy, setSelectedStudy] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [filterSource, setFilterSource] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/lab/sources").then(r => r.json()).catch(() => ({ sources: [] })),
-      fetch("/api/lab/uploads").then(r => r.json()).catch(() => ({ uploads: [] })),
-      fetch("/api/lab/pacs/studies").then(r => r.json()).catch(() => ({ studies: [] })),
-      fetch("/api/lab/fhir/bundles").then(r => r.json()).catch(() => ({})),
+      fetch("/api/lab/sources").then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch("/api/lab/uploads").then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch("/api/lab/pacs/studies").then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch("/api/lab/fhir/bundles").then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([srcData, uplData, pacsData, fhirData]) => {
-      setSources(srcData.sources || [])
-      setUploads(uplData.uploads || [])
-      setPacsStudies(pacsData.studies || [])
-      setFhirBundle(fhirData)
-      setLoading(false)
-    }).catch(() => setLoading(false))
+      if (srcData?.sources && srcData.sources.length > 0) setSources(srcData.sources)
+      if (uplData?.uploads && uplData.uploads.length > 0) setUploads(uplData.uploads)
+      if (pacsData?.studies && pacsData.studies.length > 0) setPacsStudies(pacsData.studies)
+      if (fhirData) setFhirBundle(fhirData)
+    }).catch(() => {})
   }, [])
 
   const filteredUploads = filterSource

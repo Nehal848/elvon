@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elvon-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=sqlite:///./hospital_ecosystem.db
+      - JWT_SECRET=elvon_super_secure_jwt_secret_key_sih_2026
+    volumes:
+      - ./app/storage:/app/app/storage
+      - ./hospital_ecosystem.db:/app/hospital_ecosystem.db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: elvon-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend

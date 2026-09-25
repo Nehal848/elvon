@@ -74,17 +74,20 @@ export default function ResearcherLayout({
   }
 
   const SidebarContent = () => (
-    <aside className="w-[268px] flex-shrink-0 bg-gradient-to-b from-white via-slate-50/90 to-sky-50/40 flex flex-col justify-between h-full relative z-20 overflow-y-auto border-r border-slate-200/80 shadow-[2px_0_16px_rgba(0,0,0,0.03)]">
+    <aside className="w-[268px] flex-shrink-0 bg-gradient-to-b from-[#0e2a47] via-[#0b2038] to-[#071728] flex flex-col justify-between h-full relative z-20 overflow-y-auto border-r border-cyan-500/15 shadow-[4px_0_24px_rgba(0,0,0,0.25)]">
+      {/* Subtle Ambient Radial Light at top of sidebar */}
+      <div className="absolute top-0 left-0 right-0 h-40 bg-radial from-cyan-500/15 via-transparent to-transparent pointer-events-none" />
+
       <div className="relative z-10">
         {/* Logo */}
         <div className="pt-7 pb-6 px-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 no-underline group">
-            <div className="w-11 h-11 bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 rounded-2xl flex items-center justify-center text-white shadow-[0_4px_16px_rgba(14,165,233,0.35)] group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(14,165,233,0.45)] group-hover:scale-105 transition-transform">
               <Hexagon size={24} fill="currentColor" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[20px] font-black tracking-tight text-slate-900 leading-none mb-1">ELVON</span>
-              <span className="text-[11px] font-bold text-sky-600 leading-none">Quantum Research</span>
+              <span className="text-[21px] font-black tracking-tight text-white leading-none mb-1 drop-shadow-xs">ELVON</span>
+              <span className="text-[11px] font-bold text-cyan-400 tracking-wide leading-none">Quantum Research</span>
             </div>
           </Link>
         </div>
@@ -100,14 +103,14 @@ export default function ResearcherLayout({
                 onClick={() => setSidebarOpen(false)}
                 className={`group flex items-center gap-3 px-3 py-2 rounded-2xl text-[13.5px] transition-all no-underline ${
                   isActive
-                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/25 font-bold"
-                    : "text-slate-600 hover:bg-sky-50/80 hover:text-sky-700 font-semibold"
+                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-400 text-white shadow-[0_4px_18px_rgba(14,165,233,0.35)] font-bold border border-white/20"
+                    : "text-slate-300 hover:bg-white/[0.08] hover:text-white hover:border-white/10 border border-transparent font-medium"
                 }`}
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                   isActive
-                    ? "bg-white/20 text-white backdrop-blur-xs ring-1 ring-white/30 shadow-inner"
-                    : "bg-slate-100/90 text-slate-500 group-hover:bg-sky-100 group-hover:text-sky-600 border border-slate-200/50 shadow-2xs"
+                    ? "bg-white/25 text-white backdrop-blur-md ring-1 ring-white/40 shadow-inner"
+                    : "bg-white/[0.07] text-cyan-300 group-hover:bg-gradient-to-tr group-hover:from-blue-600 group-hover:to-cyan-400 group-hover:text-white group-hover:shadow-[0_0_12px_rgba(14,165,233,0.4)] border border-white/10 shadow-xs"
                 }`}>
                   <Icon size={18} />
                 </div>
@@ -118,32 +121,32 @@ export default function ResearcherLayout({
         </nav>
       </div>
 
-      <div className="p-4 relative z-10 space-y-3 border-t border-slate-200/70 bg-white/70 backdrop-blur-xs">
+      <div className="p-4 relative z-10 space-y-3 border-t border-white/10 bg-black/10 backdrop-blur-md">
         {/* Secure Enclave Badge */}
-        <div className="bg-emerald-50 rounded-xl p-3 flex items-center gap-3 border border-emerald-200 shadow-2xs">
-          <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-            <Shield size={16} className="fill-emerald-600/20" />
+        <div className="bg-emerald-950/40 rounded-xl p-3 flex items-center gap-3 border border-emerald-500/30 shadow-2xs backdrop-blur-md">
+          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+            <Shield size={16} className="fill-emerald-400/20" />
           </div>
           <div>
-            <div className="text-[11px] font-bold text-slate-800 leading-snug">Zero-Data-Leakage</div>
-            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Secure Enclave
+            <div className="text-[11px] font-bold text-white leading-snug">Zero-Data-Leakage</div>
+            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Secure Enclave
             </div>
           </div>
         </div>
 
         {/* User Card */}
-        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between shadow-2xs">
+        <div className="p-2 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-between shadow-inner">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center text-white font-extrabold text-[12px] shadow-xs border-2 border-white ring-1 ring-sky-300">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center text-white font-extrabold text-[12px] shadow-[0_0_10px_rgba(6,182,212,0.4)] border-2 border-cyan-400 ring-1 ring-white/20">
               {userInitials}
             </div>
             <div className="min-w-0">
-              <div className="text-[12.5px] font-bold text-slate-800 truncate">{userName}</div>
-              <div className="text-[11px] text-slate-500 font-medium truncate">QML Lead</div>
+              <div className="text-[12.5px] font-bold text-white truncate">{userName}</div>
+              <div className="text-[11px] text-cyan-300/80 font-medium truncate">QML Lead</div>
             </div>
           </div>
-          <button onClick={handleLogout} title="Log Out" className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
+          <button onClick={handleLogout} title="Log Out" className="p-1.5 text-slate-400 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition-colors cursor-pointer">
             <Power size={15} />
           </button>
         </div>

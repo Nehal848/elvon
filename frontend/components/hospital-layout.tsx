@@ -208,18 +208,21 @@ export default function HospitalLayout({
 
   const Sidebar = () => (
     <aside 
-      className="w-[268px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 bg-gradient-to-b from-white via-slate-50/90 to-sky-50/40 border-r border-slate-200/80 shadow-[2px_0_16px_rgba(0,0,0,0.03)]"
+      className="w-[268px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 bg-gradient-to-b from-[#0e2a47] via-[#0b2038] to-[#071728] border-r border-cyan-500/15 shadow-[4px_0_24px_rgba(0,0,0,0.25)]"
     >
-      <div>
+      {/* Subtle Ambient Radial Light at top of sidebar */}
+      <div className="absolute top-0 left-0 right-0 h-40 bg-radial from-cyan-500/15 via-transparent to-transparent pointer-events-none" />
+
+      <div className="relative z-10">
         {/* Brand Header */}
         <div className="pt-7 pb-6 px-6">
           <Link href="/" className="flex items-center gap-3 no-underline group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(14,165,233,0.35)] group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 flex items-center justify-center text-white shadow-[0_0_20px_rgba(14,165,233,0.45)] group-hover:scale-105 transition-transform">
               <Brain size={24} className="text-white drop-shadow-xs" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[20px] font-black tracking-tight text-slate-900 leading-none mb-1">ELVON</span>
-              <span className="text-[11px] font-bold text-sky-600 leading-none">Clinical Intelligence</span>
+              <span className="text-[21px] font-black tracking-tight text-white leading-none mb-1 drop-shadow-xs">ELVON</span>
+              <span className="text-[11px] font-bold text-cyan-400 tracking-wide leading-none">Clinical Intelligence</span>
             </div>
           </Link>
         </div>
@@ -235,19 +238,19 @@ export default function HospitalLayout({
                 onClick={() => setSidebarOpen(false)}
                 className={`group flex items-center justify-between px-3 py-2 rounded-2xl text-[13.5px] transition-all no-underline ${
                   isActive
-                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/25 font-bold"
-                    : "text-slate-600 hover:bg-sky-50/80 hover:text-sky-700 font-semibold"
+                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-400 text-white shadow-[0_4px_18px_rgba(14,165,233,0.35)] font-bold border border-white/20"
+                    : "text-slate-300 hover:bg-white/[0.08] hover:text-white hover:border-white/10 border border-transparent font-medium"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* Styled Icon Container Badge */}
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
+                  {/* Styled Glowing Icon Container Badge */}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                     isActive
-                      ? "bg-white/20 text-white backdrop-blur-xs ring-1 ring-white/30 shadow-inner"
-                      : "bg-slate-100/90 text-slate-500 group-hover:bg-sky-100 group-hover:text-sky-600 border border-slate-200/50 shadow-2xs"
+                      ? "bg-white/25 text-white backdrop-blur-md ring-1 ring-white/40 shadow-inner"
+                      : "bg-white/[0.07] text-cyan-300 group-hover:bg-gradient-to-tr group-hover:from-blue-600 group-hover:to-cyan-400 group-hover:text-white group-hover:shadow-[0_0_12px_rgba(14,165,233,0.4)] border border-white/10 shadow-xs"
                   }`}>
                     {step !== undefined ? (
-                      <span className={`text-[11px] font-bold ${isActive ? "text-white" : "text-slate-600 group-hover:text-sky-600"}`}>
+                      <span className={`text-[11px] font-bold ${isActive ? "text-white" : "text-cyan-300 group-hover:text-white"}`}>
                         {step}
                       </span>
                     ) : (
@@ -260,7 +263,7 @@ export default function HospitalLayout({
 
                 {badge && (
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    isActive ? "bg-white text-sky-600 shadow-xs" : "bg-rose-500 text-white"
+                    isActive ? "bg-white text-sky-700 shadow-xs" : "bg-rose-500 text-white"
                   }`}>
                     {badge}
                   </span>
@@ -272,27 +275,27 @@ export default function HospitalLayout({
       </div>
 
       {/* User Profile & Logout Bottom Card */}
-      <div className="p-4 border-t border-slate-200/70 bg-white/70 backdrop-blur-xs">
-        <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-slate-100/80 transition-colors border border-transparent hover:border-slate-200/60">
+      <div className="p-4 border-t border-white/10 bg-black/10 backdrop-blur-md relative z-10">
+        <div className="flex items-center justify-between p-2 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.09] transition-colors shadow-inner">
           <div className="flex items-center gap-3 min-w-0">
             <img
               src={userAvatar}
               alt={userName}
-              className="w-10 h-10 rounded-full object-cover border-2 border-sky-400 shadow-xs ring-2 ring-white"
+              className="w-10 h-10 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.4)] ring-2 ring-white/20"
             />
             <div className="min-w-0">
-              <div className="text-[13px] font-bold text-slate-800 truncate leading-tight">{userName}</div>
-              <div className="text-[11px] font-medium text-slate-500 truncate leading-tight mt-0.5">{userRole}</div>
+              <div className="text-[13px] font-bold text-white truncate leading-tight">{userName}</div>
+              <div className="text-[11px] font-medium text-cyan-300/80 truncate leading-tight mt-0.5">{userRole}</div>
             </div>
           </div>
-          <Link href="/settings" title="Settings" className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-white shadow-2xs transition-all">
+          <Link href="/settings" title="Settings" className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-all">
             <Settings size={16} />
           </Link>
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-[12.5px] font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-rose-200/60"
+          className="w-full mt-2.5 flex items-center gap-2 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-rose-300 hover:bg-rose-500/20 rounded-xl transition-all cursor-pointer border border-transparent hover:border-rose-500/30"
         >
           <LogOut size={15} />
           <span>Logout</span>

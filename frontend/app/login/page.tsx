@@ -82,10 +82,10 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "CityCare Multi-Speciality Hospital",
     email: "admin@citycare.in",
     destination: "/dashboard",
-    accentGradient: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-    badgeBg: "rgba(79,70,229,0.12)",
-    badgeBorder: "rgba(79,70,229,0.3)",
-    badgeText: "#a5b4fc",
+    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
+    badgeBg: "rgba(37,99,235,0.12)",
+    badgeBorder: "rgba(37,99,235,0.3)",
+    badgeText: "#60a5fa",
     features: [
       "Enterprise command center & occupancy metrics",
       "Deployed clinical AI model inventory",
@@ -107,10 +107,10 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "TIFR Quantum Computing Center",
     email: "researcher@elvon.ai",
     destination: "/research-dashboard",
-    accentGradient: "linear-gradient(135deg, #8b5cf6, #d946ef)",
-    badgeBg: "rgba(139,92,246,0.12)",
-    badgeBorder: "rgba(139,92,246,0.3)",
-    badgeText: "#c084fc",
+    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
+    badgeBg: "rgba(37,99,235,0.12)",
+    badgeBorder: "rgba(37,99,235,0.3)",
+    badgeText: "#60a5fa",
     features: [
       "QSVM, VQC & Hybrid Quantum Neural Networks",
       "NISQ simulator & IBM Falcon hardware profiles",
@@ -132,10 +132,10 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     institution: "Elvon Medical AI Labs",
     email: "datascientist@elvon.ai",
     destination: "/dashboard",
-    accentGradient: "linear-gradient(135deg, #059669, #0d9488)",
-    badgeBg: "rgba(5,150,105,0.12)",
-    badgeBorder: "rgba(5,150,105,0.3)",
-    badgeText: "#34d399",
+    accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
+    badgeBg: "rgba(37,99,235,0.12)",
+    badgeBorder: "rgba(37,99,235,0.3)",
+    badgeText: "#60a5fa",
     features: [
       "Stratified 5-fold cross-validation tournaments",
       "RandomForest, XGBoost, LightGBM, QSVM pipeline",
@@ -395,13 +395,13 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
             <Link href="/login/doctor" style={{ fontSize: 12, color: activeRole === "doctor" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
               <span>/login/doctor</span>
             </Link>
-            <Link href="/login/hospital" style={{ fontSize: 12, color: activeRole === "hospital" ? "#a5b4fc" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+            <Link href="/login/hospital" style={{ fontSize: 12, color: activeRole === "hospital" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
               <span>/login/hospital</span>
             </Link>
-            <Link href="/login/researcher" style={{ fontSize: 12, color: activeRole === "researcher" ? "#c084fc" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+            <Link href="/login/researcher" style={{ fontSize: 12, color: activeRole === "researcher" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
               <span>/login/researcher</span>
             </Link>
-            <Link href="/login/data-scientist" style={{ fontSize: 12, color: activeRole === "data-scientist" ? "#34d399" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+            <Link href="/login/data-scientist" style={{ fontSize: 12, color: activeRole === "data-scientist" ? "#60a5fa" : "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
               <span>/login/data-scientist</span>
             </Link>
           </div>

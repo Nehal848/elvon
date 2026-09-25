@@ -44,7 +44,7 @@ export const PERSONA_CONFIGS = {
     badgeLabel: "Doctor / Clinician",
     color: "#0284c7",
     gradient: "from-blue-600 to-cyan-500",
-    homeHref: "/patients",
+    homeHref: "/dashboard",
     defaultUser: {
       name: "Dr. Ananya Sharma",
       role: "Senior Cardiologist",

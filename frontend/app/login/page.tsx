@@ -56,7 +56,7 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     designation: "Senior Cardiologist & Clinician",
     institution: "AIIMS Delhi",
     email: "doctor@elvon.ai",
-    destination: "/patients",
+    destination: "/dashboard",
     accentGradient: "linear-gradient(135deg, #2563eb, #06b6d4)",
     badgeBg: "rgba(37,99,235,0.12)",
     badgeBorder: "rgba(37,99,235,0.3)",
@@ -131,7 +131,7 @@ export const ROLE_CONFIGS: Record<PlatformRole, RoleConfig> = {
     designation: "Principal ML & AutoML Engineer",
     institution: "Elvon Medical AI Labs",
     email: "datascientist@elvon.ai",
-    destination: "/create-model",
+    destination: "/dashboard",
     accentGradient: "linear-gradient(135deg, #059669, #0d9488)",
     badgeBg: "rgba(5,150,105,0.12)",
     badgeBorder: "rgba(5,150,105,0.3)",
@@ -180,7 +180,8 @@ export function LoginForm({ initialRole }: { initialRole?: PlatformRole }) {
     localStorage.setItem("qml_session", JSON.stringify(sessionData))
     localStorage.setItem("hospital_ai_session", JSON.stringify(sessionData))
 
-    const target = callbackUrl || curConfig.destination
+    // Always ensure dashboard opens on login across all roles
+    const target = curConfig.sessionRole === "researcher" ? "/research-dashboard" : "/dashboard"
     router.push(target)
   }
 

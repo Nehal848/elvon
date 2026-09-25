@@ -39,11 +39,11 @@ app = FastAPI(
     redoc_url="/redoc" if config.APP_ENV != "production" else None,
 )
 
-# CORS — resilient localhost and configured origin connectivity
+# CORS — resilient localhost, Vercel, Netlify, and configured origin connectivity
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.ALLOWED_ORIGINS,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$",
+    allow_origin_regex=r"^https?://([a-zA-Z0-9\-_.]+\.)?(vercel\.app|netlify\.app|localhost|127\.0\.0\.1|hf\.space)(:[0-9]+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

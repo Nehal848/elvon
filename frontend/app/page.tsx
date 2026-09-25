@@ -501,8 +501,8 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════ */}
       <nav className={`navbar${scrolled ? " scrolled" : ""}`} id="home">
         <Link href="/" className="nav-logo">
-          <div className="nav-logo-icon">⚛</div>
-          <span className="nav-logo-text">Quantum <span className="grad">HealthAI</span></span>
+          <div className="nav-logo-icon">🧠</div>
+          <span className="nav-logo-text">ELVON <span className="grad">Clinical AI</span></span>
         </Link>
         <div className="nav-links">
           <a href="#home" className="nav-link">Home</a>
@@ -544,7 +544,7 @@ export default function LandingPage() {
 
           {/* Left — Text */}
           <div style={{ opacity: loaded ? 1 : 0, transform: loaded ? "none" : "translateY(28px)", transition: "all 1s cubic-bezier(0.16,1,0.3,1)", position: "relative", zIndex: 2 }}>
-            <div className="hero-badge"><span>⚛</span> SIH 2026 — Hybrid QML Platform</div>
+            <div className="hero-badge"><span>🧠</span> ELVON — Clinical Intelligence Platform</div>
             <h1 className="hero-title">
               Early Disease<br />Detection, Powered by<br />
               <span className="grad">Classical + Quantum AI</span>
@@ -705,7 +705,7 @@ export default function LandingPage() {
                 <div className="section-chip">✦ Our Approach</div>
                 <h2 className="section-title">One Platform.<br />Two Learning <span className="grad">Paradigms.</span><br />One Evidence-Based Comparison.</h2>
                 <p style={{ fontSize: 16, color: "var(--text2)", lineHeight: 1.85, marginBottom: 24 }}>
-                  Quantum HealthAI combines classical machine learning and quantum-enhanced learning in a single experimental platform.
+                  ELVON combines classical machine learning and quantum-enhanced learning in a single experimental platform.
                   Instead of assuming quantum advantage, it <strong style={{ color: "var(--text)" }}>measures</strong> predictive performance,
                   explainability, generalization and quantum resource requirements.
                 </p>
@@ -761,7 +761,7 @@ export default function LandingPage() {
           <FadeIn>
             <div className="section-chip">⚡ Platform Capabilities</div>
             <h2 className="section-title">Key <span className="grad">Features</span></h2>
-            <p className="section-sub">Six research-grade capabilities that make Quantum HealthAI different.</p>
+            <p className="section-sub">Six research-grade capabilities that make ELVON different.</p>
           </FadeIn>
           <div className="features-grid">
             {featureCards.map((f, i) => (
@@ -1057,7 +1057,7 @@ export default function LandingPage() {
           <FadeIn>
             <div className="section-chip">🌐 Impact</div>
             <h2 className="section-title">Potential <span className="grad">Impact</span></h2>
-            <p className="section-sub">How Quantum HealthAI contributes to biomedical AI research and the quantum computing ecosystem.</p>
+            <p className="section-sub">How ELVON contributes to biomedical AI research and the quantum computing ecosystem.</p>
           </FadeIn>
           <div className="impact-grid">
             {impactCards.map((c, i) => (
@@ -1088,7 +1088,7 @@ export default function LandingPage() {
               Get explainable predictions and benchmark evidence — in one platform.
             </p>
             <div className="cta-actions">
-              <Link href="/login/researcher" className="btn-primary" style={{ fontSize: 16, padding: "17px 38px" }}>🚀 Launch Quantum HealthAI →</Link>
+              <Link href="/login/researcher" className="btn-primary" style={{ fontSize: 16, padding: "17px 38px" }}>🚀 Launch ELVON Platform →</Link>
               <Link href="/login" className="btn-secondary" style={{ fontSize: 16, padding: "17px 38px" }}>Login to Platform</Link>
             </div>
             <div className="cta-disclaimer">
@@ -1105,11 +1105,11 @@ export default function LandingPage() {
       <footer>
         <div>
           <div className="footer-logo">
-            <div className="nav-logo-icon" style={{ width: 32, height: 32, fontSize: 16 }}>⚛</div>
-            <div className="footer-logo-name">Quantum HealthAI</div>
+            <div className="nav-logo-icon" style={{ width: 32, height: 32, fontSize: 16 }}>🧠</div>
+            <div className="footer-logo-name">ELVON</div>
           </div>
           <p className="footer-sub">
-            Hybrid Quantum Machine Learning Platform for Early Disease Detection · SIH 2026<br />
+            ELVON — Clinical Intelligence & Hybrid Quantum Machine Learning Platform<br />
             Classical ML · QSVM · VQC · QNN · Benchmarking · XAI · NISQ Simulator
           </p>
         </div>

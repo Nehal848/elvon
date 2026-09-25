@@ -28,13 +28,14 @@ export const PERSONA_CONFIGS = {
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
     },
     nav: [
-      { step: 1, href: "/dashboard",                        icon: LayoutDashboard, label: "Dashboard" },
-      { step: 2, href: "/create-model?stage=overview",       icon: Database,        label: "Dataset Overview" },
-      { step: 3, href: "/create-model?stage=preprocess",     icon: Settings,        label: "Data Preprocessing" },
-      { step: 4, href: "/models",                           icon: ShieldCheck,     label: "Data Validation" },
-      { step: 5, href: "/create-model?stage=training",       icon: Zap,             label: "Model Training" },
-      { step: 6, href: "/create-model?stage=evaluation",     icon: BarChart2,       label: "Evaluation" },
-      { step: 7, href: "/create-model?stage=explainability", icon: Lightbulb,       label: "Explainability" },
+      { href: "/dashboard",        icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/create-model",     icon: Sparkles,        label: "Create Model (AutoML)" },
+      { href: "/models",           icon: Box,             label: "Model Management" },
+      { href: "/patients",         icon: Database,        label: "Datasets & Cohorts" },
+      { href: "/marketplace",      icon: ShoppingBag,     label: "Model Marketplace" },
+      { href: "/reports",          icon: FileText,        label: "Analytics & Reports" },
+      { href: "/audit",            icon: ShieldCheck,     label: "Audit & Safety Logs" },
+      { href: "/settings",         icon: Settings,        label: "Settings" },
     ]
   },
   doctor: {
@@ -167,36 +168,11 @@ export default function HospitalLayout({
       ? "doctor"
       : "data_scientist"
 
-  const [currentSearch, setCurrentSearch] = useState("")
-
-  useEffect(() => {
-    const syncSearch = () => {
-      if (typeof window !== "undefined") {
-        setCurrentSearch(window.location.search)
-      }
-    }
-    syncSearch()
-    window.addEventListener("popstate", syncSearch)
-    return () => window.removeEventListener("popstate", syncSearch)
-  }, [pathname])
-
   const isLinkActive = (href: string) => {
-    if (href.includes("?")) {
-      const [pathPart, queryPart] = href.split("?")
-      if (pathname !== pathPart) return false
-      const targetParams = new URLSearchParams(queryPart)
-      const currentParams = new URLSearchParams(currentSearch)
-      const targetStage = targetParams.get("stage")
-      const activeStage = currentParams.get("stage") || "overview"
-      return targetStage === activeStage
-    }
-    if (pathname === "/create-model") {
-      return false
-    }
     if (href === "/dashboard" || href === "/research-dashboard") {
       return pathname === href
     }
-    return pathname === href || pathname.startsWith(href + "/")
+    return pathname === href || (pathname.startsWith(href) && href !== "/")
   }
 
   const activePersona = PERSONA_CONFIGS[currentRoleKey] || PERSONA_CONFIGS.data_scientist
@@ -257,14 +233,7 @@ export default function HospitalLayout({
               <Link
                 key={href + step}
                 href={href}
-                onClick={() => {
-                  setSidebarOpen(false)
-                  if (href.includes("?")) {
-                    setCurrentSearch("?" + href.split("?")[1])
-                  } else {
-                    setCurrentSearch("")
-                  }
-                }}
+                onClick={() => setSidebarOpen(false)}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-semibold text-[13.5px] transition-all no-underline ${
                   isActive
                     ? "bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] text-white shadow-md shadow-cyan-500/25"

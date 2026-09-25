@@ -258,7 +258,7 @@ html {
   --theme-border: #e2eaf1;
   --theme-text-dark: #1e293b;
   --theme-text-muted: #64748b;
-  --sidebar-gradient: linear-gradient(180deg, #071f30 0%, #092538 50%, #052436 100%);
+  --sidebar-gradient: linear-gradient(180deg, #ffffff 0%, #f8fafc 60%, #f0f7fb 100%);
 }
 
 /* Per-page body overrides (not !important to allow page-level dark themes) */

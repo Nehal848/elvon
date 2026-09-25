@@ -208,25 +208,24 @@ export default function HospitalLayout({
 
   const Sidebar = () => (
     <aside 
-      className="w-[260px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 shadow-[2px_0_16px_rgba(0,0,0,0.15)]"
-      style={{ backgroundImage: 'var(--sidebar-gradient)' }}
+      className="w-[268px] flex-shrink-0 flex flex-col justify-between h-full relative z-20 bg-gradient-to-b from-white via-slate-50/90 to-sky-50/40 border-r border-slate-200/80 shadow-[2px_0_16px_rgba(0,0,0,0.03)]"
     >
       <div>
         {/* Brand Header */}
         <div className="pt-7 pb-6 px-6">
-          <Link href="/" className="flex items-center gap-3 no-underline">
-            <div className="w-10 h-10 rounded-xl bg-cyan-950 flex items-center justify-center border border-cyan-800 shadow-[0_0_15px_rgba(14,165,233,0.3)]">
-              <Brain size={24} className="text-cyan-400" />
+          <Link href="/" className="flex items-center gap-3 no-underline group">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(14,165,233,0.35)] group-hover:scale-105 transition-transform">
+              <Brain size={24} className="text-white drop-shadow-xs" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[20px] font-extrabold tracking-tight text-white leading-none mb-1">ELVON</span>
-              <span className="text-[11px] font-medium text-cyan-400 leading-none">Clinical Intelligence</span>
+              <span className="text-[20px] font-black tracking-tight text-slate-900 leading-none mb-1">ELVON</span>
+              <span className="text-[11px] font-bold text-sky-600 leading-none">Clinical Intelligence</span>
             </div>
           </Link>
         </div>
 
         {/* Stepper Navigation */}
-        <nav className="px-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-250px)]">
+        <nav className="px-3.5 space-y-1.5 overflow-y-auto max-h-[calc(100vh-250px)]">
           {activeNav.map(({ step, href, icon: Icon, label, badge }: any) => {
             const isActive = isLinkActive(href)
             return (
@@ -234,29 +233,34 @@ export default function HospitalLayout({
                 key={href + step}
                 href={href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-semibold text-[13.5px] transition-all no-underline ${
+                className={`group flex items-center justify-between px-3 py-2 rounded-2xl text-[13.5px] transition-all no-underline ${
                   isActive
-                    ? "bg-gradient-to-r from-[#0ea5e9] to-[#06b6d4] text-white shadow-md shadow-cyan-500/25"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/25 font-bold"
+                    : "text-slate-600 hover:bg-sky-50/80 hover:text-sky-700 font-semibold"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* Step Number Circle (Only render if step exists) */}
-                  {step !== undefined && (
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      isActive ? "bg-white/20 text-white" : "bg-white/10 text-slate-400"
-                    }`}>
-                      {step}
-                    </span>
-                  )}
+                  {/* Styled Icon Container Badge */}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
+                    isActive
+                      ? "bg-white/20 text-white backdrop-blur-xs ring-1 ring-white/30 shadow-inner"
+                      : "bg-slate-100/90 text-slate-500 group-hover:bg-sky-100 group-hover:text-sky-600 border border-slate-200/50 shadow-2xs"
+                  }`}>
+                    {step !== undefined ? (
+                      <span className={`text-[11px] font-bold ${isActive ? "text-white" : "text-slate-600 group-hover:text-sky-600"}`}>
+                        {step}
+                      </span>
+                    ) : (
+                      <Icon size={18} />
+                    )}
+                  </div>
 
-                  <Icon size={17} className={isActive ? "text-white" : "text-slate-400"} />
                   <span className="truncate">{label}</span>
                 </div>
 
                 {badge && (
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    isActive ? "bg-white text-blue-600" : "bg-rose-500 text-white"
+                    isActive ? "bg-white text-sky-600 shadow-xs" : "bg-rose-500 text-white"
                   }`}>
                     {badge}
                   </span>
@@ -268,27 +272,27 @@ export default function HospitalLayout({
       </div>
 
       {/* User Profile & Logout Bottom Card */}
-      <div className="p-4 border-t border-white/10 bg-transparent">
-        <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-white/5 transition-colors">
+      <div className="p-4 border-t border-slate-200/70 bg-white/70 backdrop-blur-xs">
+        <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-slate-100/80 transition-colors border border-transparent hover:border-slate-200/60">
           <div className="flex items-center gap-3 min-w-0">
             <img
               src={userAvatar}
               alt={userName}
-              className="w-10 h-10 rounded-full object-cover border-2 border-cyan-800 shadow-xs"
+              className="w-10 h-10 rounded-full object-cover border-2 border-sky-400 shadow-xs ring-2 ring-white"
             />
             <div className="min-w-0">
-              <div className="text-[13px] font-bold text-white truncate leading-tight">{userName}</div>
-              <div className="text-[11px] text-slate-400 truncate leading-tight mt-0.5">{userRole}</div>
+              <div className="text-[13px] font-bold text-slate-800 truncate leading-tight">{userName}</div>
+              <div className="text-[11px] font-medium text-slate-500 truncate leading-tight mt-0.5">{userRole}</div>
             </div>
           </div>
-          <Link href="/settings" title="Settings" className="text-slate-400 hover:text-white p-1.5 rounded-lg">
+          <Link href="/settings" title="Settings" className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-white shadow-2xs transition-all">
             <Settings size={16} />
           </Link>
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-[12.5px] font-semibold text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
+          className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-[12.5px] font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-rose-200/60"
         >
           <LogOut size={15} />
           <span>Logout</span>

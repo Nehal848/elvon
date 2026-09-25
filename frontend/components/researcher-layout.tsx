@@ -74,29 +74,23 @@ export default function ResearcherLayout({
   }
 
   const SidebarContent = () => (
-    <aside className="w-[260px] flex-shrink-0 bg-[#0f172a] flex flex-col justify-between h-full relative z-20 overflow-y-auto border-r border-slate-800">
-      {/* Subtle background hexagon pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' stroke='%23ffffff' stroke-width='1' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-        backgroundSize: '100px 100px'
-      }} />
-
+    <aside className="w-[268px] flex-shrink-0 bg-gradient-to-b from-white via-slate-50/90 to-sky-50/40 flex flex-col justify-between h-full relative z-20 overflow-y-auto border-r border-slate-200/80 shadow-[2px_0_16px_rgba(0,0,0,0.03)]">
       <div className="relative z-10">
         {/* Logo */}
         <div className="pt-7 pb-6 px-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 no-underline">
-            <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-violet-500/20">
-              <Hexagon size={22} fill="currentColor" />
+          <Link href="/" className="flex items-center gap-3 no-underline group">
+            <div className="w-11 h-11 bg-gradient-to-tr from-blue-600 via-sky-500 to-cyan-400 rounded-2xl flex items-center justify-center text-white shadow-[0_4px_16px_rgba(14,165,233,0.35)] group-hover:scale-105 transition-transform">
+              <Hexagon size={24} fill="currentColor" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[20px] font-extrabold tracking-tight text-white leading-none mb-1">ELVON</span>
-              <span className="text-[10px] tracking-wider text-violet-400 font-bold uppercase leading-none">Quantum Research</span>
+              <span className="text-[20px] font-black tracking-tight text-slate-900 leading-none mb-1">ELVON</span>
+              <span className="text-[11px] font-bold text-sky-600 leading-none">Quantum Research</span>
             </div>
           </Link>
         </div>
 
         {/* Nav */}
-        <nav className="space-y-1 px-3 mt-2">
+        <nav className="space-y-1.5 px-3.5 mt-2">
           {RESEARCH_NAV.map(({ href, icon: Icon, label }) => {
             const isActive = pathname === href || (href !== "/research-dashboard" && pathname.startsWith(href))
             return (
@@ -104,13 +98,19 @@ export default function ResearcherLayout({
                 key={href}
                 href={href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all ${
+                className={`group flex items-center gap-3 px-3 py-2 rounded-2xl text-[13.5px] transition-all no-underline ${
                   isActive
-                    ? "bg-violet-600/20 text-white font-semibold border-l-2 border-violet-400"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+                    ? "bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/25 font-bold"
+                    : "text-slate-600 hover:bg-sky-50/80 hover:text-sky-700 font-semibold"
                 }`}
               >
-                <Icon size={17} className={isActive ? "text-violet-400" : "text-slate-500"} /> 
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
+                  isActive
+                    ? "bg-white/20 text-white backdrop-blur-xs ring-1 ring-white/30 shadow-inner"
+                    : "bg-slate-100/90 text-slate-500 group-hover:bg-sky-100 group-hover:text-sky-600 border border-slate-200/50 shadow-2xs"
+                }`}>
+                  <Icon size={18} />
+                </div>
                 <span className="truncate">{label}</span>
               </Link>
             )
@@ -118,33 +118,33 @@ export default function ResearcherLayout({
         </nav>
       </div>
 
-      <div className="p-4 relative z-10 space-y-4">
+      <div className="p-4 relative z-10 space-y-3 border-t border-slate-200/70 bg-white/70 backdrop-blur-xs">
         {/* Secure Enclave Badge */}
-        <div className="bg-emerald-950/30 rounded-xl p-3.5 flex items-center gap-3 border border-emerald-500/20 shadow-xs backdrop-blur-xs">
-          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-            <Shield size={16} className="fill-emerald-500/20" />
+        <div className="bg-emerald-50 rounded-xl p-3 flex items-center gap-3 border border-emerald-200 shadow-2xs">
+          <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+            <Shield size={16} className="fill-emerald-600/20" />
           </div>
           <div>
-            <div className="text-[11px] font-bold text-white leading-snug">Zero-Data-Leakage</div>
-            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Secure Enclave
+            <div className="text-[11px] font-bold text-slate-800 leading-snug">Zero-Data-Leakage</div>
+            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Secure Enclave
             </div>
           </div>
         </div>
 
         {/* User Card */}
-        <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between">
+        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center text-white font-extrabold text-[12px]">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center text-white font-extrabold text-[12px] shadow-xs border-2 border-white ring-1 ring-sky-300">
               {userInitials}
             </div>
             <div className="min-w-0">
-              <div className="text-[12px] font-bold text-white truncate">{userName}</div>
-              <div className="text-[10px] text-slate-400 truncate">QML Lead</div>
+              <div className="text-[12.5px] font-bold text-slate-800 truncate">{userName}</div>
+              <div className="text-[11px] text-slate-500 font-medium truncate">QML Lead</div>
             </div>
           </div>
-          <button onClick={handleLogout} title="Log Out" className="p-1.5 text-slate-400 hover:text-rose-400 transition-colors">
-            <Power size={14} />
+          <button onClick={handleLogout} title="Log Out" className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
+            <Power size={15} />
           </button>
         </div>
       </div>

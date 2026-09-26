@@ -141,7 +141,7 @@ async def list_datasets(
 @router.post("/datasets/upload")
 async def upload_custom_dataset(
     file: UploadFile = File(...),
-    _user: dict = Depends(require_hospital),
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Uploads a custom biomedical CSV dataset and returns a temporary upload ID.
@@ -185,7 +185,7 @@ async def upload_custom_dataset(
 @router.post("/datasets/profile")
 async def profile_dataset(
     req: ProfileRequest,
-    _user: dict = Depends(require_hospital),
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Generates an automated Data Quality Report and schema audit.
@@ -210,7 +210,7 @@ async def profile_dataset(
 @router.post("/experiment/run")
 async def run_qml_experiment(
     req: RunExperimentRequest,
-    _user: dict = Depends(require_hospital),
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Executes the complete end-to-end Classical vs Hybrid Quantum Machine Learning experiment:
@@ -528,7 +528,7 @@ class NoiseImpactRequest(BaseModel):
 @router.post("/benchmark/noise-impact")
 async def noise_impact(
     req: NoiseImpactRequest,
-    _user: dict = Depends(require_hospital),
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Computes Noise Impact Delta = Accuracy_ideal - Accuracy_noisy for QSVM and VQC.
@@ -554,7 +554,7 @@ class DimensionSweepRequest(BaseModel):
 @router.post("/benchmark/dimension-sweep")
 async def dimension_sweep(
     req: DimensionSweepRequest,
-    _user: dict = Depends(require_hospital),
+    _user: dict = Depends(require_any_auth),
 ):
     """
     Evaluates predictive accuracy across different qubit / PCA dimensionalities.

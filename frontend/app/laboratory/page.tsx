@@ -45,12 +45,69 @@ const DEFAULT_PACS_STUDIES = [
   { id: "STU-9903", patient_id: "P-1043", patient_name: "Meera Joshi", modality: "CT", study_description: "Pulmonary Angiogram Protocol", num_series: 3, num_instances: 380, study_date: "2026-09-25", status: "Ready" }
 ]
 
+const DEFAULT_FHIR_BUNDLE = {
+  resourceType: "Bundle",
+  type: "collection",
+  timestamp: "2026-09-26T10:30:00Z",
+  total: 6,
+  entry: [
+    {
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "8867-4", display: "Heart rate" }], text: "Continuous Pulse Telemetry" },
+        valueQuantity: { value: 78, unit: "bpm" }
+      }
+    },
+    {
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "8480-6", display: "Systolic Blood Pressure" }], text: "Arterial Line Blood Pressure" },
+        valueQuantity: { value: 124, unit: "mmHg" }
+      }
+    },
+    {
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "2339-0", display: "Glucose [Mass/volume] in Blood" }], text: "Bedside Capillary Glucose" },
+        valueQuantity: { value: 112, unit: "mg/dL" }
+      }
+    },
+    {
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "20564-1", display: "Oxygen saturation in Blood" }], text: "Pulse Oximetry SpO2" },
+        valueQuantity: { value: 98.4, unit: "%" }
+      }
+    },
+    {
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "2160-0", display: "Creatinine [Mass/volume] in Serum" }], text: "Serum Creatinine Lab Assay" },
+        valueQuantity: { value: 1.05, unit: "mg/dL" }
+      }
+    },
+    {
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "4544-3", display: "Hemoglobin A1c" }], text: "Longitudinal HbA1c" },
+        valueQuantity: { value: 5.8, unit: "%" }
+      }
+    }
+  ]
+}
+
 export default function LaboratoryPage() {
   const [activeTab, setActiveTab] = useState<"systems" | "pacs" | "fhir">("systems")
   const [sources, setSources] = useState<LabSource[]>(DEFAULT_SOURCES)
   const [uploads, setUploads] = useState<LabUpload[]>(DEFAULT_UPLOADS)
   const [pacsStudies, setPacsStudies] = useState<any[]>(DEFAULT_PACS_STUDIES)
-  const [fhirBundle, setFhirBundle] = useState<any>(null)
+  const [fhirBundle, setFhirBundle] = useState<any>(DEFAULT_FHIR_BUNDLE)
   const [selectedStudy, setSelectedStudy] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   const [filterSource, setFilterSource] = useState<string | null>(null)
@@ -65,7 +122,7 @@ export default function LaboratoryPage() {
       if (srcData?.sources && srcData.sources.length > 0) setSources(srcData.sources)
       if (uplData?.uploads && uplData.uploads.length > 0) setUploads(uplData.uploads)
       if (pacsData?.studies && pacsData.studies.length > 0) setPacsStudies(pacsData.studies)
-      if (fhirData) setFhirBundle(fhirData)
+      if (fhirData?.entry) setFhirBundle(fhirData)
     }).catch(() => {})
   }, [])
 

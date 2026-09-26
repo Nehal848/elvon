@@ -359,6 +359,114 @@ def seed_db():
                 db.add(DoctorFeedback(**f))
             db.commit()
 
+        # Seed QML Experiments if empty
+        if db.query(QmlExperiment).count() == 0:
+            seed_experiments = [
+                {
+                    "id": "EXP-2026-WDBC-01",
+                    "dataset_name": "Breast Cancer Diagnostic (WDBC)",
+                    "dataset_version": "v1.0",
+                    "target_column": "diagnosis",
+                    "selected_features": serialize(["radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", "compactness_mean", "concavity_mean", "concave_points_mean"]),
+                    "n_pca_components": 8,
+                    "quantum_backend": "simulator_ideal",
+                    "qml_model_type": "QSVM + VQC + QNN",
+                    "status": "COMPLETED",
+                    "benchmark_results": serialize({
+                        "classical_champion": {"name": "Random Forest", "accuracy": 96.5, "precision": 0.96, "recall": 0.97, "f1_score": 0.965, "roc_auc": 0.988, "latency_ms": 12.4},
+                        "quantum_champion": {"name": "Quantum Kernel (QSVM)", "accuracy": 95.8, "precision": 0.95, "recall": 0.96, "f1_score": 0.955, "roc_auc": 0.982, "latency_ms": 45.2, "category": "Hybrid QML"},
+                        "outcome": "Classical Advantage: Random Forest exceeds Quantum Kernel by +0.7% accuracy",
+                        "models": [
+                            {"name": "Random Forest", "category": "Classical ML", "accuracy": 96.5, "precision": 0.96, "recall": 0.97, "f1_score": 0.965, "roc_auc": 0.988},
+                            {"name": "Support Vector Machine", "category": "Classical ML", "accuracy": 94.7, "precision": 0.94, "recall": 0.95, "f1_score": 0.945, "roc_auc": 0.975},
+                            {"name": "Quantum Kernel (QSVM)", "category": "Hybrid QML", "accuracy": 95.8, "precision": 0.95, "recall": 0.96, "f1_score": 0.955, "roc_auc": 0.982},
+                            {"name": "Variational Quantum Classifier", "category": "Hybrid QML", "accuracy": 93.2, "precision": 0.92, "recall": 0.94, "f1_score": 0.930, "roc_auc": 0.960},
+                            {"name": "Quantum Neural Network", "category": "Hybrid QML", "accuracy": 94.1, "precision": 0.93, "recall": 0.95, "f1_score": 0.940, "roc_auc": 0.968}
+                        ]
+                    }),
+                    "quantum_resources": serialize({"n_qubits": 8, "depth": 14, "total_gates": 56, "cnot_count": 28, "shots": 1000, "execution_time_ms": 340}),
+                    "leakage_audit": serialize({"passed": True, "split_leakage_detected": False, "feature_leakage_detected": False}),
+                    "created_at": "2026-03-24T10:15:30Z",
+                    "created_by": "Dr. Vikram Sarabhai"
+                },
+                {
+                    "id": "EXP-2026-HEART-02",
+                    "dataset_name": "Heart Disease Cleveland",
+                    "dataset_version": "v1.0",
+                    "target_column": "target",
+                    "selected_features": serialize(["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach"]),
+                    "n_pca_components": 6,
+                    "quantum_backend": "simulator_noisy",
+                    "qml_model_type": "Variational Quantum Classifier (VQC)",
+                    "status": "COMPLETED",
+                    "benchmark_results": serialize({
+                        "classical_champion": {"name": "XGBoost", "accuracy": 88.5, "precision": 0.87, "recall": 0.89, "f1_score": 0.88, "roc_auc": 0.912, "latency_ms": 8.5},
+                        "quantum_champion": {"name": "VQC (Angle Encoding)", "accuracy": 86.9, "precision": 0.85, "recall": 0.88, "f1_score": 0.865, "roc_auc": 0.895, "latency_ms": 62.0, "category": "Hybrid QML"},
+                        "outcome": "Competitive: VQC demonstrates robust convergence under 1.5% simulated depolarizing noise",
+                        "models": [
+                            {"name": "XGBoost", "category": "Classical ML", "accuracy": 88.5, "precision": 0.87, "recall": 0.89, "f1_score": 0.88},
+                            {"name": "Logistic Regression", "category": "Classical ML", "accuracy": 84.1, "precision": 0.83, "recall": 0.85, "f1_score": 0.84},
+                            {"name": "VQC (Angle Encoding)", "category": "Hybrid QML", "accuracy": 86.9, "precision": 0.85, "recall": 0.88, "f1_score": 0.865}
+                        ]
+                    }),
+                    "quantum_resources": serialize({"n_qubits": 6, "depth": 18, "total_gates": 48, "cnot_count": 24, "shots": 800, "execution_time_ms": 420}),
+                    "leakage_audit": serialize({"passed": True, "split_leakage_detected": False, "feature_leakage_detected": False}),
+                    "created_at": "2026-03-25T14:40:00Z",
+                    "created_by": "Dr. Vikram Sarabhai"
+                },
+                {
+                    "id": "EXP-2026-DIAB-03",
+                    "dataset_name": "Diabetes Early Risk",
+                    "dataset_version": "v1.0",
+                    "target_column": "Outcome",
+                    "selected_features": serialize(["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"]),
+                    "n_pca_components": 8,
+                    "quantum_backend": "simulator_ideal",
+                    "qml_model_type": "Quantum Neural Network (QNN)",
+                    "status": "COMPLETED",
+                    "benchmark_results": serialize({
+                        "classical_champion": {"name": "Logistic Regression", "accuracy": 78.4, "precision": 0.76, "recall": 0.79, "f1_score": 0.775, "roc_auc": 0.825, "latency_ms": 5.1},
+                        "quantum_champion": {"name": "Hybrid QNN", "accuracy": 79.2, "precision": 0.78, "recall": 0.80, "f1_score": 0.79, "roc_auc": 0.835, "latency_ms": 55.4, "category": "Hybrid QML"},
+                        "outcome": "Quantum Parity: Hybrid QNN outperforms standard baseline by +0.8% accuracy",
+                        "models": [
+                            {"name": "Logistic Regression", "category": "Classical ML", "accuracy": 78.4, "precision": 0.76, "recall": 0.79, "f1_score": 0.775},
+                            {"name": "Hybrid QNN", "category": "Hybrid QML", "accuracy": 79.2, "precision": 0.78, "recall": 0.80, "f1_score": 0.79}
+                        ]
+                    }),
+                    "quantum_resources": serialize({"n_qubits": 8, "depth": 16, "total_gates": 64, "cnot_count": 32, "shots": 1024, "execution_time_ms": 480}),
+                    "leakage_audit": serialize({"passed": True, "split_leakage_detected": False, "feature_leakage_detected": False}),
+                    "created_at": "2026-03-26T08:20:15Z",
+                    "created_by": "Dr. Vikram Sarabhai"
+                },
+                {
+                    "id": "EXP-2026-NEURO-04",
+                    "dataset_name": "Parkinsons Disease Biomarkers",
+                    "dataset_version": "v1.0",
+                    "target_column": "status",
+                    "selected_features": serialize(["MDVP:Fo(Hz)", "MDVP:Fhi(Hz)", "MDVP:Flo(Hz)", "MDVP:Jitter(%)", "MDVP:Shimmer", "NHR", "HNR", "RPDE"]),
+                    "n_pca_components": 8,
+                    "quantum_backend": "simulator_ideal",
+                    "qml_model_type": "QSVM (ZZFeatureMap)",
+                    "status": "COMPLETED",
+                    "benchmark_results": serialize({
+                        "classical_champion": {"name": "Support Vector Machine", "accuracy": 91.2, "precision": 0.90, "recall": 0.92, "f1_score": 0.91, "roc_auc": 0.935, "latency_ms": 6.8},
+                        "quantum_champion": {"name": "Quantum Kernel (QSVM)", "accuracy": 92.3, "precision": 0.92, "recall": 0.93, "f1_score": 0.925, "roc_auc": 0.948, "latency_ms": 38.0, "category": "Hybrid QML"},
+                        "outcome": "Quantum Advantage: QSVM non-linear feature Hilbert space improves separation (+1.1%)",
+                        "models": [
+                            {"name": "Support Vector Machine", "category": "Classical ML", "accuracy": 91.2, "precision": 0.90, "recall": 0.92, "f1_score": 0.91},
+                            {"name": "Quantum Kernel (QSVM)", "category": "Hybrid QML", "accuracy": 92.3, "precision": 0.92, "recall": 0.93, "f1_score": 0.925}
+                        ]
+                    }),
+                    "quantum_resources": serialize({"n_qubits": 8, "depth": 22, "total_gates": 72, "cnot_count": 36, "shots": 1000, "execution_time_ms": 510}),
+                    "leakage_audit": serialize({"passed": True, "split_leakage_detected": False, "feature_leakage_detected": False}),
+                    "created_at": "2026-03-26T06:10:00Z",
+                    "created_by": "Dr. Vikram Sarabhai"
+                }
+            ]
+            for exp in seed_experiments:
+                db.add(QmlExperiment(**exp))
+            db.commit()
+
     except Exception as e:  # noqa: BLE001
         logger.error(f"Error seeding DB: {e}")
         db.rollback()

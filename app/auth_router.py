@@ -146,9 +146,10 @@ def require_role(*allowed_roles: str):
     return _guard
 
 
-require_doctor = require_role("doctor")
-require_hospital = require_role("institution")
-require_any_auth = require_role("doctor", "institution")
+require_doctor = require_role("doctor", "clinician")
+require_hospital = require_role("institution", "admin")
+require_researcher = require_role("researcher", "data_scientist", "institution", "admin", "doctor")
+require_any_auth = require_role("doctor", "institution", "researcher", "data_scientist", "admin", "clinician")
 
 
 def generate_otp() -> str:

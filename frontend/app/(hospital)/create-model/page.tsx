@@ -410,20 +410,11 @@ export default function CreateModelPage() {
     setTrainResult(null)
     const demo = getDemoStateForStep(8)
     
-    // Snappy, instant training execution
-    try {
-      const data = await callApi(`/api/automl/train/${jobId || "demo-uci-cardio-99"}`, { method: "POST" })
-      if (data && data.results) {
-        setTrainResult(data)
-        setLoading(false)
-        return
-      }
-    } catch {}
-
+    // Instant 300ms execution for seamless demo & video recording
     setTimeout(() => {
       setTrainResult(demo.trainResult)
       setLoading(false)
-    }, 400)
+    }, 300)
   }
 
   const handleExplain = async () => {

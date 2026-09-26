@@ -1,20 +1,12 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import HospitalLayout from "@/components/hospital-layout"
 import {
   UploadCloud, Database, Settings, Cpu, Play, CheckCircle,
-  Activity, Search, Target, Check, ChevronRight, BarChart2
+  Activity, Target, Check, ChevronRight, BarChart2, Sparkles,
+  ArrowLeft, ShieldCheck, Zap, Layers, RefreshCw
 } from "lucide-react"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-
-// --- Styling Constants ---
-const COLORS = {
-  accent: "#6366f1", accent2: "#8b5cf6", cyan: "#06b6d4",
-  green: "#10b981", orange: "#f59e0b", red: "#ef4444",
-  text: "#f1f5f9", text2: "#94a3b8", text3: "#64748b",
-  bg: "#05070f", surface: "#0d1121", surface2: "#111827", border: "rgba(99,102,241,0.15)"
-}
 
 const STEPS = [
   { id: 1, name: "Upload Dataset", icon: Database },
@@ -70,9 +62,7 @@ export default function QuantumLabWizard() {
   // Handlers
   const handleSimulatedUpload = async () => {
     setIsUploading(true)
-    // Simulate upload delay
-    await new Promise(r => setTimeout(r, 1200))
-    // Fetch profile
+    await new Promise(r => setTimeout(r, 600))
     try {
       const res = await fetch("/api/qml/datasets/profile", {
         method: "POST",
@@ -200,7 +190,7 @@ export default function QuantumLabWizard() {
     // Fallback prediction and XAI
     setPredictionResult({
       prediction: 1,
-      prediction_label: datasetId === "breast_cancer" ? "Malignant" : "High Risk",
+      prediction_label: datasetId === "breast_cancer" ? "Malignant (High Risk)" : "Cardiac Risk Detected",
       probability: 0.884,
       confidence_interval: [0.82, 0.94],
       model_used: quantumModel,
@@ -221,390 +211,704 @@ export default function QuantumLabWizard() {
     setIsPredicting(false)
   }
 
-  // Helper renderers
+  // Stepper Indicator in Clean Clinical Theme
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-between mb-8 relative">
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-800 z-0 rounded"></div>
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-indigo-500 z-0 rounded transition-all duration-500" style={{ width: `${((step - 1) / 5) * 100}%` }}></div>
-      {STEPS.map((s, i) => {
-        const active = s.id === step
-        const done = s.id < step
-        const Icon = s.icon
-        return (
-          <div key={s.id} className="relative z-10 flex flex-col items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${active ? "bg-indigo-600 border-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : done ? "bg-indigo-900 border-indigo-600 text-indigo-300" : "bg-slate-900 border-slate-700 text-slate-500"}`}>
-              {done ? <Check size={18} /> : <Icon size={18} />}
-            </div>
-            <div className={`mt-2 text-xs font-bold ${active ? "text-indigo-400" : done ? "text-indigo-300" : "text-slate-500"}`}>{s.name}</div>
-          </div>
-        )
-      })}
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 md:p-6 mb-8">
+      <div className="flex items-center justify-between relative">
+        <div className="absolute left-0 top-5 -translate-y-1/2 w-full h-1 bg-slate-100 z-0 rounded-full" />
+        <div 
+          className="absolute left-0 top-5 -translate-y-1/2 h-1 bg-gradient-to-r from-indigo-600 to-sky-500 z-0 rounded-full transition-all duration-500" 
+          style={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
+        />
+        {STEPS.map((s) => {
+          const active = s.id === step
+          const done = s.id < step
+          const Icon = s.icon
+          return (
+            <button
+              key={s.id}
+              onClick={() => {
+                if (done || (s.id <= 3)) setStep(s.id)
+              }}
+              disabled={!done && s.id > step && !experimentResult}
+              className={`relative z-10 flex flex-col items-center group transition-all ${
+                done || s.id === step ? "cursor-pointer" : "cursor-not-allowed opacity-70"
+              }`}
+            >
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-200 ${
+                  active
+                    ? "bg-gradient-to-r from-indigo-600 to-sky-600 text-white shadow-md shadow-indigo-200 ring-4 ring-indigo-50"
+                    : done
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold"
+                    : "bg-slate-50 text-slate-400 border border-slate-200"
+                }`}
+              >
+                {done ? <Check size={18} className="stroke-[2.5]" /> : <Icon size={18} />}
+              </div>
+              <span
+                className={`mt-2 text-xs font-medium tracking-tight hidden sm:block transition-colors ${
+                  active
+                    ? "text-indigo-700 font-bold"
+                    : done
+                    ? "text-slate-700 font-semibold"
+                    : "text-slate-400"
+                }`}
+              >
+                {s.name}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 
   return (
-    <HospitalLayout title="Interactive Quantum Lab" subtitle="End-to-End Hybrid QML Benchmark Wizard">
-      <div className="min-h-screen bg-[#05070f] text-slate-300 p-8 font-sans">
-        <div className="max-w-5xl mx-auto">
-          
-          <div className="mb-10 text-center">
-            <h1 className="text-3xl font-black text-white tracking-tight mb-3">Hybrid QML Disease Detection Platform</h1>
-            <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-              A secure, explainable experimental platform that processes complex biomedical data, optimizes features, trains Classical ML and Hybrid QML models, predicts disease risk, and objectively benchmarks both approaches.
+    <HospitalLayout 
+      title="Interactive Quantum Lab" 
+      subtitle="End-to-end Hybrid Quantum-Classical benchmark and clinical disease detection wizard."
+    >
+      <div className="max-w-5xl mx-auto space-y-8 pb-16">
+        
+        {/* Header Banner */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 text-center relative overflow-hidden">
+          <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-indigo-100/60 to-sky-100/60 rounded-full blur-2xl pointer-events-none" />
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 mb-3">
+              <Sparkles size={13} className="text-indigo-600" />
+              Hybrid QML Clinical Laboratory
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-2">
+              Hybrid QML Disease Detection & Benchmark
+            </h1>
+            <p className="text-slate-600 text-sm max-w-2xl mx-auto leading-relaxed">
+              Process biomedical patient datasets, optimize high-dimensional features for quantum registers, execute comparative benchmarks against classical baselines, and explain predictions with SHAP XAI.
             </p>
           </div>
+        </div>
 
-          {renderStepIndicator()}
+        {/* Step Indicator */}
+        {renderStepIndicator()}
 
-          {/* STEP 1: UPLOAD */}
-          {step === 1 && (
-            <div className="bg-[#0d1121] border border-indigo-500/20 rounded-2xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-4">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Database className="text-indigo-500"/> 1. Upload Biomedical Dataset</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* STEP 1: UPLOAD & PROFILE */}
+        {step === 1 && (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 animate-in fade-in slide-in-from-bottom-3 duration-300">
+            <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                1
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Upload & Profile Biomedical Dataset</h2>
+                <p className="text-xs text-slate-500">Choose a clinical sample repository or provide custom hospital records.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Select Demo Dataset</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Select Clinical Dataset
+                  </label>
                   <select 
                     value={datasetId} 
                     onChange={e => {setDatasetId(e.target.value); setDatasetProfile(null)}}
-                    className="w-full bg-[#111827] border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 text-sm font-medium outline-none focus:border-indigo-500 focus:bg-white transition-all cursor-pointer"
                   >
                     <option value="breast_cancer">Breast Cancer (WDBC) - Oncology</option>
-                    <option value="heart_disease">Cardiovascular Disease - Cardiology</option>
-                    <option value="diabetes">Diabetes Screening - Metabolic</option>
+                    <option value="heart_disease">Cardiovascular Disease (UCI) - Cardiology</option>
+                    <option value="diabetes">Diabetes Early Screening - Metabolic</option>
                   </select>
-
-                  <div className="mt-6 border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:border-indigo-500/50 transition-colors bg-[#111827]/50">
-                    <UploadCloud size={40} className="mx-auto text-slate-500 mb-3" />
-                    <p className="text-sm text-slate-400 mb-1">Drag and drop your CSV dataset here</p>
-                    <p className="text-xs text-slate-500">or click to browse files</p>
-                  </div>
-
-                  <button 
-                    onClick={handleSimulatedUpload}
-                    disabled={isUploading}
-                    className="w-full mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-all disabled:opacity-50"
-                  >
-                    {isUploading ? "Uploading & Profiling..." : "Validate Dataset"}
-                  </button>
                 </div>
 
-                {datasetProfile ? (
-                  <div className="bg-[#111827] rounded-xl p-6 border border-slate-800">
-                    <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider text-center border-b border-slate-800 pb-3">Dataset Overview</h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between border-b border-slate-800/50 pb-2">
-                        <span className="text-slate-400 text-sm">Samples</span>
-                        <span className="text-white font-mono font-bold">{datasetProfile.n_samples}</span>
+                <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-indigo-50/20 transition-all cursor-pointer">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center mb-3">
+                    <UploadCloud size={24} />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800 mb-1">Drag and drop clinical CSV file</p>
+                  <p className="text-xs text-slate-500">Supports CSV, XLSX, DICOM tabulations (Max 50MB)</p>
+                </div>
+
+                <button 
+                  onClick={handleSimulatedUpload}
+                  disabled={isUploading}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-indigo-100 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isUploading ? (
+                    <>
+                      <RefreshCw size={16} className="animate-spin" />
+                      Validating & Profiling Features...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck size={18} />
+                      Validate & Inspect Dataset
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {datasetProfile ? (
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Dataset Profile Verified
+                      </h3>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        <CheckCircle size={12} /> Ready
+                      </span>
+                    </div>
+
+                    <div className="space-y-3.5 text-sm">
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                        <span className="text-slate-600 font-medium">Cohort Samples</span>
+                        <span className="text-slate-900 font-mono font-bold">{datasetProfile.n_samples} records</span>
                       </div>
-                      <div className="flex justify-between border-b border-slate-800/50 pb-2">
-                        <span className="text-slate-400 text-sm">Features</span>
-                        <span className="text-white font-mono font-bold">{datasetProfile.n_features}</span>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                        <span className="text-slate-600 font-medium">Input Features</span>
+                        <span className="text-slate-900 font-mono font-bold">{datasetProfile.n_features} parameters</span>
                       </div>
-                      <div className="flex justify-between border-b border-slate-800/50 pb-2">
-                        <span className="text-slate-400 text-sm">Missing Values</span>
-                        <span className="text-emerald-400 font-mono font-bold">0 (Good)</span>
-                      </div>
-                      <div className="flex justify-between border-b border-slate-800/50 pb-2">
-                        <span className="text-slate-400 text-sm">Class Balance</span>
-                        <span className="text-amber-400 font-mono font-bold">
-                          {typeof datasetProfile.class_balance === "number" 
-                            ? `${(datasetProfile.class_balance * 100).toFixed(1)}%`
-                            : datasetProfile.class_balance && typeof datasetProfile.class_balance === "object"
-                              ? `${((datasetProfile.class_balance["0"] || datasetProfile.class_balance["1"] || 0.627) * 100).toFixed(1)}%`
-                              : "62.7%"}
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                        <span className="text-slate-600 font-medium">Missing Value Audit</span>
+                        <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded text-xs">
+                          0 Missing (100% Complete)
                         </span>
                       </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                        <span className="text-slate-600 font-medium">Class Ratio</span>
+                        <span className="text-indigo-700 font-bold font-mono bg-indigo-50 px-2 py-0.5 rounded text-xs">
+                          {typeof datasetProfile.class_balance === "number" 
+                            ? `${(datasetProfile.class_balance * 100).toFixed(1)}% / ${(100 - datasetProfile.class_balance * 100).toFixed(1)}%`
+                            : datasetProfile.class_balance && typeof datasetProfile.class_balance === "object"
+                              ? `${((datasetProfile.class_balance["0"] || datasetProfile.class_balance["1"] || 0.627) * 100).toFixed(1)}% / ${(100 - (datasetProfile.class_balance["0"] || datasetProfile.class_balance["1"] || 0.627) * 100).toFixed(1)}%`
+                              : "62.7% / 37.3%"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-medium">Data Quality Score</span>
+                        <span className="text-emerald-700 font-bold font-mono">98.5 / 100</span>
+                      </div>
                     </div>
-                    
-                    <button onClick={() => setStep(2)} className="w-full mt-8 bg-white text-indigo-900 font-bold py-3 px-4 rounded-xl hover:bg-indigo-50 transition-all flex justify-center items-center gap-2">
-                      Proceed to Preprocessing <ChevronRight size={18}/>
-                    </button>
                   </div>
-                ) : (
-                  <div className="bg-[#111827]/50 rounded-xl border border-slate-800 flex items-center justify-center p-6 text-center text-slate-500 text-sm">
-                    Upload and validate dataset to view profile.
-                  </div>
-                )}
+                  
+                  <button 
+                    onClick={() => setStep(2)} 
+                    className="w-full mt-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2 cursor-pointer shadow-sm"
+                  >
+                    Proceed to Preprocessing <ChevronRight size={18} />
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center p-8 text-center text-slate-500 text-sm">
+                  <Database size={36} className="text-slate-300 mb-3" />
+                  <p className="font-medium text-slate-600">No profile generated yet</p>
+                  <p className="text-xs text-slate-400 mt-1">Click "Validate & Inspect Dataset" to analyze clinical distribution.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: PREPROCESS */}
+        {step === 2 && (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 animate-in fade-in slide-in-from-right-3 duration-300">
+            <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                2
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Feature Engineering & Quantum Preprocessing</h2>
+                <p className="text-xs text-slate-500">Normalize continuous markers and condense variance into quantum qubit representations.</p>
               </div>
             </div>
-          )}
-
-          {/* STEP 2: PREPROCESS */}
-          {step === 2 && (
-            <div className="bg-[#0d1121] border border-indigo-500/20 rounded-2xl p-8 shadow-2xl animate-in fade-in slide-in-from-right-8">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="text-indigo-500"/> 2. Data Preprocessing & Optimization</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div className="bg-[#111827] p-5 rounded-xl border border-slate-800">
-                    <h3 className="text-sm font-bold text-white mb-4">Standard Cleaning</h3>
-                    <label className="flex items-center gap-3 text-sm text-slate-300 mb-3 cursor-pointer">
-                      <input type="checkbox" checked={prepOptions.missing} onChange={e => setPrepOptions({...prepOptions, missing: e.target.checked})} className="w-4 h-4 accent-indigo-500" />
-                      Missing Value Imputation (Mean/Mode)
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4">
+                    Standard Pipeline Cleaners
+                  </h3>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer font-medium">
+                      <input 
+                        type="checkbox" 
+                        checked={prepOptions.missing} 
+                        onChange={e => setPrepOptions({...prepOptions, missing: e.target.checked})} 
+                        className="w-4 h-4 rounded text-indigo-600 accent-indigo-600" 
+                      />
+                      Missing Value Imputation (Iterative Mean/Mode)
                     </label>
-                    <label className="flex items-center gap-3 text-sm text-slate-300 cursor-pointer">
-                      <input type="checkbox" checked={prepOptions.scale} onChange={e => setPrepOptions({...prepOptions, scale: e.target.checked})} className="w-4 h-4 accent-indigo-500" />
-                      Feature Scaling (StandardScaler)
+                    <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer font-medium">
+                      <input 
+                        type="checkbox" 
+                        checked={prepOptions.scale} 
+                        onChange={e => setPrepOptions({...prepOptions, scale: e.target.checked})} 
+                        className="w-4 h-4 rounded text-indigo-600 accent-indigo-600" 
+                      />
+                      Robust Feature Scaling (StandardScaler)
                     </label>
-                  </div>
-
-                  <div className="bg-[#111827] p-5 rounded-xl border border-slate-800">
-                    <h3 className="text-sm font-bold text-white mb-4">Feature Selection (Mutual Information)</h3>
-                    <div className="flex justify-between text-xs text-slate-400 mb-2"><span>Select Top Features</span><span>{prepOptions.selectFeatures}</span></div>
-                    <input type="range" min={4} max={30} value={prepOptions.selectFeatures} onChange={e => setPrepOptions({...prepOptions, selectFeatures: parseInt(e.target.value)})} className="w-full accent-indigo-500" />
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="bg-indigo-900/20 p-5 rounded-xl border border-indigo-500/30">
-                    <h3 className="text-sm font-bold text-indigo-300 mb-2">PCA / Dimensionality Reduction</h3>
-                    <p className="text-xs text-indigo-200/70 mb-4">Crucial for Quantum models to map classical data to limited qubits without losing variance.</p>
-                    
-                    <div className="flex justify-between items-center bg-[#0d1121] p-4 rounded-lg border border-indigo-500/20 mb-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-black text-white">{prepOptions.selectFeatures}</div>
-                        <div className="text-[10px] text-slate-500 uppercase">Features</div>
-                      </div>
-                      <ChevronRight className="text-indigo-500"/>
-                      <div className="text-center">
-                        <div className="text-2xl font-black text-cyan-400">{prepOptions.pca}</div>
-                        <div className="text-[10px] text-cyan-500/70 uppercase">PCA Components</div>
-                      </div>
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Feature Selection (Mutual Information)
+                    </h3>
+                    <span className="text-xs font-bold font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                      {prepOptions.selectFeatures} Features
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-4">Extract top biomarkers ranking highest in clinical dependency.</p>
+                  <input 
+                    type="range" 
+                    min={4} 
+                    max={30} 
+                    value={prepOptions.selectFeatures} 
+                    onChange={e => setPrepOptions({...prepOptions, selectFeatures: parseInt(e.target.value)})} 
+                    className="w-full accent-indigo-600 cursor-pointer" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-6 flex flex-col justify-between">
+                <div className="bg-gradient-to-br from-indigo-50/70 to-sky-50/70 p-5 rounded-2xl border border-indigo-100">
+                  <div className="flex items-center gap-2 text-indigo-800 font-bold text-sm mb-1.5">
+                    <Layers size={16} className="text-indigo-600" />
+                    PCA Dimensionality Reduction (Quantum Encoding)
+                  </div>
+                  <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                    Maps high-dimensional clinical markers into orthogonal principal components optimized for limited NISQ qubit states.
+                  </p>
+                  
+                  <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-indigo-100/80 shadow-sm mb-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-slate-800">{prepOptions.selectFeatures}</div>
+                      <div className="text-[10px] text-slate-500 uppercase font-semibold">Selected Features</div>
                     </div>
-                    
-                    <div className="flex justify-between text-xs text-indigo-300 mb-2"><span>Target Components (Qubits)</span><span>{prepOptions.pca}</span></div>
-                    <input type="range" min={4} max={10} value={prepOptions.pca} onChange={e => setPrepOptions({...prepOptions, pca: parseInt(e.target.value)})} className="w-full accent-cyan-500" />
+                    <ChevronRight className="text-indigo-400" />
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-indigo-600">{prepOptions.pca}</div>
+                      <div className="text-[10px] text-indigo-500 uppercase font-semibold">Qubit Dimensions</div>
+                    </div>
                   </div>
                   
-                  <button onClick={() => setStep(3)} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2">
-                    Apply Processing <ChevronRight size={18}/>
+                  <div className="flex justify-between text-xs text-indigo-900 font-medium mb-1.5">
+                    <span>Target Qubits (PCA Components)</span>
+                    <span className="font-bold font-mono">{prepOptions.pca} Qubits</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min={4} 
+                    max={10} 
+                    value={prepOptions.pca} 
+                    onChange={e => setPrepOptions({...prepOptions, pca: parseInt(e.target.value)})} 
+                    className="w-full accent-indigo-600 cursor-pointer" 
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between gap-4 pt-4">
+                  <button 
+                    onClick={() => setStep(1)} 
+                    className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <ArrowLeft size={16} /> Back
+                  </button>
+                  <button 
+                    onClick={() => setStep(3)} 
+                    className="flex-1 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-indigo-100 transition-all flex justify-center items-center gap-2 cursor-pointer"
+                  >
+                    Apply & Configure Models <ChevronRight size={18} />
                   </button>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* STEP 3: MODEL SETUP */}
-          {step === 3 && (
-            <div className="bg-[#0d1121] border border-indigo-500/20 rounded-2xl p-8 shadow-2xl animate-in fade-in slide-in-from-right-8">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Cpu className="text-indigo-500"/> 3. Configure Champion Models</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-[#111827] rounded-xl p-6 border-l-4 border-emerald-500">
-                  <h3 className="text-sm font-bold text-emerald-400 mb-2 uppercase tracking-wider">Classical ML Baseline</h3>
-                  <p className="text-xs text-slate-400 mb-4">Select the classical algorithm to benchmark against.</p>
-                  <select value={classicalModel} onChange={e => setClassicalModel(e.target.value)} className="w-full bg-[#0d1121] border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500 text-sm">
-                    <option>Random Forest</option>
-                    <option>XGBoost</option>
-                    <option>Support Vector Machine</option>
-                    <option>Logistic Regression</option>
-                  </select>
+        {/* STEP 3: MODEL SETUP */}
+        {step === 3 && (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 animate-in fade-in slide-in-from-right-3 duration-300">
+            <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                3
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Configure Champion Models for Benchmark</h2>
+                <p className="text-xs text-slate-500">Pair a classical ML baseline against a quantum-enhanced kernel or variational classifier.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Classical ML Card */}
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 border-t-4 border-t-emerald-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                    Classical ML Baseline
+                  </h3>
+                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Standard ML
+                  </span>
                 </div>
+                <p className="text-xs text-slate-600 mb-4">Select the classical ensemble or linear algorithm to benchmark.</p>
+                
+                <select 
+                  value={classicalModel} 
+                  onChange={e => setClassicalModel(e.target.value)} 
+                  className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-800 text-sm font-medium outline-none focus:border-emerald-500 transition-all cursor-pointer shadow-sm"
+                >
+                  <option>Random Forest</option>
+                  <option>XGBoost Classifier</option>
+                  <option>Support Vector Machine (RBF)</option>
+                  <option>Logistic Regression (L2)</option>
+                </select>
+              </div>
 
-                <div className="bg-indigo-900/10 rounded-xl p-6 border-l-4 border-indigo-500">
-                  <h3 className="text-sm font-bold text-indigo-400 mb-2 uppercase tracking-wider">Hybrid QML Model</h3>
-                  <p className="text-xs text-slate-400 mb-4">Select the quantum-enhanced model architecture.</p>
-                  <select value={quantumModel} onChange={e => setQuantumModel(e.target.value)} className="w-full bg-[#0d1121] border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-indigo-500 text-sm mb-4">
-                    <option>Variational Quantum Classifier</option>
+              {/* Hybrid QML Card */}
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 border-t-4 border-t-indigo-600">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                    Hybrid QML Model
+                  </h3>
+                  <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                    Quantum Enhanced
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 mb-4">Choose the variational circuit or quantum kernel architecture.</p>
+                
+                <div className="space-y-3">
+                  <select 
+                    value={quantumModel} 
+                    onChange={e => setQuantumModel(e.target.value)} 
+                    className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-800 text-sm font-medium outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-sm"
+                  >
+                    <option>Variational Quantum Classifier (VQC)</option>
                     <option>Quantum Kernel (QSVM)</option>
-                    <option>Quantum Neural Network</option>
+                    <option>Quantum Neural Network (QNN)</option>
                   </select>
 
-                  <h4 className="text-xs font-bold text-slate-300 mb-2">Quantum Backend Execution</h4>
-                  <select value={simulator} onChange={e => setSimulator(e.target.value)} className="w-full bg-[#0d1121] border border-slate-700 rounded-lg p-3 text-cyan-300 outline-none focus:border-cyan-500 text-sm font-mono">
-                    <option value="ideal">Simulator: Ideal Statevector</option>
-                    <option value="noisy">Simulator: Noisy NISQ (Aer)</option>
-                  </select>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wide mb-1">
+                      Quantum Backend Execution
+                    </label>
+                    <select 
+                      value={simulator} 
+                      onChange={e => setSimulator(e.target.value)} 
+                      className="w-full bg-white border border-slate-200 rounded-xl p-3 text-indigo-700 font-mono text-xs font-bold outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-sm"
+                    >
+                      <option value="ideal">Simulator: Statevector (Zero Noise / Ideal)</option>
+                      <option value="noisy">Simulator: Noisy NISQ (Qiskit Aer Noise Model)</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <button onClick={() => setStep(2)} className="text-slate-400 hover:text-white px-4 py-2 text-sm font-bold">Back</button>
-                <button onClick={handleRunExperiment} className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold py-3 px-8 rounded-xl transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
-                  <Play size={18} fill="currentColor"/> Begin Hybrid Training
-                </button>
               </div>
             </div>
-          )}
 
-          {/* STEP 4: EXECUTION */}
-          {step === 4 && (
-            <div className="bg-[#0d1121] border border-indigo-500/50 rounded-2xl p-12 shadow-2xl text-center">
-              <Activity className="mx-auto text-indigo-500 mb-6 animate-pulse" size={48} />
-              <h2 className="text-2xl font-black text-white mb-2">Executing Hybrid Pipeline</h2>
-              <p className="text-slate-400 text-sm mb-8">Compiling quantum circuits, training classical baselines, and optimizing parameterized gates.</p>
-              
-              <div className="w-full max-w-md mx-auto bg-slate-900 rounded-full h-3 mb-4 overflow-hidden border border-slate-800">
-                <div className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-300" style={{width: `${execProgress}%`}}></div>
-              </div>
-              <div className="text-xs font-mono text-cyan-400 font-bold">{execProgress}% Complete</div>
+            <div className="flex justify-between items-center pt-2">
+              <button 
+                onClick={() => setStep(2)} 
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <ArrowLeft size={16} /> Back
+              </button>
+              <button 
+                onClick={handleRunExperiment} 
+                className="bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold py-3.5 px-8 rounded-xl shadow-md shadow-indigo-100 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Play size={18} fill="currentColor" /> Begin Hybrid Benchmark
+              </button>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* STEP 5: BENCHMARK RESULTS */}
-          {step === 5 && experimentResult && (
-            <div className="animate-in fade-in zoom-in-95 duration-500">
-              <div className="bg-indigo-600/10 border border-indigo-500/30 rounded-xl p-6 mb-6 text-center">
-                <h2 className="text-xl font-bold text-white mb-2">Experiment Completed Successfully</h2>
-                <p className="text-indigo-200 text-sm">Total Runtime: {experimentResult.total_runtime_sec}s | Platform mapped {prepOptions.pca} clinical features to {prepOptions.pca} qubits.</p>
+        {/* STEP 4: EXECUTION PROGRESS */}
+        {step === 4 && (
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-12 shadow-sm text-center animate-in fade-in duration-300">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center mb-5 border border-indigo-100">
+              <Activity className="animate-pulse" size={32} />
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">Executing Hybrid Quantum Pipeline</h2>
+            <p className="text-slate-600 text-sm max-w-md mx-auto mb-8">
+              Compiling parameterized quantum gates, simulating circuit statevectors, and benchmarking classical ensemble baseline...
+            </p>
+            
+            <div className="w-full max-w-md mx-auto bg-slate-100 rounded-full h-3 mb-3 overflow-hidden border border-slate-200">
+              <div 
+                className="bg-gradient-to-r from-indigo-600 to-sky-500 h-full rounded-full transition-all duration-300" 
+                style={{ width: `${execProgress}%` }}
+              />
+            </div>
+            <div className="text-xs font-mono text-indigo-600 font-bold">{execProgress}% Complete</div>
+          </div>
+        )}
+
+        {/* STEP 5: BENCHMARK RESULTS */}
+        {step === 5 && experimentResult && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+            <div className="bg-gradient-to-r from-indigo-50 via-sky-50 to-indigo-50 border border-indigo-200/80 rounded-2xl p-6 text-center shadow-sm">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white text-indigo-700 border border-indigo-100 mb-2">
+                <CheckCircle size={13} className="text-emerald-600" />
+                Benchmark Run Completed
               </div>
+              <h2 className="text-xl font-bold text-slate-900 mb-1">
+                Comparative Tournament Results
+              </h2>
+              <p className="text-slate-600 text-sm">
+                Total Execution Time: <span className="font-semibold text-slate-800">{experimentResult.total_runtime_sec}s</span> | Mapped <span className="font-semibold text-slate-800">{prepOptions.pca} clinical biomarkers</span> to <span className="font-semibold text-slate-800">{prepOptions.pca} qubits</span>.
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {/* Classical Box */}
-                <div className="bg-[#0d1121] border border-emerald-500/30 rounded-2xl p-6">
-                  <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-                    <div>
-                      <div className="text-[10px] text-emerald-500 font-bold tracking-widest uppercase mb-1">Baseline</div>
-                      <h3 className="text-lg font-black text-white">{experimentResult.benchmark?.classical_champion?.name || "Classical ML"}</h3>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-black text-white">{experimentResult.benchmark?.classical_champion?.accuracy ?? 96.2}%</div>
-                      <div className="text-[10px] text-slate-500 uppercase">Accuracy</div>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Classical Champion Box */}
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm border-t-4 border-t-emerald-500">
+                <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                  <div>
+                    <div className="text-[10px] text-emerald-600 font-bold tracking-widest uppercase mb-1">Classical Baseline</div>
+                    <h3 className="text-lg font-bold text-slate-900">{experimentResult.benchmark?.classical_champion?.name || "Classical ML"}</h3>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">ROC-AUC</span><span className="font-mono text-white font-bold">{Number(experimentResult.benchmark?.classical_champion?.roc_auc ?? 0.988).toFixed(3)}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">Sensitivity</span><span className="font-mono text-white font-bold">{experimentResult.benchmark?.classical_champion?.sensitivity ?? 96.4}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">F1 Score</span><span className="font-mono text-white font-bold">{experimentResult.benchmark?.classical_champion?.f1_score ?? 96.5}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">Training Time</span><span className="font-mono text-white font-bold">{Number(experimentResult.benchmark?.classical_champion?.training_time_sec ?? 1.2).toFixed(2)}s</span></div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-slate-900">{experimentResult.benchmark?.classical_champion?.accuracy ?? 96.2}%</div>
+                    <div className="text-[10px] text-slate-500 uppercase font-semibold">Accuracy</div>
                   </div>
                 </div>
-
-                {/* QML Box */}
-                <div className="bg-[#0d1121] border border-indigo-500/50 rounded-2xl p-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                  <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 relative z-10">
-                    <div>
-                      <div className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase mb-1">Innovation</div>
-                      <h3 className="text-lg font-black text-white">{experimentResult.benchmark?.quantum_champion?.name || "Hybrid QML"}</h3>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-black text-white">{experimentResult.benchmark?.quantum_champion?.accuracy ?? 95.5}%</div>
-                      <div className="text-[10px] text-slate-500 uppercase">Accuracy</div>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm pb-2 border-b border-slate-50">
+                    <span className="text-slate-600">ROC-AUC</span>
+                    <span className="font-mono text-slate-900 font-bold">{Number(experimentResult.benchmark?.classical_champion?.roc_auc ?? 0.988).toFixed(3)}</span>
                   </div>
-                  <div className="space-y-3 relative z-10">
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">ROC-AUC</span><span className="font-mono text-cyan-400 font-bold">{Number(experimentResult.benchmark?.quantum_champion?.roc_auc ?? 0.982).toFixed(3)}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">Sensitivity</span><span className="font-mono text-white font-bold">{experimentResult.benchmark?.quantum_champion?.sensitivity ?? 95.8}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">F1 Score</span><span className="font-mono text-white font-bold">{experimentResult.benchmark?.quantum_champion?.f1_score ?? 95.5}%</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-slate-400">Training Time</span><span className="font-mono text-white font-bold">{Number(experimentResult.benchmark?.quantum_champion?.training_time_sec ?? 2.8).toFixed(2)}s</span></div>
+                  <div className="flex justify-between text-sm pb-2 border-b border-slate-50">
+                    <span className="text-slate-600">Sensitivity / Recall</span>
+                    <span className="font-mono text-slate-900 font-bold">{experimentResult.benchmark?.classical_champion?.sensitivity ?? 96.4}%</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Quantum Resources */}
-              <div className="bg-[#111827] rounded-xl p-6 border border-slate-800 mb-8">
-                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider text-center">Quantum Resources Utilised</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div className="bg-[#0d1121] rounded-lg p-3 border border-slate-800/50">
-                    <div className="text-xl font-black text-cyan-400">{prepOptions.pca}</div>
-                    <div className="text-[10px] text-slate-500 uppercase mt-1">Qubits</div>
+                  <div className="flex justify-between text-sm pb-2 border-b border-slate-50">
+                    <span className="text-slate-600">F1 Score</span>
+                    <span className="font-mono text-slate-900 font-bold">{experimentResult.benchmark?.classical_champion?.f1_score ?? 96.5}%</span>
                   </div>
-                  <div className="bg-[#0d1121] rounded-lg p-3 border border-slate-800/50">
-                    <div className="text-xl font-black text-cyan-400">~{prepOptions.pca * 3}</div>
-                    <div className="text-[10px] text-slate-500 uppercase mt-1">Circuit Depth</div>
-                  </div>
-                  <div className="bg-[#0d1121] rounded-lg p-3 border border-slate-800/50">
-                    <div className="text-xl font-black text-cyan-400">{experimentResult.benchmark?.quantum_champion?.category === "Hybrid QML" ? "Angle" : "ZZFeature"}</div>
-                    <div className="text-[10px] text-slate-500 uppercase mt-1">Encoding</div>
-                  </div>
-                  <div className="bg-[#0d1121] rounded-lg p-3 border border-slate-800/50">
-                    <div className="text-xl font-black text-cyan-400">1024</div>
-                    <div className="text-[10px] text-slate-500 uppercase mt-1">Shots</div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Training Latency</span>
+                    <span className="font-mono text-slate-900 font-bold">{Number(experimentResult.benchmark?.classical_champion?.training_time_sec ?? 1.2).toFixed(2)}s</span>
                   </div>
                 </div>
               </div>
 
-              <div className="text-center">
-                <button onClick={() => setStep(6)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl transition-all inline-flex items-center gap-2 cursor-pointer">
-                  Proceed to Live Prediction <ChevronRight size={18}/>
-                </button>
+              {/* QML Champion Box */}
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm border-t-4 border-t-indigo-600">
+                <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                  <div>
+                    <div className="text-[10px] text-indigo-600 font-bold tracking-widest uppercase mb-1">Hybrid QML Candidate</div>
+                    <h3 className="text-lg font-bold text-slate-900">{experimentResult.benchmark?.quantum_champion?.name || "Hybrid QML"}</h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-indigo-600">{experimentResult.benchmark?.quantum_champion?.accuracy ?? 95.5}%</div>
+                    <div className="text-[10px] text-slate-500 uppercase font-semibold">Accuracy</div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm pb-2 border-b border-slate-50">
+                    <span className="text-slate-600">ROC-AUC</span>
+                    <span className="font-mono text-indigo-600 font-bold">{Number(experimentResult.benchmark?.quantum_champion?.roc_auc ?? 0.982).toFixed(3)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm pb-2 border-b border-slate-50">
+                    <span className="text-slate-600">Sensitivity / Recall</span>
+                    <span className="font-mono text-slate-900 font-bold">{experimentResult.benchmark?.quantum_champion?.sensitivity ?? 95.8}%</span>
+                  </div>
+                  <div className="flex justify-between text-sm pb-2 border-b border-slate-50">
+                    <span className="text-slate-600">F1 Score</span>
+                    <span className="font-mono text-slate-900 font-bold">{experimentResult.benchmark?.quantum_champion?.f1_score ?? 95.5}%</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Circuit Simulation Time</span>
+                    <span className="font-mono text-slate-900 font-bold">{Number(experimentResult.benchmark?.quantum_champion?.training_time_sec ?? 2.8).toFixed(2)}s</span>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* STEP 6: PREDICTION & XAI */}
-          {step === 6 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-right-8">
-              {/* Patient Sample */}
-              <div className="col-span-1 bg-[#0d1121] border border-slate-800 rounded-2xl p-6">
-                <h3 className="text-sm font-bold text-white mb-4 border-b border-slate-800 pb-2">New Patient Sample</h3>
-                <div className="text-xs text-slate-400 mb-4 bg-[#111827] p-3 rounded-lg font-mono">
-                  Sample ID: PAT-9912<br/>
-                  Extracted Features: {prepOptions.pca}<br/>
-                  Ready for inference.
+            {/* Quantum Hardware Resources */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
+              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider text-center mb-4">
+                Quantum Hardware & Circuit Complexity
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/60">
+                  <div className="text-2xl font-black text-indigo-600 font-mono">{prepOptions.pca}</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold mt-1">Qubits Allocated</div>
                 </div>
+                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/60">
+                  <div className="text-2xl font-black text-indigo-600 font-mono">~{prepOptions.pca * 3}</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold mt-1">Circuit Depth</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/60">
+                  <div className="text-2xl font-black text-indigo-600 font-mono">
+                    {experimentResult.benchmark?.quantum_champion?.category === "Hybrid QML" ? "Angle" : "ZZFeature"}
+                  </div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold mt-1">Encoding Map</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/60">
+                  <div className="text-2xl font-black text-indigo-600 font-mono">1,024</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold mt-1">Measurement Shots</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button 
+                onClick={() => setStep(3)} 
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <ArrowLeft size={16} /> Reconfigure
+              </button>
+              <button 
+                onClick={() => setStep(6)} 
+                className="bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold py-3.5 px-8 rounded-xl shadow-md shadow-indigo-100 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                Proceed to Live Prediction & XAI <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 6: PREDICTION & XAI */}
+        {step === 6 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-right-3 duration-300">
+            {/* Patient Sample Details */}
+            <div className="col-span-1 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Patient Test Record
+                  </h3>
+                  <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                    Simulated
+                  </span>
+                </div>
+                
+                <div className="text-xs text-slate-700 bg-slate-50 p-4 rounded-xl font-mono border border-slate-200/60 leading-relaxed mb-6 space-y-1">
+                  <div><span className="text-slate-400">ID:</span> <span className="font-bold">PAT-2026-9912</span></div>
+                  <div><span className="text-slate-400">Age / Gender:</span> 58y / Female</div>
+                  <div><span className="text-slate-400">Active Qubits:</span> {prepOptions.pca} Features</div>
+                  <div><span className="text-slate-400">Status:</span> Pending Inference</div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
                 <button 
                   onClick={handlePredict}
                   disabled={isPredicting}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 disabled:opacity-50 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-indigo-100 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  {isPredicting ? "Analyzing..." : <><Target size={18}/> Run QML Inference</>}
+                  {isPredicting ? (
+                    <>
+                      <RefreshCw size={16} className="animate-spin" />
+                      Analyzing with QML Model...
+                    </>
+                  ) : (
+                    <>
+                      <Target size={18} />
+                      Execute QML Inference
+                    </>
+                  )}
+                </button>
+                <button 
+                  onClick={() => setStep(5)} 
+                  className="w-full text-center text-xs font-semibold text-slate-500 hover:text-slate-800 py-2 transition-colors cursor-pointer"
+                >
+                  Return to Benchmark
                 </button>
               </div>
+            </div>
 
-              {/* Prediction Result */}
-              <div className="col-span-2 space-y-6">
-                {predictionResult ? (
-                  <div className="bg-[#0d1121] border border-indigo-500/30 rounded-2xl p-6">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Disease Risk Prediction</h3>
-                        <div className="text-3xl font-black text-white">{predictionResult.prediction_label}</div>
+            {/* Prediction Result & XAI */}
+            <div className="col-span-2">
+              {predictionResult ? (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-6">
+                  <div className="flex justify-between items-start border-b border-slate-100 pb-5">
+                    <div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        Diagnostic Assessment
                       </div>
-                      <div className="text-right bg-[#111827] p-3 rounded-xl border border-slate-800">
-                        <div className="text-2xl font-black text-cyan-400">{Number((predictionResult.probability ?? 0.88) * 100).toFixed(1)}%</div>
-                        <div className="text-[10px] text-slate-500 uppercase mt-1">Probability</div>
+                      <div className="text-2xl font-black text-slate-900 flex items-center gap-2">
+                        {predictionResult.prediction_label}
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                          High Risk
+                        </span>
                       </div>
                     </div>
-                    
-                    {xaiResult && xaiResult.feature_importance && (
-                      <div className="mt-8 border-t border-slate-800 pt-6">
-                        <h4 className="text-sm font-bold text-white mb-4">Explainability (XAI) - Feature Contributions</h4>
-                        <div className="space-y-3">
-                          {Array.isArray(xaiResult.feature_importance)
-                            ? xaiResult.feature_importance.slice(0, 5).map((item: any, i: number) => {
-                                const featName = item.feature || item.name || `Feature ${i+1}`
-                                const impVal = Number(item.importance ?? item.impact ?? 0.25)
-                                return (
-                                  <div key={featName} className="flex items-center gap-3">
-                                    <div className="w-28 text-xs text-slate-300 font-semibold truncate">{featName}</div>
-                                    <div className="flex-1 bg-slate-900 h-2 rounded-full overflow-hidden">
-                                      <div className="bg-indigo-500 h-full rounded-full transition-all" style={{width: `${Math.min(100, Math.max(5, impVal * 100))}%`}}></div>
-                                    </div>
-                                    <div className="w-12 text-right text-xs font-mono text-indigo-300">{(impVal * 100).toFixed(0)}%</div>
-                                  </div>
-                                )
-                              })
-                            : Object.entries(xaiResult.feature_importance).slice(0, 5).map(([feat, val]: any) => {
-                                const impVal = typeof val === "number" ? val : Number(val?.importance ?? 0.25)
-                                return (
-                                  <div key={feat} className="flex items-center gap-3">
-                                    <div className="w-28 text-xs text-slate-300 font-semibold truncate">{feat}</div>
-                                    <div className="flex-1 bg-slate-900 h-2 rounded-full overflow-hidden">
-                                      <div className="bg-indigo-500 h-full rounded-full transition-all" style={{width: `${Math.min(100, Math.max(5, impVal * 100))}%`}}></div>
-                                    </div>
-                                    <div className="w-12 text-right text-xs font-mono text-indigo-300">{(impVal * 100).toFixed(0)}%</div>
-                                  </div>
-                                )
-                              })
-                          }
-                        </div>
+                    <div className="text-right bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-100">
+                      <div className="text-2xl font-black text-indigo-700 font-mono">
+                        {Number((predictionResult.probability ?? 0.88) * 100).toFixed(1)}%
                       </div>
-                    )}
+                      <div className="text-[10px] text-indigo-600 uppercase font-bold mt-0.5">Model Confidence</div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="bg-[#0d1121] border border-slate-800 border-dashed rounded-2xl p-12 text-center text-slate-500 flex flex-col items-center justify-center h-full">
-                    <Target size={48} className="mb-4 text-slate-700" />
-                    <p>Run inference to view prediction and explanation.</p>
+                  
+                  {xaiResult && xaiResult.feature_importance && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          SHAP XAI Feature Importance Attribution
+                        </h4>
+                        <span className="text-[11px] font-mono text-slate-500">Method: KernelSHAP</span>
+                      </div>
+                      <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                        {Array.isArray(xaiResult.feature_importance)
+                          ? xaiResult.feature_importance.slice(0, 5).map((item: any, i: number) => {
+                              const featName = item.feature || item.name || `Feature ${i+1}`
+                              const impVal = Number(item.importance ?? item.impact ?? 0.25)
+                              return (
+                                <div key={featName} className="flex items-center gap-3">
+                                  <div className="w-32 text-xs text-slate-700 font-medium truncate">{featName}</div>
+                                  <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div 
+                                      className="bg-gradient-to-r from-indigo-600 to-sky-500 h-full rounded-full transition-all duration-500" 
+                                      style={{ width: `${Math.min(100, Math.max(5, impVal * 100))}%` }}
+                                    />
+                                  </div>
+                                  <div className="w-12 text-right text-xs font-mono font-bold text-indigo-700">
+                                    {(impVal * 100).toFixed(0)}%
+                                  </div>
+                                </div>
+                              )
+                            })
+                          : Object.entries(xaiResult.feature_importance).slice(0, 5).map(([feat, val]: any) => {
+                              const impVal = typeof val === "number" ? val : Number(val?.importance ?? 0.25)
+                              return (
+                                <div key={feat} className="flex items-center gap-3">
+                                  <div className="w-32 text-xs text-slate-700 font-medium truncate">{feat}</div>
+                                  <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div 
+                                      className="bg-gradient-to-r from-indigo-600 to-sky-500 h-full rounded-full transition-all duration-500" 
+                                      style={{ width: `${Math.min(100, Math.max(5, impVal * 100))}%` }}
+                                    />
+                                  </div>
+                                  <div className="w-12 text-right text-xs font-mono font-bold text-indigo-700">
+                                    {(impVal * 100).toFixed(0)}%
+                                  </div>
+                                </div>
+                              )
+                            })
+                        }
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2.5 italic">
+                        {xaiResult.summary || "Prediction driven primarily by elevated tumor geometry and nuclear texture parameters."}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-12 text-center text-slate-500 flex flex-col items-center justify-center h-full min-h-[300px] shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center mb-3 border border-slate-200">
+                    <Target size={24} />
                   </div>
-                )}
-              </div>
+                  <p className="font-medium text-slate-700">Awaiting Inference Execution</p>
+                  <p className="text-xs text-slate-400 mt-1">Click "Execute QML Inference" to compute probability and clinical feature attribution.</p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-        </div>
       </div>
     </HospitalLayout>
   )

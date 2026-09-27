@@ -116,8 +116,9 @@ const MOCK_AUDIT_LOGS = [
   { id: "AUD-8089", timestamp: "2026-09-26 10:50:33", user: "Vikram Malhotra", role: "admin", action: "EHR Sync Verified", resource: "HL7 FHIR Gateway", category: "Access", status: "Success", ip: "10.14.1.5", details: "Synchronized 140 telemetry observations from ICU Ward" }
 ]
 
-export async function GET(req: NextRequest, { params }: { params: { path?: string[] } }) {
-  const path = (params.path || []).join("/")
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> | { path?: string[] } }) {
+  const resolvedParams = await params
+  const path = (resolvedParams?.path || []).join("/")
   
   if (path === "qml/experiments/history") {
     return NextResponse.json(MOCK_EXPERIMENTS)
@@ -270,8 +271,9 @@ export async function GET(req: NextRequest, { params }: { params: { path?: strin
   return NextResponse.json({ status: "success", message: "Mock endpoint active", path })
 }
 
-export async function POST(req: NextRequest, { params }: { params: { path?: string[] } }) {
-  const path = (params.path || []).join("/")
+export async function POST(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> | { path?: string[] } }) {
+  const resolvedParams = await params
+  const path = (resolvedParams?.path || []).join("/")
   let body: any = {}
   try {
     body = await req.json()
